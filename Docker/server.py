@@ -1,50 +1,43 @@
 #!/usr/bin/env python3
+import csv
+import json
+import os
+import pickle
+import shutil
+import time
+import zlib
+from io import BytesIO
+from logging import INFO
 from typing import List, Tuple, Dict, Optional
+
+import docker
+import matplotlib
+import numpy as np
 from flwr.common import (
-    Metrics,
     ndarrays_to_parameters,
     parameters_to_ndarrays,
     Parameters,
     FitRes,
     EvaluateRes,
     Scalar,
-    Context,
     FitIns,
     EvaluateIns,
 )
+from flwr.common.logger import log
 from flwr.server import (
     ServerConfig,
-    ServerApp,
-    ServerAppComponents,
     start_server
 )
-from io import BytesIO
-from rich.panel import Panel
-from flwr.server.strategy import Strategy
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
-from flwr.common.logger import log
-from logging import INFO
-import textwrap
-import numpy as np
-from taskA import Net as NetA, get_weights as get_weights_A, set_weights as set_weights_A, load_data as load_data_A
-from rich.console import Console
-import shutil
-import time
-import csv
-import os
-import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-import seaborn as sns
-import psutil
-import json  
-import zlib
-import pickle
-import docker
+from flwr.server.strategy import Strategy
+
+from taskA import Net as NetA, get_weights as get_weights_A, set_weights as set_weights_A
+
 docker_client = docker.from_env()
 from APClient import ClientRegistry
 import torch
+from adaptation.adaptation_mgr import AdaptationManager
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 folders_to_delete = ["performance", "model_weights"]
@@ -62,10 +55,14 @@ for folder in folders_to_delete:
                     os.remove(percorso)
                 except OSError:
                     pass
-        
+
 client_registry = ClientRegistry()
 
 ################### GLOBAL PARAMETERS
+global ADAPTATION
+# TODO: dovrebbe essere selezionabile tramite la GUI
+ADAPTATION = True
+
 global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
 CLIENT_SELECTOR = False
 CLIENT_CLUSTER = False
@@ -80,17 +77,11 @@ global_metrics = {}
 matplotlib.use('Agg')
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
-# Path to the 'configuration' directory
-config_dir = os.path.join(current_dir, 'configuration') 
-config_file = os.path.join(config_dir, 'config.json')
 
-# Lettura dei parametri dal file di configurazione
-if os.path.exists(config_file):
-    with open(config_file, 'r') as f:
-        config = json.load(f)
-    num_rounds = int(config.get('rounds', 10))
-    client_count = int(config.get('clients', 2))
-    for pattern_name, pattern_info in config["patterns"].items():
+def config_patterns(config):
+    global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
+
+    for pattern_name, pattern_info in config.items():
         if pattern_info["enabled"]:
             if pattern_name == "client_selector":
                 CLIENT_SELECTOR = True
@@ -104,6 +95,19 @@ if os.path.exists(config_file):
                 MULTI_TASK_MODEL_TRAINER = True
             elif pattern_name == "heterogeneous_data_handler":
                 HETEROGENEOUS_DATA_HANDLER = True
+
+
+# Path to the 'configuration' directory
+config_dir = os.path.join(current_dir, 'configuration')
+config_file = os.path.join(config_dir, 'config.json')
+
+# Lettura dei parametri dal file di configurazione
+if os.path.exists(config_file):
+    with open(config_file, 'r') as f:
+        config = json.load(f)
+    num_rounds = int(config.get('rounds', 10))
+    client_count = int(config.get('clients', 2))
+    config_patterns(config["patterns"])
 
     CLIENT_DETAILS = config.get("client_details", [])
     client_details_structure = []
@@ -140,73 +144,75 @@ with open(csv_file, 'w', newline='') as file:
         'Val Loss', 'Val Accuracy', 'Val F1', 'Val MAE'
     ])
 
+
 def log_round_time(
-     client_id, fl_round,
-     training_time, communication_time, time_between_rounds,
-     n_cpu, cpu_percent, ram_percent,
-     client_model_type, data_distr, dataset_value,
-     already_logged, srt1, srt2, agg_key
+        client_id, fl_round,
+        training_time, communication_time, time_between_rounds,
+        n_cpu, cpu_percent, ram_percent,
+        client_model_type, data_distr, dataset_value,
+        already_logged, srt1, srt2, agg_key
 ):
-     try:
+    try:
         client_id = docker_client.containers.get(client_id).name
-     except Exception:
+    except Exception:
         client_id = client_id
 
-     if client_id.startswith("docker-"):
-      client_id = client_id[len("docker-"):]
-      client_id = client_id.replace("-", " ").title()
+    if client_id.startswith("docker-"):
+        client_id = client_id[len("docker-"):]
+        client_id = client_id.replace("-", " ").title()
 
-     if agg_key not in global_metrics:
-         global_metrics[agg_key] = {
-             "train_loss": [], "train_accuracy": [], "train_f1": [], "train_mae": [],
-             "val_loss": [], "val_accuracy": [], "val_f1": [], "val_mae": []
-         }
+    if agg_key not in global_metrics:
+        global_metrics[agg_key] = {
+            "train_loss": [], "train_accuracy": [], "train_f1": [], "train_mae": [],
+            "val_loss": [], "val_accuracy": [], "val_f1": [], "val_mae": []
+        }
 
-     tm = global_metrics[agg_key]
-     train_loss     = tm["train_loss"][-1]     if tm["train_loss"]     else None
-     train_accuracy = tm["train_accuracy"][-1] if tm["train_accuracy"] else None
-     train_f1       = tm["train_f1"][-1]       if tm["train_f1"]       else None
-     train_mae      = tm["train_mae"][-1]      if tm["train_mae"]      else None
-     val_loss       = tm["val_loss"][-1]       if tm["val_loss"]       else None
-     val_accuracy   = tm["val_accuracy"][-1]   if tm["val_accuracy"]   else None
-     val_f1         = tm["val_f1"][-1]         if tm["val_f1"]         else None
-     val_mae        = tm["val_mae"][-1]        if tm["val_mae"]        else None
+    tm = global_metrics[agg_key]
+    train_loss = tm["train_loss"][-1] if tm["train_loss"] else None
+    train_accuracy = tm["train_accuracy"][-1] if tm["train_accuracy"] else None
+    train_f1 = tm["train_f1"][-1] if tm["train_f1"] else None
+    train_mae = tm["train_mae"][-1] if tm["train_mae"] else None
+    val_loss = tm["val_loss"][-1] if tm["val_loss"] else None
+    val_accuracy = tm["val_accuracy"][-1] if tm["val_accuracy"] else None
+    val_f1 = tm["val_f1"][-1] if tm["val_f1"] else None
+    val_mae = tm["val_mae"][-1] if tm["val_mae"] else None
 
-     # Per le righe non-last, vuoto i metrici e srt2
-     if already_logged:
-         srt2 = None
+    # Per le righe non-last, vuoto i metrici e srt2
+    if already_logged:
+        srt2 = None
 
-     # Scrivo i valori nella CSV nell’ordine giusto
-     with open(csv_file, 'a', newline='') as file:
-         writer = csv.writer(file)
-         writer.writerow([
-             client_id,
-             fl_round + 1,
-             f"{training_time:.2f}",        
-             f"{communication_time:.2f}",   
-             f"{time_between_rounds:.2f}",           
-             n_cpu,   
-             f"{cpu_percent:.0f}",                      
-             f"{ram_percent:.0f}"  ,    
-             client_model_type,
-             data_distr,
-             dataset_value,
-             f"{train_loss:.2f}"     if train_loss    is not None else "",
-             f"{train_accuracy:.4f}" if train_accuracy is not None else "",
-             f"{train_f1:.4f}"       if train_f1       is not None else "",
-             f"{train_mae:.4f}"      if train_mae      is not None else "",
-             f"{val_loss:.2f}"       if val_loss       is not None else "",
-             f"{val_accuracy:.4f}"   if val_accuracy   is not None else "",
-             f"{val_f1:.4f}"         if val_f1         is not None else "",
-             f"{val_mae:.4f}"        if val_mae        is not None else "",
-         ])
+    # Scrivo i valori nella CSV nell’ordine giusto
+    with open(csv_file, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            client_id,
+            fl_round + 1,
+            f"{training_time:.2f}",
+            f"{communication_time:.2f}",
+            f"{time_between_rounds:.2f}",
+            n_cpu,
+            f"{cpu_percent:.0f}",
+            f"{ram_percent:.0f}",
+            client_model_type,
+            data_distr,
+            dataset_value,
+            f"{train_loss:.2f}" if train_loss is not None else "",
+            f"{train_accuracy:.4f}" if train_accuracy is not None else "",
+            f"{train_f1:.4f}" if train_f1 is not None else "",
+            f"{train_mae:.4f}" if train_mae is not None else "",
+            f"{val_loss:.2f}" if val_loss is not None else "",
+            f"{val_accuracy:.4f}" if val_accuracy is not None else "",
+            f"{val_f1:.4f}" if val_f1 is not None else "",
+            f"{val_mae:.4f}" if val_mae is not None else "",
+        ])
+
 
 def preprocess_csv():
     import pandas as pd
     import seaborn as sns
 
     df = pd.read_csv(csv_file)
-    
+
     df["Client Number"] = (
         df["Client ID"]
         .astype(str)
@@ -272,23 +278,23 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
         }
 
     # se il valore è None, viene usato 0
-    train_losses     = [n * (m.get("train_loss")     or 0) for n, m in metrics]
+    train_losses = [n * (m.get("train_loss") or 0) for n, m in metrics]
     train_accuracies = [n * (m.get("train_accuracy") or 0) for n, m in metrics]
-    train_f1         = [n * (m.get("train_f1")       or 0) for n, m in metrics]
-    train_maes       = [n * (m.get("train_mae")      or 0) for n, m in metrics]
-    val_losses       = [n * (m.get("val_loss")       or 0) for n, m in metrics]
-    val_accuracies   = [n * (m.get("val_accuracy")   or 0) for n, m in metrics]
-    val_f1           = [n * (m.get("val_f1")         or 0) for n, m in metrics]
-    val_maes         = [n * (m.get("val_mae")        or 0) for n, m in metrics]
+    train_f1 = [n * (m.get("train_f1") or 0) for n, m in metrics]
+    train_maes = [n * (m.get("train_mae") or 0) for n, m in metrics]
+    val_losses = [n * (m.get("val_loss") or 0) for n, m in metrics]
+    val_accuracies = [n * (m.get("val_accuracy") or 0) for n, m in metrics]
+    val_f1 = [n * (m.get("val_f1") or 0) for n, m in metrics]
+    val_maes = [n * (m.get("val_mae") or 0) for n, m in metrics]
 
-    avg_train_loss     = sum(train_losses)     / total_examples
+    avg_train_loss = sum(train_losses) / total_examples
     avg_train_accuracy = sum(train_accuracies) / total_examples
-    avg_train_f1       = sum(train_f1)         / total_examples
-    avg_train_mae      = sum(train_maes)       / total_examples
-    avg_val_loss       = sum(val_losses)       / total_examples
-    avg_val_accuracy   = sum(val_accuracies)   / total_examples
-    avg_val_f1         = sum(val_f1)           / total_examples
-    avg_val_mae        = sum(val_maes)         / total_examples
+    avg_train_f1 = sum(train_f1) / total_examples
+    avg_train_mae = sum(train_maes) / total_examples
+    avg_val_loss = sum(val_losses) / total_examples
+    avg_val_accuracy = sum(val_accuracies) / total_examples
+    avg_val_f1 = sum(val_f1) / total_examples
+    avg_val_mae = sum(val_maes) / total_examples
 
     global_metrics[agg_model_type]["train_loss"].append(avg_train_loss)
     global_metrics[agg_model_type]["train_accuracy"].append(avg_train_accuracy)
@@ -302,16 +308,16 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
     client_data_list = []
     for num_examples, m in metrics:
         if num_examples == 0:
-            continue 
-        client_id          = m.get("client_id")
-        model_type         = m.get("model_type", "N/A")
-        data_distr         = m.get("data_distribution_type", "N/A")
-        dataset_value      = m.get("dataset", "N/A")
-        training_time      = m.get("training_time")      or 0.0
+            continue
+        client_id = m.get("client_id")
+        model_type = m.get("model_type", "N/A")
+        data_distr = m.get("data_distribution_type", "N/A")
+        dataset_value = m.get("dataset", "N/A")
+        training_time = m.get("training_time") or 0.0
         communication_time = m.get("communication_time") or 0.0
-        n_cpu              = m.get("n_cpu")              or 0
-        cpu_percent        = m.get("cpu_percent")        or 0.0
-        ram_percent        = m.get("ram_percent")        or 0.0
+        n_cpu = m.get("n_cpu") or 0
+        cpu_percent = m.get("cpu_percent") or 0.0
+        ram_percent = m.get("ram_percent") or 0.0
         if client_id:
             client_data_list.append((
                 client_id,
@@ -364,18 +370,20 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
         )
 
     return {
-        "train_loss":     avg_train_loss,
+        "train_loss": avg_train_loss,
         "train_accuracy": avg_train_accuracy,
-        "train_f1":       avg_train_f1,
-        "train_mae":      avg_train_mae,
-        "val_loss":       avg_val_loss,
-        "val_accuracy":   avg_val_accuracy,
-        "val_f1":         avg_val_f1,
-        "val_mae":        avg_val_mae,
+        "train_f1": avg_train_f1,
+        "train_mae": avg_train_mae,
+        "val_loss": avg_val_loss,
+        "val_accuracy": avg_val_accuracy,
+        "val_f1": avg_val_f1,
+        "val_mae": avg_val_mae,
     }
+
 
 parametersA = ndarrays_to_parameters(get_weights_A(NetA()))
 client_model_mapping = {}
+
 
 class MultiModelStrategy(Strategy):
     def __init__(self, initial_parameters_a: Parameters):
@@ -391,8 +399,8 @@ class MultiModelStrategy(Strategy):
 
 """
         log(INFO, "==========================================")
-        for raw in banner.splitlines()[1:]:         
-            line = raw.replace(" ", "\u00A0")        
+        for raw in banner.splitlines()[1:]:
+            line = raw.replace(" ", "\u00A0")
             log(INFO, line)
         log(INFO, "==========================================")
         log(INFO, "Simulation Started!")
@@ -403,6 +411,12 @@ class MultiModelStrategy(Strategy):
             if pattern_info["enabled"]:
                 enabled_patterns.append((pattern_name, pattern_info))
 
+        if ADAPTATION:
+            log(INFO, "Adaptation Enabled ✅")
+            self.adapt_mgr = AdaptationManager(True, config['patterns'])
+        else:
+            self.adapt_mgr = AdaptationManager(False, {})
+
         if not enabled_patterns:
             log(INFO, "No patterns are enabled.")
         else:
@@ -412,19 +426,20 @@ class MultiModelStrategy(Strategy):
                 if pattern_info["params"]:
                     log(INFO, f" AP Parameters: {pattern_info['params']}")
                 time.sleep(1)
+
         log(INFO, "==========================================")
 
     def initialize_parameters(self, client_manager: ClientManager) -> Optional[Parameters]:
         return None
 
     def configure_fit(
-        self,
-        server_round: int,
-        parameters: Parameters,
-        client_manager: ClientManager,
+            self,
+            server_round: int,
+            parameters: Parameters,
+            client_manager: ClientManager,
     ) -> List[Tuple[ClientProxy, FitIns]]:
         self.round_start_time = time.time()
-        client_manager.wait_for(client_count) 
+        client_manager.wait_for(client_count)
         clients = client_manager.sample(num_clients=client_count)
         fit_configurations = []
 
@@ -441,13 +456,14 @@ class MultiModelStrategy(Strategy):
                 fake_tensors.append(fake_serialized.read())
             fake_parameters = Parameters(tensors=fake_tensors, tensor_type=self.parameters_a.tensor_type)
             serialized_parameters = pickle.dumps(self.parameters_a)
-            original_size = len(serialized_parameters)  
+            original_size = len(serialized_parameters)
             compressed_parameters = zlib.compress(serialized_parameters)
             compressed_parameters_hex = compressed_parameters.hex()
             compressed_size = len(compressed_parameters)
             reduction_bytes = original_size - compressed_size
             reduction_percentage = (reduction_bytes / original_size) * 100
-            log(INFO, f"Global Model Parameters compressed (from Server to Client) reduction of {reduction_bytes} bytes ({reduction_percentage:.2f}%)")
+            log(INFO,
+                f"Global Model Parameters compressed (from Server to Client) reduction of {reduction_bytes} bytes ({reduction_percentage:.2f}%)")
 
         for client in clients:
             if MESSAGE_COMPRESSOR:
@@ -458,10 +474,10 @@ class MultiModelStrategy(Strategy):
         return fit_configurations
 
     def aggregate_fit(
-        self,
-        server_round: int,
-        results: List[Tuple[ClientProxy, FitRes]],
-        failures: List[BaseException],
+            self,
+            server_round: int,
+            results: List[Tuple[ClientProxy, FitRes]],
+            failures: List[BaseException],
     ) -> Optional[Tuple[Parameters, Dict[str, Scalar]]]:
         global previous_round_end_time, currentRnd
 
@@ -521,7 +537,7 @@ class MultiModelStrategy(Strategy):
         max_train = max(training_times) if training_times else 0.0
         agg_end = time.time()
         aggregation_time = agg_end - agg_start
-        #log(INFO, f"Aggregation completed in {aggregation_time:.2f}s")
+        # log(INFO, f"Aggregation completed in {aggregation_time:.2f}s")
 
         self.parameters_a = self.aggregate_parameters(
             results_a,
@@ -557,6 +573,11 @@ class MultiModelStrategy(Strategy):
         )
         shutil.copy(csv_file, round_csv)
 
+        # If enabled, the Adaptation module determines the preferable configuration for the next round.
+        log(INFO, global_metrics)
+        next_round_config = self.adapt_mgr.config_next_round(global_metrics)
+        config_patterns(next_round_config)
+
         return self.parameters_a, metrics_aggregated
 
     def aggregate_parameters(self, results, agg_model_type, srt1, srt2, time_between_rounds):
@@ -575,39 +596,39 @@ class MultiModelStrategy(Strategy):
 
         weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_rounds)
         return ndarrays_to_parameters(new_weights)
-    
+
     def configure_evaluate(
-        self,
-        server_round: int,
-        parameters: Parameters,
-        client_manager: ClientManager,
+            self,
+            server_round: int,
+            parameters: Parameters,
+            client_manager: ClientManager,
     ) -> List[Tuple[ClientProxy, EvaluateIns]]:
-        #log(INFO, f"Evaluating Performance Metrics...")
+        # log(INFO, f"Evaluating Performance Metrics...")
         return []
 
     def aggregate_evaluate(
-        self,
-        server_round: int,
-        results: List[Tuple[ClientProxy, EvaluateRes]],
-        failures: List[BaseException],
+            self,
+            server_round: int,
+            results: List[Tuple[ClientProxy, EvaluateRes]],
+            failures: List[BaseException],
     ) -> Optional[float]:
         return None
 
     def evaluate(
-        self,
-        server_round: int,
-        parameters: Parameters,
+            self,
+            server_round: int,
+            parameters: Parameters,
     ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
         return None
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     strategy = MultiModelStrategy(
-        initial_parameters_a=parametersA,  
+        initial_parameters_a=parametersA,
     )
 
     start_server(
-        server_address="[::]:8080",  
-        config=ServerConfig(num_rounds=num_rounds),  
-        strategy=strategy, 
+        server_address="[::]:8080",
+        config=ServerConfig(num_rounds=num_rounds),
+        strategy=strategy,
     )
