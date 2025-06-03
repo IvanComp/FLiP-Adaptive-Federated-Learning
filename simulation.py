@@ -2,6 +2,8 @@ import os
 import sys
 import json
 import re
+import time
+
 import yaml
 import copy
 import glob
@@ -400,8 +402,8 @@ class SimulationPage(QWidget):
             with open(dc_out, 'w') as f:
                 yaml.safe_dump(compose, f)
 
-            cmd  = 'docker-compose'
-            args = ['-f', dc_out, 'up']
+            cmd  = '/opt/homebrew/bin/docker'
+            args = ['compose', '-f', dc_out, 'up']
 
             self.process = QProcess(self)
             self.process.setProcessChannelMode(QProcess.MergedChannels)
@@ -412,6 +414,7 @@ class SimulationPage(QWidget):
 
             if not self.process.waitForStarted():
                 self.output_area.appendPlainText("Error: Docker Compose failed to start")
+                self.output_area.appendPlainText(self.process.errorString())
                 return
 
         else:

@@ -2,8 +2,9 @@ import json
 import math
 import os
 from logging import INFO
+from pickle import load
 
-from flwr.common.logger import log
+from logger import log
 
 # Path to the 'configuration' directory
 current_dir = os.getcwd().replace('/adaptation', '')
@@ -83,11 +84,18 @@ class AdaptationManager:
             decreasing_f1 = last_f1 < second_last_f1
             # TODO: tutte le threshold dovrebbero diventare parametriche
             insufficient_increase = not decreasing_f1 and math.fabs(last_f1 - second_last_f1) / second_last_f1 < 0.1
-            low_f1 = last_f1 < 0.4
+            low_f1 = last_f1 < 0.3
+
+            with open("predictors/f1_linear_regressor.pkl", "rb") as f:
+                model = load(f)
+
+            prediction_w_selector = model.predict([[False, True, last_f1]])[0][1]
+            prediction_wo_selector = model.predict([[False, False, last_f1]])[0][1]
+            log(INFO, f"{last_f1} predicted {prediction_w_selector} vs {prediction_wo_selector}")
 
             # If client selector is enabled by default but accuracy is decreasing,
             # selector de-activated for next round
-            if decreasing_f1 or insufficient_increase:
+            if prediction_wo_selector > prediction_w_selector:
                 new_config['client_selector']['enabled'] = False
                 log(INFO, f"{self.name}: Accuracy too low or decreasing, Selector de-activated ❌")
             else:

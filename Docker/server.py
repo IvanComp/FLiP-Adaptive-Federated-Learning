@@ -23,7 +23,6 @@ from flwr.common import (
     FitIns,
     EvaluateIns,
 )
-from flwr.common.logger import log
 from flwr.server import (
     ServerConfig,
     start_server
@@ -32,12 +31,13 @@ from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy import Strategy
 
+from logger import log
 from taskA import Net as NetA, get_weights as get_weights_A, set_weights as set_weights_A
 
 docker_client = docker.from_env()
 from APClient import ClientRegistry
 import torch
-from adaptation.adaptation_mgr import AdaptationManager
+from adaptation import AdaptationManager
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 folders_to_delete = ["performance", "model_weights"]
