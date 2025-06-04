@@ -414,6 +414,7 @@ class MultiModelStrategy(Strategy):
         if ADAPTATION:
             log(INFO, "Adaptation Enabled ✅")
             self.adapt_mgr = AdaptationManager(True, config['patterns'])
+            self.adapt_mgr.describe()
         else:
             self.adapt_mgr = AdaptationManager(False, {})
 
@@ -575,7 +576,7 @@ class MultiModelStrategy(Strategy):
 
         # If enabled, the Adaptation module determines the preferable configuration for the next round.
         log(INFO, global_metrics)
-        next_round_config = self.adapt_mgr.config_next_round(global_metrics)
+        next_round_config = self.adapt_mgr.config_next_round(global_metrics, round_total_time)
         config_patterns(next_round_config)
 
         return self.parameters_a, metrics_aggregated
