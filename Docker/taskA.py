@@ -22,6 +22,7 @@ from collections import Counter
 from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
 from collections import Counter
 import random
+from sklearn.metrics import f1_score
 
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
@@ -610,7 +611,7 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     start_time = time.time()
     net.to(DEVICE)
     criterion = torch.nn.CrossEntropyLoss().to(DEVICE)
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     net.train()
     for _ in range(epochs):
         for images, labels in trainloader:
@@ -638,58 +639,31 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     }
     return results, training_time
 
-def test(net, testloader):
+def test(net, loader):
     net.to(DEVICE)
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss()
+    net.eval()
+    all_preds, all_labels = [], []
+    total_loss = 0.0
     correct = 0
-    loss = 0.0
-    all_preds = []
-    all_labels = []
     with torch.no_grad():
-        for images, labels in testloader:
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
-            outputs = net(images)
-            loss += criterion(outputs, labels).item()
-            _, predicted = torch.max(outputs.data, 1)
-            correct += (predicted == labels).sum().item()
-            all_preds.append(predicted)
-            all_labels.append(labels)
-    accuracy = correct / len(testloader.dataset)
-    all_preds = torch.cat(all_preds)
-    all_labels = torch.cat(all_labels)
-    f1 = f1_score_torch(all_labels, all_preds, num_classes=AVAILABLE_DATASETS[DATASET_NAME]["num_classes"], average='macro')
+        for imgs, labels in loader:
+            imgs, labels = imgs.to(DEVICE), labels.to(DEVICE)
+            outputs = net(imgs)
+            loss = criterion(outputs, labels)
+            total_loss += loss.item() * imgs.size(0)
+            _, preds = torch.max(outputs, 1)
+            correct += (preds == labels).sum().item()
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+    avg_loss = total_loss / len(loader.dataset)
+    accuracy = correct / len(loader.dataset)
+    f1 = f1_score(all_labels, all_preds, average='macro')
     try:
-        mae_value = torch.mean(torch.abs(all_labels.float() - all_preds.float())).item()
-    except Exception:
-        mae_value = None
-    return loss, accuracy, f1, mae_value
-
-def f1_score_torch(y_true, y_pred, num_classes, average='macro'):
-    confusion_matrix = torch.zeros(num_classes, num_classes)
-    for t, p in zip(y_true, y_pred):
-        confusion_matrix[t.long(), p.long()] += 1
-    precision = torch.zeros(num_classes)
-    recall    = torch.zeros(num_classes)
-    f1_per_class = torch.zeros(num_classes)
-    for i in range(num_classes):
-        TP = confusion_matrix[i, i]
-        FP = confusion_matrix[:, i].sum() - TP
-        FN = confusion_matrix[i, :].sum() - TP
-        precision[i] = TP / (TP + FP + 1e-8)
-        recall[i]    = TP / (TP + FN + 1e-8)
-        f1_per_class[i] = 2 * (precision[i] * recall[i]) / (precision[i] + recall[i] + 1e-8)
-    if average == 'macro':
-        return f1_per_class.mean().item()
-    elif average == 'micro':
-        TP = torch.diag(confusion_matrix).sum()
-        FP = confusion_matrix.sum() - TP
-        FN = FP
-        precision_micro = TP / (TP + FP + 1e-8)
-        recall_micro    = TP / (TP + FN + 1e-8)
-        return (2 * precision_micro * recall_micro / (precision_micro + recall_micro + 1e-8)).item()
-    else:
-        raise ValueError("Average must be 'macro' or 'micro'")
+        mae = np.mean(np.abs(np.array(all_labels) - np.array(all_preds)))
+    except:
+        mae = None
+    return avg_loss, accuracy, f1, mae
 
 def get_weights(net):
     return [val.cpu().numpy() for _, val in net.state_dict().items()]
