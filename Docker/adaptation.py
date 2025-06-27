@@ -17,6 +17,7 @@ adaptation_config_file = os.path.join(config_dir, 'adaptation_strategy.json')
 def get_model_type():
     with open(config_file, 'r') as f:
         config = json.load(f)
+        # FIXME: also works only if all clients have the same model type
         return config['client_details'][0]['model']
 
 

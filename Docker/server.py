@@ -61,7 +61,9 @@ client_registry = ClientRegistry()
 ################### GLOBAL PARAMETERS
 global ADAPTATION
 # TODO: dovrebbe essere selezionabile tramite la GUI
-ADAPTATION = False
+ADAPTATION = True
+global metrics_history
+metrics_history = {}
 
 global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
 CLIENT_SELECTOR = False
@@ -559,6 +561,9 @@ class MultiModelStrategy(Strategy):
             torch.save(aggregated_model.state_dict(), path)
             log(INFO, f"Aggregated model weights saved to {path}")
 
+        # FIXME: only works if all clients have the same model type
+        model_under_training = GLOBAL_CLIENT_DETAILS[0]["model"] 
+
         metrics_aggregated: Dict[str, Scalar] = {}
         if any(global_metrics.get(model_type, {}).values()):
             metrics_aggregated[model_type] = {
@@ -566,6 +571,12 @@ class MultiModelStrategy(Strategy):
                 if global_metrics[model_type][key] else None
                 for key in global_metrics[model_type]
             }
+            if model_under_training not in metrics_history:
+                metrics_history[model_under_training] = {key: [global_metrics[model_under_training][key][-1]] 
+                for key in global_metrics[model_under_training]}
+            else:
+                for key in global_metrics[model_under_training]:
+                    metrics_history[model_under_training][key].append(global_metrics[model_under_training][key][-1]) 
 
         preprocess_csv()
         round_csv = os.path.join(
@@ -575,8 +586,8 @@ class MultiModelStrategy(Strategy):
         shutil.copy(csv_file, round_csv)
 
         # If enabled, the Adaptation module determines the preferable configuration for the next round.
-        log(INFO, metrics_aggregated)
-        next_round_config = self.adapt_mgr.config_next_round(global_metrics, round_total_time)
+        log(INFO, metrics_history)
+        next_round_config = self.adapt_mgr.config_next_round(metrics_history, round_total_time)
         config_patterns(next_round_config)
 
         return self.parameters_a, metrics_aggregated

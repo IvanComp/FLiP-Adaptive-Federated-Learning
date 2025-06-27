@@ -9,9 +9,59 @@
 ==========================================
 Simulation Started!
 List of the Architectural Patterns enabled:
+Adaptation Enabled ✅
+Metric: val_f1, comparison with fixed value: 0.4
 Client Registry ✅
+Client Selector ✅
+ AP Parameters: {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}
 ==========================================
-Results Aggregated in 65.99 seconds.
-{'CNN 16k': {'train_loss': 3577.7981695652006, 'train_accuracy': 0.145164, 'train_f1': 0.09967685639858245, 'train_mae': 2.9889679908752442, 'val_loss': 716.591899561882, 'val_accuracy': 0.14457, 'val_f1': 0.09911609366536141, 'val_mae': 2.986039972305298}}
-Results Aggregated in 61.21 seconds.
-{'CNN 16k': {'train_loss': 3068.73478102684, 'train_accuracy': 0.288548, 'train_f1': 0.2609059676527977, 'train_mae': 2.732770013809204, 'val_loss': 614.7321271657944, 'val_accuracy': 0.28903, 'val_f1': 0.2613547071814537, 'val_mae': 2.721310019493103}}
+Client Client 3 participates in this round. (CPU: 2, RAM: 2)
+Client Client 9 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 10 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 1 participates in this round. (CPU: 2, RAM: 2)
+Client Client 5 participates in this round. (CPU: 2, RAM: 2)
+Client Client 7 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 4 participates in this round. (CPU: 2, RAM: 2)
+Client Client 6 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 8 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 2 participates in this round. (CPU: 2, RAM: 2)
+Results Aggregated in 58.71 seconds.
+{'CNN 16k': {'train_loss': [3554.3778512001036], 'train_accuracy': [0.165276], 'train_f1': [0.08669092655181884], 'train_mae': [3.2951720714569093], 'val_loss': [712.1325192928314], 'val_accuracy': [0.16182], 'val_f1': [0.08637804687023162], 'val_mae': [3.318720006942749]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_registry': {'enabled': True}, 'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}}
+AdaptationManager: Less than 2 rounds completed. Keeping default config.
+Client Client 5 participates in this round. (CPU: 2, RAM: 2)
+Client Client 10 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 4 participates in this round. (CPU: 2, RAM: 2)
+Client Client 1 participates in this round. (CPU: 2, RAM: 2)
+Client Client 2 participates in this round. (CPU: 2, RAM: 2)
+Client Client 6 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 3 participates in this round. (CPU: 2, RAM: 2)
+Client Client 8 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 7 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 9 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 54.67 seconds.
+{'CNN 16k': {'train_loss': [3554.3778512001036, 3554.3778512001036], 'train_accuracy': [0.165276, 0.165276], 'train_f1': [0.08669092655181884, 0.08669092655181884], 'train_mae': [3.2951720714569093, 3.2951720714569093], 'val_loss': [712.1325192928314, 712.1325192928314], 'val_accuracy': [0.16182, 0.16182], 'val_f1': [0.08637804687023162, 0.08637804687023162], 'val_mae': [3.318720006942749, 3.318720006942749]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_registry': {'enabled': True}, 'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}}
+Accuracy too low or decreasing, Selector de-activated ❌
+Results Aggregated in 58.27 seconds.
+{'CNN 16k': {'train_loss': [3554.3778512001036, 3554.3778512001036, 2767.648169064522], 'train_accuracy': [0.165276, 0.165276, 0.354936], 'train_f1': [0.08669092655181884, 0.08669092655181884, 0.33699790835380555], 'train_mae': [3.2951720714569093, 3.2951720714569093, 2.4578700065612793], 'val_loss': [712.1325192928314, 712.1325192928314, 554.1236594080925], 'val_accuracy': [0.16182, 0.16182, 0.35559], 'val_f1': [0.08637804687023162, 0.08637804687023162, 0.33700830936431886], 'val_mae': [3.318720006942749, 3.318720006942749, 2.4524499416351317]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_registry': {'enabled': True}, 'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}}
+Accuracy too low or decreasing, Selector de-activated ❌
+Results Aggregated in 58.99 seconds.
+{'CNN 16k': {'train_loss': [3554.3778512001036, 3554.3778512001036, 2767.648169064522, 2517.274091720581], 'train_accuracy': [0.165276, 0.165276, 0.354936, 0.410458], 'train_f1': [0.08669092655181884, 0.08669092655181884, 0.33699790835380555, 0.401381853222847], 'train_mae': [3.2951720714569093, 3.2951720714569093, 2.4578700065612793, 2.236601972579956], 'val_loss': [712.1325192928314, 712.1325192928314, 554.1236594080925, 506.7399701476097], 'val_accuracy': [0.16182, 0.16182, 0.35559, 0.40728], 'val_f1': [0.08637804687023162, 0.08637804687023162, 0.33700830936431886, 0.39825513064861295], 'val_mae': [3.318720006942749, 3.318720006942749, 2.4524499416351317, 2.2449100017547607]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_registry': {'enabled': True}, 'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}}
+Accuracy too low or decreasing, Selector de-activated ❌
+Results Aggregated in 61.50 seconds.
+{'CNN 16k': {'train_loss': [3554.3778512001036, 3554.3778512001036, 2767.648169064522, 2517.274091720581, 2387.815115225315], 'train_accuracy': [0.165276, 0.165276, 0.354936, 0.410458, 0.438964], 'train_f1': [0.08669092655181884, 0.08669092655181884, 0.33699790835380555, 0.401381853222847, 0.4274297833442688], 'train_mae': [3.2951720714569093, 3.2951720714569093, 2.4578700065612793, 2.236601972579956, 2.1152180194854737], 'val_loss': [712.1325192928314, 712.1325192928314, 554.1236594080925, 506.7399701476097, 481.605117893219], 'val_accuracy': [0.16182, 0.16182, 0.35559, 0.40728, 0.43563], 'val_f1': [0.08637804687023162, 0.08637804687023162, 0.33700830936431886, 0.39825513064861295, 0.4244178354740143], 'val_mae': [3.318720006942749, 3.318720006942749, 2.4524499416351317, 2.2449100017547607, 2.132610034942627]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_registry': {'enabled': True}, 'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}}
+Accuracy ok: Selector activated ✅
