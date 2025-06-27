@@ -61,7 +61,7 @@ client_registry = ClientRegistry()
 ################### GLOBAL PARAMETERS
 global ADAPTATION
 # TODO: dovrebbe essere selezionabile tramite la GUI
-ADAPTATION = True
+ADAPTATION = False
 
 global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
 CLIENT_SELECTOR = False
@@ -575,7 +575,7 @@ class MultiModelStrategy(Strategy):
         shutil.copy(csv_file, round_csv)
 
         # If enabled, the Adaptation module determines the preferable configuration for the next round.
-        log(INFO, global_metrics)
+        log(INFO, metrics_aggregated)
         next_round_config = self.adapt_mgr.config_next_round(global_metrics, round_total_time)
         config_patterns(next_round_config)
 

@@ -8,18 +8,18 @@
         "name": "val_f1",
         "threshold": {
           "type": "increasing",
-          "calculation_method": "predictor_based",
-          "predictor": {
-            "model_path": "predictors/f1_linear_regressor.pkl"
-          }
+          "calculation_method": "fixed",
+          "value": 0.4
         }
       },
       {
         "name": "placeholder",
         "threshold": {
           "type": "increasing",
-          "calculation_method": "fixed",
-          "value": 0.4
+          "calculation_method": "predictor_based",
+          "predictor": {
+            "model_path": "predictors/f1_linear_regressor.pkl"
+          }
         }
       }
     ]
