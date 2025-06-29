@@ -61,7 +61,7 @@ client_registry = ClientRegistry()
 ################### GLOBAL PARAMETERS
 global ADAPTATION
 # TODO: dovrebbe essere selezionabile tramite la GUI
-ADAPTATION = False
+ADAPTATION = True
 global metrics_history
 metrics_history = {}
 
@@ -563,6 +563,12 @@ class MultiModelStrategy(Strategy):
 
         # FIXME: only works if all clients have the same model type
         model_under_training = GLOBAL_CLIENT_DETAILS[0]["model"] 
+        if model_under_training not in metrics_history:
+            metrics_history[model_under_training] = {key: [global_metrics[model_type][key][-1]] 
+            for key in global_metrics[model_type]}
+        else:
+            for key in global_metrics[model_type]:
+                metrics_history[model_under_training][key].append(global_metrics[model_type][key][-1]) 
 
         metrics_aggregated: Dict[str, Scalar] = {}
         if any(global_metrics.get(model_type, {}).values()):
@@ -571,12 +577,6 @@ class MultiModelStrategy(Strategy):
                 if global_metrics[model_type][key] else None
                 for key in global_metrics[model_type]
             }
-            if model_under_training not in metrics_history:
-                metrics_history[model_under_training] = {key: [global_metrics[model_under_training][key][-1]] 
-                for key in global_metrics[model_under_training]}
-            else:
-                for key in global_metrics[model_under_training]:
-                    metrics_history[model_under_training][key].append(global_metrics[model_under_training][key][-1]) 
 
         preprocess_csv()
         round_csv = os.path.join(
