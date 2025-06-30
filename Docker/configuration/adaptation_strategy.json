@@ -5,6 +5,15 @@
   "activation_criteria": {
     "metrics": [
       {
+        "name": "fixed",
+        "metric": "val_f1",
+        "threshold": {
+          "type": "increasing",
+          "calculation_method": "fixed",
+          "value": 0.3        
+        }
+      },
+      {
         "name": "f1overtime",
         "metric": "val_f1",
         "threshold": {
@@ -13,15 +22,6 @@
           "predictor": {
           "model_path": "predictors/f1overtime_tree_regressor.pkl"
           }
-        }
-      },
-      {
-        "name": "placeholder",
-        "metric": "val_f1",
-        "threshold": {
-          "type": "increasing",
-          "calculation_method": "fixed",
-          "value": 0.4
         }
       }
     ]

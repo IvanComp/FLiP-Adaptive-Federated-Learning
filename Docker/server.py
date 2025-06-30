@@ -61,7 +61,7 @@ client_registry = ClientRegistry()
 ################### GLOBAL PARAMETERS
 global ADAPTATION
 # TODO: dovrebbe essere selezionabile tramite la GUI
-ADAPTATION = False
+ADAPTATION = True
 global metrics_history
 metrics_history = {}
 
