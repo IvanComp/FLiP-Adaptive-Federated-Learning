@@ -61,7 +61,7 @@ client_registry = ClientRegistry()
 ################### GLOBAL PARAMETERS
 global ADAPTATION
 # TODO: dovrebbe essere selezionabile tramite la GUI
-ADAPTATION = True
+ADAPTATION = False
 global metrics_history
 metrics_history = {}
 
@@ -415,10 +415,10 @@ class MultiModelStrategy(Strategy):
 
         if ADAPTATION:
             log(INFO, "Adaptation Enabled ✅")
-            self.adapt_mgr = AdaptationManager(True, config['patterns'])
+            self.adapt_mgr = AdaptationManager(True, config)
             self.adapt_mgr.describe()
         else:
-            self.adapt_mgr = AdaptationManager(False, {})
+            self.adapt_mgr = AdaptationManager(False, config)
 
         if not enabled_patterns:
             log(INFO, "No patterns are enabled.")

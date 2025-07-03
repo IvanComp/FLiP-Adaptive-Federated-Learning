@@ -6,7 +6,7 @@ def get_patterns(json_config):
     return json_config['patterns']
 
 
-def get_activation_criteria(json_config):
+def get_activation_criteria(json_config, default_config):
     # TODO should work with multiple metrics
     metric_name = json_config['activation_criteria']['metrics'][0]['metric']
     threshold_config = json_config['activation_criteria']['metrics'][0]['threshold']
@@ -16,16 +16,20 @@ def get_activation_criteria(json_config):
         with open(model_path, "rb") as f:
             model = load(f)
 
-        return [PredictorBasedActivationCriterion(metric_name, model, model_path, strategy_name)]
+        return [PredictorBasedActivationCriterion(metric_name, model, model_path, strategy_name, default_config)]
     else:
-        return [FixedThresholdActivationCriterion(metric_name, float(threshold_config['value']), strategy_name)]
+        return [FixedThresholdActivationCriterion(metric_name, float(threshold_config['value']), strategy_name, default_config)]
 
+def get_no_iid_clients(clients_config):
+    no_clients = len(clients_config['client_details'])
+    iid_clients = sum([client["data_distribution_type"]=="IID" for client in clients_config['client_details']])/ no_clients * 100
+    return iid_clients
 
 class ActivationCriterion:
-    def __init__(self, metric, strategy_name):
+    def __init__(self, metric, strategy_name, clients_config):
         self.metric = metric
         self.strategy_name = strategy_name
-        pass
+        self.clients_config = clients_config
 
     def __str__(self):
         return 'Abstract activation criterion (keeps default config).'
@@ -35,9 +39,9 @@ class ActivationCriterion:
 
 
 class FixedThresholdActivationCriterion(ActivationCriterion):
-    def __init__(self, metric, value, strategy_name):
+    def __init__(self, metric, value, strategy_name, clients_config):
         self.value = value
-        super().__init__(metric, strategy_name)
+        super().__init__(metric, strategy_name, clients_config)
 
     def __str__(self):
         return f'Metric: {self.metric}, comparison with fixed value: {self.value}'
@@ -64,10 +68,10 @@ class FixedThresholdActivationCriterion(ActivationCriterion):
 
 
 class PredictorBasedActivationCriterion(ActivationCriterion):
-    def __init__(self, metric, model, model_name, strategy_name):
+    def __init__(self, metric, model, model_name, strategy_name, clients_config):
         self.model = model
         self.model_name = model_name
-        super().__init__(metric, strategy_name)
+        super().__init__(metric, strategy_name, clients_config)
 
     def __str__(self):
         return f'Metric: {self.metric}, predictor-based: {self.model_name}'
@@ -79,16 +83,17 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
 
         last_f1 = new_aggregated_metrics[model_type][self.metric][-1]
 
+        iid_clients = get_no_iid_clients(self.clients_config)
+
         # TODO should be parametric w.r.t. predictor input
         if self.strategy_name == 'val_f1':
-            # TODO retrieve iid/non-iid from config file, now it is always set to false
-            prediction_w_pattern = self.model.predict([[False, True, last_f1]])[0][1]
-            prediction_wo_pattern = self.model.predict([[False, False, last_f1]])[0][1]
+            prediction_w_pattern = self.model.predict([[iid_clients, True, last_f1]])[0][1]
+            prediction_wo_pattern = self.model.predict([[iid_clients, False, last_f1]])[0][1]
         else:
-            prediction_w_pattern = self.model.predict([[False, True, last_f1 / last_round_time]])[0][1]
-            prediction_wo_pattern = self.model.predict([[False, False, last_f1 / last_round_time]])[0][1]
+            prediction_w_pattern = self.model.predict([[iid_clients, True, last_f1 / last_round_time]])[0][1]
+            prediction_wo_pattern = self.model.predict([[iid_clients, False, last_f1 / last_round_time]])[0][1]
 
-        expl = "Predicted wo:{:.4f} vs w:{:.4f}, ".format(prediction_wo_pattern, prediction_w_pattern)
+        expl = "{}-iid clients, predicted wo:{:.4f} vs w:{:.4f}, ".format(iid_clients, prediction_wo_pattern, prediction_w_pattern)
 
         if prediction_wo_pattern > prediction_w_pattern:
             return False, expl + 'pattern de-activated ❌'

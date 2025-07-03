@@ -1,7 +1,8 @@
 for i in $(seq 1 $1)
 do
 	python3 reset_config.py $3
-	sudo docker compose -f 'docker-compose.dynamic.yml' 'up'
+	sudo docker system prune -f
+	sudo docker compose -f 'always-selector.dynamic.yml' 'up'
 	mkdir results/vm/$2/$3_$i
 	cp -a performance/* results/vm/$2/$3_$i/
 done
