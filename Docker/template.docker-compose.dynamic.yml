@@ -1,0 +1,28 @@
+networks:
+  flwr_network:
+    driver: bridge
+services:
+**CLIENTS**
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: flwr_server
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+    environment:
+      DOCKER_HOST_IP: host.docker.internal
+      NUM_ROUNDS: ${NUM_ROUNDS}
+    networks:
+    - flwr_network
+    ports:
+    - 8080:8080
+    volumes:
+    - ./data:/app/data
+    - ./performance:/app/performance
+    - ./configuration:/app/configuration
+    - ./model_weights:/app/model_weights
+    - .:/app
+    - /var/run/docker.sock:/var/run/docker.sock

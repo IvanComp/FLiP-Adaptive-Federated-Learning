@@ -60,8 +60,7 @@ client_registry = ClientRegistry()
 
 ################### GLOBAL PARAMETERS
 global ADAPTATION
-# TODO: dovrebbe essere selezionabile tramite la GUI
-ADAPTATION = False
+
 global metrics_history
 metrics_history = {}
 
@@ -107,6 +106,8 @@ config_file = os.path.join(config_dir, 'config.json')
 if os.path.exists(config_file):
     with open(config_file, 'r') as f:
         config = json.load(f)
+    ADAPTATION = config.get('adaptation', False)
+
     num_rounds = int(config.get('rounds', 10))
     client_count = int(config.get('clients', 2))
     config_patterns(config["patterns"])

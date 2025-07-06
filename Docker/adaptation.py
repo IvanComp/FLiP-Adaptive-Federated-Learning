@@ -11,7 +11,7 @@ current_dir = os.getcwd().replace('/adaptation', '')
 config_dir = os.path.join(current_dir, 'configuration')
 config_file = os.path.join(config_dir, 'config.json')
 
-adaptation_config_file = os.path.join(config_dir, 'adaptation_strategy.json')
+adaptation_config_file = os.path.join(config_dir, 'config.json')
 PATTERNS = [
     "client_selector",
     "client_cluster",
@@ -30,20 +30,22 @@ class AdaptationManager:
     def __init__(self, enabled, default_config):
         self.name = 'AdaptationManager'
         self.enabled = enabled
-
-        adaptation_config = json.load(open(adaptation_config_file, 'r'))
-
-        self.patterns = get_patterns(adaptation_config)
-        self.activation_criteria: List[ActivationCriterion] = get_activation_criteria(adaptation_config, default_config)
-
-        self.model_type = get_model_type(default_config)
-
         self.default_config = default_config
-        self.cached_config = {"patterns": {p: {"enabled": False} for p in PATTERNS}}
-        self.update_config(default_config)
-        self.update_json(default_config)
 
-        self.cached_aggregated_metrics = None
+        if self.enabled:
+            adaptation_config = json.load(open(adaptation_config_file, 'r'))
+
+            self.patterns = get_patterns(adaptation_config)
+
+            self.activation_criteria: List[ActivationCriterion] = get_activation_criteria(adaptation_config, default_config)
+
+            self.model_type = get_model_type(default_config)
+
+            self.cached_config = {"patterns": {p: {"enabled": False} for p in PATTERNS}}
+            self.update_config(default_config)
+            self.update_json(default_config)
+
+            self.cached_aggregated_metrics = None
 
     def describe(self):
         return log(INFO, '\n'.join([str(cr) for cr in self.activation_criteria]))
@@ -86,21 +88,16 @@ class AdaptationManager:
 
         for p_i, pattern in enumerate(self.patterns):
             if self.default_config["patterns"][pattern]['enabled']:
-                if self.model_type not in new_aggregated_metrics:
-                    log(INFO, f"{self.name}: Wrong global metrics format. Keeping default config.")
+                args = {"model_type": self.model_type, "metrics": new_aggregated_metrics, "time": last_round_time}
+                # FIXME: activation criteria may change from pattern to pattern
+                activate, expl = self.activation_criteria[0].activate_pattern(args)
 
-                    self.update_metrics(new_aggregated_metrics)
-                    return self.default_config["patterns"]
+                if not activate:
+                    new_config["patterns"][pattern]['enabled'] = False
+                    log(INFO, expl)
                 else:
-                    args = {"model_type": self.model_type, "metrics": new_aggregated_metrics, "time": last_round_time}
-                    activate, expl = self.activation_criteria[p_i].activate_pattern(args)
-
-                    if not activate:
-                        new_config["patterns"][pattern]['enabled'] = False
-                        log(INFO, expl)
-                    else:
-                        new_config["patterns"][pattern]['enabled'] = True
-                        log(INFO, expl)
+                    new_config["patterns"][pattern]['enabled'] = True
+                    log(INFO, expl)
 
         self.update_metrics(new_aggregated_metrics)
         self.update_config(new_config)
