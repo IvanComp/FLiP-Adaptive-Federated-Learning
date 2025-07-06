@@ -1,4 +1,20 @@
 {
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "f1overtime",
+                "metric": "val_f1",
+                "threshold": {
+                    "type": "increasing",
+                    "calculation_method": "predictor_based",
+                    "predictor": {
+                        "model_path": "predictors/f1overtime_tree_regressor.pkl"
+                    }
+                }
+            }
+        ]
+    },
     "simulation_type": "Docker",
     "rounds": 20,
     "clients": 10,
@@ -42,7 +58,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
@@ -50,7 +66,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
