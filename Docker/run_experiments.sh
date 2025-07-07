@@ -48,11 +48,11 @@ if ! [[ "$repl" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-for i in $(seq 6 $((6 + repl)))
+for i in $(seq 7 $((7 + repl)))
 do
 	python3 setup.py $config_name $iid $high $low $threshold
-	sudo docker system prune -f
-	sudo docker compose -f 'docker-compose.dynamic.yml' 'up'
+	docker system prune -f
+	docker compose -f 'docker-compose.dynamic.yml' 'up'
 	mkdir results/vm/${high}high-${low}low/${iid}iid/${config_name}_$i
 	cp -a performance/* results/vm/${high}high-${low}low/${iid}iid/${config_name}_$i/
 done
