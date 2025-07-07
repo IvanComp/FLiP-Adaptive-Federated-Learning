@@ -48,7 +48,7 @@ if ! [[ "$repl" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-for i in $(seq 7 $((7 + repl)))
+for i in $(seq 6 $((6 + repl)))
 do
 	python3 setup.py $config_name $iid $high $low $threshold
 	docker system prune -f
