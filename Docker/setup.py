@@ -19,6 +19,8 @@ with open("configuration/config.json", "w") as config_file:
     with open("configuration/{}.json".format(sys.argv[1]), "r") as default_config_file:
         to_copy = default_config_file.read()
 
+        to_copy = to_copy.replace("**CLIENTS_COUNT**", str(N_high + N_low))
+
         clients_config = []
         for i in range(N_high):
             if i < N_high * N_iid/100:
