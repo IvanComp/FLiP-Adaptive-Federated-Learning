@@ -1,4 +1,5 @@
 import math
+import random
 from pickle import load
 
 
@@ -17,8 +18,10 @@ def get_activation_criteria(json_config, default_config):
             model = load(f)
 
         return [PredictorBasedActivationCriterion(metric_name, model, model_path, strategy_name, default_config)]
-    else:
+    elif threshold_config['calculation_method'] == 'fixed':
         return [FixedThresholdActivationCriterion(metric_name, float(threshold_config['value']), strategy_name, default_config)]
+    else:
+        return [RandomActivationCriterion(metric_name, strategy_name, default_config)]
 
 def get_no_iid_clients(clients_config):
     no_clients = len(clients_config['client_details'])
@@ -36,6 +39,21 @@ class ActivationCriterion:
 
     def activate_pattern(self, args):
         return True
+
+class RandomActivationCriterion(ActivationCriterion):
+    def __init__(self, metric, strategy_name, clients_config):
+        super().__init__(metric, strategy_name, clients_config)
+
+    def __str__(self):
+        return f'Random activation criterion'
+
+    def activate_pattern(self, args):
+        activate = random.choice([True, False])
+
+        if not activate:
+            return False, "Selector de-activated ❌"
+        else:
+            return True, "Selector activated ✅"
 
 
 class FixedThresholdActivationCriterion(ActivationCriterion):
