@@ -28,6 +28,11 @@ def get_no_iid_clients(clients_config):
     iid_clients = sum([client["data_distribution_type"]=="IID" for client in clients_config['client_details']])/ no_clients * 100
     return iid_clients
 
+def get_high_low_clients(clients_config):
+    high_clients = sum([client["cpu"]>=2 for client in clients_config['client_details']])
+    low_clients = sum([client["cpu"]<2 for client in clients_config['client_details']])
+    return high_clients, low_clients
+
 class ActivationCriterion:
     def __init__(self, metric, strategy_name, clients_config):
         self.metric = metric
@@ -102,14 +107,11 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         last_f1 = new_aggregated_metrics[model_type][self.metric][-1]
 
         iid_clients = get_no_iid_clients(self.clients_config)
+        n_high, n_low = get_high_low_clients(self.clients_config)
 
         # TODO should be parametric w.r.t. predictor input
-        if self.strategy_name == 'val_f1':
-            prediction_w_pattern = self.model.predict([[iid_clients, True, last_f1]])[0][1]
-            prediction_wo_pattern = self.model.predict([[iid_clients, False, last_f1]])[0][1]
-        else:
-            prediction_w_pattern = self.model.predict([[iid_clients, True, last_f1 / last_round_time]])[0][1]
-            prediction_wo_pattern = self.model.predict([[iid_clients, False, last_f1 / last_round_time]])[0][1]
+        prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, last_f1 / last_round_time]])[0]
+        prediction_wo_pattern = self.model.predict([[n_high, n_low, iid_clients, False, last_f1 / last_round_time]])[0]
 
         expl = "{}-iid clients, predicted wo:{:.4f} vs w:{:.4f}, ".format(iid_clients, prediction_wo_pattern, prediction_w_pattern)
 
