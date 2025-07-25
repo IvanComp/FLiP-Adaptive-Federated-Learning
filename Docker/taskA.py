@@ -12,7 +12,7 @@ import torchvision.utils as vutils
 from torch.utils.data import DataLoader, Subset, Dataset
 from flwr.common.logger import log
 from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST, OxfordIIITPet
-from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose
+from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
 import torchvision.models as models
 from torchgan.models import DCGANGenerator, DCGANDiscriminator
 from torchgan.trainer import Trainer
@@ -103,6 +103,12 @@ vutils.make_grid = make_grid_no_range
 current_dir = os.path.abspath(os.path.dirname(__file__))
 config_dir = os.path.join(current_dir, 'configuration')
 config_file = os.path.join(config_dir, 'config.json')
+
+def get_valid_downscale_size(size: int) -> int:
+    power = 32
+    while power * 2 <= size and power * 2 <= 128:
+        power *= 2
+    return power
 
 def normalize_dataset_name(name: str) -> str:
     name_clean = name.replace("-", "").upper()
@@ -496,115 +502,122 @@ def load_data(client_config, dataset_name_override=None):
             (low_a, high_a),
         )
         base = Subset(trainset, idxs)
-        global HGAN_DONE
-        if HETEROGENEOUS_DATA_HANDLER and not HGAN_DONE:
-            num_cls = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
-            target_pc = len(trainset) // num_cls
-            final_train = balance_dataset_with_gan(
-                base,
-                num_classes=num_cls,
-                target_per_class=target_pc
-            )
-            HGAN_DONE = True
-        else:
-            final_train = base
 
-    final_train = TensorLabelDataset(final_train)
-    trainloader = DataLoader(final_train, batch_size=batch_size, shuffle=True)
-    testloader  = DataLoader(testset, batch_size=batch_size, shuffle=False)
-    dist = Counter(
-        (lbl.item() if isinstance(lbl, torch.Tensor) else lbl)
-        for _, lbl in final_train
-    )
-    #log(INFO, f"Class Distribution: {dict(dist)}")
+    if HETEROGENEOUS_DATA_HANDLER:
+        trainset = balance_dataset_with_gan(
+            base,
+            num_classes=dataset_config["num_classes"],
+            target_per_class=len(base) // dataset_config["num_classes"],
+        )
+        ds_name = client_config.get("dataset", "").lower()
+        if "cifar" in ds_name:
+            max_limit = 5000
+        elif "imagenet" in ds_name:
+            max_limit = 1300
+        else:
+            max_limit = len(base) // dataset_config["num_classes"]
+
+        trainset = truncate_dataset(trainset, max_limit)
+
+    else:
+        trainset = base
+
+    trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
+    testloader  = DataLoader(testset,                 batch_size=batch_size, shuffle=False)
     return trainloader, testloader
+
+from collections import defaultdict
+def truncate_dataset(dataset, max_per_class: int):
+    counts = defaultdict(int)
+    kept_indices = []
+    for idx, (_, lbl) in enumerate(dataset):
+        lbl = int(lbl)  
+        if counts[lbl] < max_per_class:
+            kept_indices.append(idx)
+            counts[lbl] += 1
+    return Subset(dataset, kept_indices)
 
 def balance_dataset_with_gan(
     trainset,
     num_classes,
     target_per_class=None,
     latent_dim=100,
-    epochs=5,
-    batch_size=64,
+    epochs=1,
+    batch_size=32,
     device=DEVICE,
 ):
-
     counts = Counter(lbl for _, lbl in trainset)
-    total  = len(trainset)
+    total = len(trainset)
     if target_per_class is None:
         target_per_class = total // num_classes
 
-    cls2idx = {c: [] for c in range(num_classes)}
-    for idx, (_, lbl) in enumerate(trainset):
-        cls2idx[int(lbl)].append(idx)
-
-    real_indices = []
-    for c in range(num_classes):
-        idxs = cls2idx[c]
-        cnt  = len(idxs)
-        if cnt > target_per_class:
-            real_indices += random.sample(idxs, target_per_class)
-        else:
-            real_indices += idxs
-
-    subset_real = Subset(trainset, real_indices)
-
-    under_cls = [c for c in range(num_classes) if len(cls2idx[c]) < target_per_class]
+    under_cls = [c for c, cnt in counts.items() if 0 < cnt < target_per_class]
     if not under_cls:
-        return subset_real
+        return trainset
 
-    idxs_under = [i for i in real_indices if int(trainset[i][1]) in under_cls]
-    loader_under = DataLoader(
-        Subset(trainset, idxs_under),
-        batch_size=batch_size,
-        shuffle=True
-    )
+    idxs = [i for i, (_, lbl) in enumerate(trainset) if lbl in under_cls]
 
     C, H, W = trainset[0][0].shape
+    target_size = get_valid_downscale_size(min(H, W))  
+    if H != target_size or W != target_size:
+        resize_for_gan = Compose([
+            ToPILImage(),
+            Resize((target_size, target_size)),
+            ToTensor(),
+        ])
+        train_for_gan = [(resize_for_gan(img), lbl) for img, lbl in trainset]
+    else:
+        train_for_gan = list(trainset)
+
+    log(INFO, f"[HDH GAN] Applying GAN to rebalance classes: {under_cls}")
+    subset = Subset(train_for_gan, idxs)
+    loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
+
+    import torchvision
+    _orig_make_grid = torchvision.utils.make_grid
+    def _make_grid_wrapper(*args, **kwargs):
+        if 'range' in kwargs:
+            kwargs['value_range'] = kwargs.pop('range')
+        return _orig_make_grid(*args, **kwargs)
+    torchvision.utils.make_grid = _make_grid_wrapper
+
     models_cfg = {
-        "generator": {
-            "name": DCGANGenerator,
-            "args": {"encoding_dims": latent_dim, "out_size": H, "out_channels": C},
-            "optimizer": {"name": torch.optim.Adam, "args": {"lr": 2e-4, "betas": (0.5, 0.999)}},
-        },
-        "discriminator": {
-            "name": DCGANDiscriminator,
-            "args": {"in_size": H, "in_channels": C},
-            "optimizer": {"name": torch.optim.Adam, "args": {"lr": 2e-4, "betas": (0.5, 0.999)}},
-        },
+        'generator': {'name': DCGANGenerator, 'args': {'encoding_dims': latent_dim, 'out_size': target_size, 'out_channels': C},
+                      'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
+        'discriminator': {'name': DCGANDiscriminator, 'args': {'in_size': target_size, 'in_channels': C},
+                          'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
     }
-    losses_list = [MinimaxGeneratorLoss(), MinimaxDiscriminatorLoss()]
+    losses = [MinimaxGeneratorLoss(), MinimaxDiscriminatorLoss()]
 
-    trainer = Trainer(
-        models=models_cfg,
-        losses_list=losses_list,
-        device=device,
-        sample_size=batch_size,
-        epochs=epochs,
-    )
-    trainer.train(loader_under)
+    log(INFO, "[HDH GAN] Starting GAN training...")
+    trainer = Trainer(models=models_cfg, losses_list=losses, device=device, sample_size=batch_size, epochs=epochs)
+    trainer.train(loader)
 
-    synth_imgs = []
-    synth_lbls = []
+    synth_imgs, synth_lbls = [], []
     for c in under_cls:
-        cnt    = len(cls2idx[c])
+        cnt = counts[c]
         to_gen = target_per_class - cnt
         if to_gen <= 0:
             continue
         z = torch.randn(to_gen, latent_dim, device=device)
         with torch.no_grad():
-            gen_imgs = trainer.generator(z).cpu()
-        synth_imgs.append(gen_imgs)
+            gen = trainer.generator(z).cpu()
+        synth_imgs.append(gen)
         synth_lbls += [c] * to_gen
 
-    if not synth_imgs:
-        return subset_real
+    
+    if synth_imgs:
+        all_imgs_gan = torch.cat(synth_imgs, dim=0)
+        downsample = Compose([ToPILImage(), Resize((H, W)), ToTensor()])
+        resized = torch.stack([downsample(img) for img in all_imgs_gan])
+        all_lbls = torch.tensor(synth_lbls, dtype=torch.long)
+        synth_ds = TensorDataset(resized, all_lbls)
+        result = ConcatDataset([trainset, synth_ds])
+        log(INFO, f"[HDH GAN] GAN Training Completed.")
+        log(INFO, f"[HDH GAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
+        return result
 
-    all_imgs = torch.cat(synth_imgs, dim=0)
-    all_lbls = torch.tensor(synth_lbls, dtype=torch.long)
-    synth_ds = TensorDataset(all_imgs, all_lbls)
-
-    return ConcatDataset([subset_real, synth_ds])
+    return trainset
 
 def train(net, trainloader, valloader, epochs, DEVICE):
     log(INFO, "Starting training...")
