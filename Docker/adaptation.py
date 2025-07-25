@@ -21,6 +21,7 @@ PATTERNS = [
     "heterogeneous_data_handler"
 ]
 
+
 def get_model_type(default_config):
     # FIXME: also works only if all clients have the same model type
     return default_config['client_details'][0]['model']
@@ -37,7 +38,8 @@ class AdaptationManager:
 
             self.patterns = get_patterns(adaptation_config)
 
-            self.activation_criteria: List[ActivationCriterion] = get_activation_criteria(adaptation_config, default_config)
+            self.activation_criteria: List[ActivationCriterion] = get_activation_criteria(adaptation_config,
+                                                                                          default_config)
 
             self.model_type = get_model_type(default_config)
 

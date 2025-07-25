@@ -1,10 +1,10 @@
-import math
 import random
-import joblib
 from pickle import load
+
+import joblib
 import numpy as np
 from skopt import gp_minimize
-from sklearn.preprocessing import StandardScaler
+
 
 def get_patterns(json_config):
     return json_config['patterns']
@@ -15,7 +15,7 @@ def get_activation_criteria(json_config, default_config):
     metric_name = json_config['activation_criteria']['metrics'][0]['metric']
     threshold_config = json_config['activation_criteria']['metrics'][0]['threshold']
     strategy_name = json_config['activation_criteria']['metrics'][0]['name']
-    
+
     if threshold_config['calculation_method'] == 'predictor_based':
         model_path = threshold_config['predictor']['model_path']
         with open(model_path, "rb") as f:
@@ -28,19 +28,24 @@ def get_activation_criteria(json_config, default_config):
 
         return [BayesianOptimizationActivationCriterion(metric_name, model, model_path, strategy_name, default_config)]
     elif threshold_config['calculation_method'] == 'fixed':
-        return [FixedThresholdActivationCriterion(metric_name, float(threshold_config['value']), strategy_name, default_config)]
+        return [FixedThresholdActivationCriterion(metric_name, float(threshold_config['value']), strategy_name,
+                                                  default_config)]
     else:
         return [RandomActivationCriterion(metric_name, strategy_name, default_config)]
 
+
 def get_no_iid_clients(clients_config):
     no_clients = len(clients_config['client_details'])
-    iid_clients = sum([client["data_distribution_type"]=="IID" for client in clients_config['client_details']])/ no_clients * 100
+    iid_clients = sum(
+        [client["data_distribution_type"] == "IID" for client in clients_config['client_details']]) / no_clients * 100
     return iid_clients
 
+
 def get_high_low_clients(clients_config):
-    high_clients = sum([client["cpu"]>=2 for client in clients_config['client_details']])
-    low_clients = sum([client["cpu"]<2 for client in clients_config['client_details']])
+    high_clients = sum([client["cpu"] >= 2 for client in clients_config['client_details']])
+    low_clients = sum([client["cpu"] < 2 for client in clients_config['client_details']])
     return high_clients, low_clients
+
 
 class ActivationCriterion:
     def __init__(self, metric, strategy_name, clients_config):
@@ -53,6 +58,7 @@ class ActivationCriterion:
 
     def activate_pattern(self, args):
         return True
+
 
 class RandomActivationCriterion(ActivationCriterion):
     def __init__(self, metric, strategy_name, clients_config):
@@ -110,7 +116,7 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         model_type = args['model_type']
         new_aggregated_metrics = args['metrics']
         last_round_time = args['time']
-        
+
         if len(new_aggregated_metrics[model_type][self.metric]) < 1:
             return True, "Less than 1 round completed, keeping default config."
 
@@ -123,13 +129,14 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, last_f1 / last_round_time]])[0]
         prediction_wo_pattern = self.model.predict([[n_high, n_low, iid_clients, False, last_f1 / last_round_time]])[0]
 
-        expl = "{}-iid clients, predicted wo:{:.4f} vs w:{:.4f}, ".format(iid_clients, prediction_wo_pattern, prediction_w_pattern)
+        expl = "{}-iid clients, predicted wo:{:.4f} vs w:{:.4f}, ".format(iid_clients, prediction_wo_pattern,
+                                                                          prediction_w_pattern)
 
         if prediction_wo_pattern > prediction_w_pattern:
             return False, expl + 'pattern de-activated ❌'
         else:
             return True, expl + 'pattern activated ✅'
-        
+
 
 class BayesianOptimizationActivationCriterion(ActivationCriterion):
     def __init__(self, metric, model, model_name, strategy_name, clients_config):
@@ -147,41 +154,41 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
 
         iid_clients = get_no_iid_clients(self.clients_config)
         n_high, n_low = get_high_low_clients(self.clients_config)
-        
+
         scaler = joblib.load('predictors/bo_scaler.pkl')
-        
+
         def objective(pattern_on, next_round, prev_f1_overtime):  # binary: 0 or 1
             X = [[n_high, n_low, iid_clients, pattern_on[0], next_round, prev_f1_overtime]]
             X_scaled = scaler.transform(X)
             y_pred = -self.model.predict(X_scaled)[0]  # maximize → minimize negative
             return y_pred
-        
+
         if len(new_aggregated_metrics[model_type][self.metric]) < 1:
             # If this is the first round, we get the average best policy
             # over a given range of F1/time scores
             f1_over_time = np.arange(0, 0.0006, 0.00005)
-            
+
             best_policy = []
             for i in range(len(f1_over_time)):
                 def wrapped_objective(pattern_on):
                     return objective(pattern_on, 1, f1_over_time1[i])
-                
+
                 res = gp_minimize(wrapped_objective,  # objective fn
-                          [(0, 1)],  # pattern_on ∈ {0,1}
-                          acq_func="EI",  # acquisition function
-                          n_calls=10, random_state=42)
-                           
+                                  [(0, 1)],  # pattern_on ∈ {0,1}
+                                  acq_func="EI",  # acquisition function
+                                  n_calls=10, random_state=42)
+
                 best_policy.append(res.x[0])
-                
+
             if sum(best_policy) / len(best_policy) < 0.5:
                 return False, "First round, average best policy: pattern de-activated ❌"
             else:
-                return True, "First round, average best policy: pattern activated ✅"   
-                
-        # Otherwise, we know the last round's F1 score and time
+                return True, "First round, average best policy: pattern activated ✅"
+
+                # Otherwise, we know the last round's F1 score and time
         last_f1 = new_aggregated_metrics[model_type][self.metric][-1]
         next_round = len(new_aggregated_metrics[model_type][self.metric]) + 1
-                
+
         def wrapped_objective(pattern_on):
             return objective(pattern_on, next_round, last_f1 / last_round_time)
 
@@ -190,8 +197,8 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
                           acq_func="EI",  # acquisition function
                           n_calls=10, random_state=42)
 
-        expl = "round {}, {} high, {} low, {}-iid clients, predicted best policy: ".format(next_round, n_high, n_low, 
-            iid_clients, res.x[0])
+        expl = "round {}, {} high, {} low, {}-iid clients, predicted best policy: ".format(next_round, n_high, n_low,
+                                                                                           iid_clients, res.x[0])
 
         if not res.x[0]:
             return False, expl + 'pattern de-activated ❌'

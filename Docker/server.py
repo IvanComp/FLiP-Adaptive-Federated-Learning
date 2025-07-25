@@ -563,13 +563,13 @@ class MultiModelStrategy(Strategy):
             log(INFO, f"Aggregated model weights saved to {path}")
 
         # FIXME: only works if all clients have the same model type
-        model_under_training = GLOBAL_CLIENT_DETAILS[0]["model"] 
+        model_under_training = GLOBAL_CLIENT_DETAILS[0]["model"]
         if model_under_training not in metrics_history:
-            metrics_history[model_under_training] = {key: [global_metrics[model_type][key][-1]] 
-            for key in global_metrics[model_type]}
+            metrics_history[model_under_training] = {key: [global_metrics[model_type][key][-1]]
+                                                     for key in global_metrics[model_type]}
         else:
             for key in global_metrics[model_type]:
-                metrics_history[model_under_training][key].append(global_metrics[model_type][key][-1]) 
+                metrics_history[model_under_training][key].append(global_metrics[model_type][key][-1])
 
         metrics_aggregated: Dict[str, Scalar] = {}
         if any(global_metrics.get(model_type, {}).values()):
