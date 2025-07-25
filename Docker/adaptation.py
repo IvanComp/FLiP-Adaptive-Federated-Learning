@@ -78,11 +78,11 @@ class AdaptationManager:
         else:
             return self.default_config["patterns"]
 
-        if self.cached_aggregated_metrics is None:
-            log(INFO, f"{self.name}: Less than 2 rounds completed. Keeping default config.")
+        # if self.cached_aggregated_metrics is None:
+        #    log(INFO, f"{self.name}: Less than 2 rounds completed. Keeping default config.")
 
-            self.update_metrics(new_aggregated_metrics)
-            return self.default_config["patterns"]
+        #    self.update_metrics(new_aggregated_metrics)
+        #    return self.default_config["patterns"]
 
         new_config = self.cached_config.copy()
 

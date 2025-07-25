@@ -7,9 +7,9 @@
                 "metric": "val_f1",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "predictor_based",
+                    "calculation_method": "bayesian_optimization",
                     "predictor": {
-                        "model_path": "predictors/f1overtime_tree_regressor_2000.pkl"
+                        "model_path": "predictors/bo_model.pkl"
                     }
                 }
             }
@@ -17,7 +17,7 @@
     },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 6,
+    "clients": 10,
     "patterns": {
         "client_registry": {
             "enabled": true,
@@ -58,7 +58,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
@@ -66,15 +66,15 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
             "client_id": 3,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
@@ -82,7 +82,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
@@ -90,7 +90,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         },
         {
@@ -98,7 +98,39 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
+            "model": "CNN 16k"
+        },
+        {
+            "client_id": 7,
+            "cpu": 1,
+            "ram": 2,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "IID",
+            "model": "CNN 16k"
+        },
+        {
+            "client_id": 8,
+            "cpu": 1,
+            "ram": 2,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "IID",
+            "model": "CNN 16k"
+        },
+        {
+            "client_id": 9,
+            "cpu": 1,
+            "ram": 2,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "IID",
+            "model": "CNN 16k"
+        },
+        {
+            "client_id": 10,
+            "cpu": 1,
+            "ram": 2,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "IID",
             "model": "CNN 16k"
         }
     ]
