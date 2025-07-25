@@ -620,6 +620,10 @@ def balance_dataset_with_gan(
     return trainset
 
 def train(net, trainloader, valloader, epochs, DEVICE):
+    labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
+    dist = dict(Counter(labels))
+    log(INFO, f"Training dataset distribution ({DATASET_NAME}): {dist}")
+    
     log(INFO, "Starting training...")
     start_time = time.time()
     net.to(DEVICE)
