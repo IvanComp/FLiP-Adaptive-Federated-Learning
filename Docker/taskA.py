@@ -23,6 +23,7 @@ from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
 from collections import Counter
 import random
 from sklearn.metrics import f1_score
+import scipy.stats
 
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
@@ -483,7 +484,7 @@ def load_data(client_config, dataset_name_override=None):
 
     ds_type = DATASET_TYPE.lower()
     if ds_type == "iid":
-        final_train = trainset
+        base = trainset
     elif ds_type == "non-iid":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
@@ -623,7 +624,18 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
     dist = dict(Counter(labels))
     log(INFO, f"Training dataset distribution ({DATASET_NAME}): {dist}")
-    
+
+    num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
+    total_samples = sum(dist.values())
+    P = np.array([dist.get(i, 0) / total_samples for i in range(num_classes)])
+    Q = np.array([1.0 / num_classes] * num_classes)
+    M = 0.5 * (P + Q)
+    def kl_div(p, q):
+        return np.sum([pi * np.log2(pi / qi) if pi > 0 else 0.0 for pi, qi in zip(p, q)])
+    JSD = 0.5 * kl_div(P, M) + 0.5 * kl_div(Q, M)
+
+    log(INFO, f"Jensen-Shannon Divergence (client vs perfect IID): {JSD:.4f}")
+
     log(INFO, "Starting training...")
     start_time = time.time()
     net.to(DEVICE)
