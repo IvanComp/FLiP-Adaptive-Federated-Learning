@@ -1,41 +1,42 @@
-import os
 import json
-import time
+import os
 import random
-import numpy as np
-from collections import OrderedDict, Counter
+import time
+from collections import Counter
+from collections import OrderedDict
 from logging import INFO
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision.utils as vutils
-from torch.utils.data import DataLoader, Subset, Dataset
-from flwr.common.logger import log
-from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST, OxfordIIITPet
-from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
 import torchvision.models as models
+import torchvision.utils as vutils
+from flwr.common.logger import log
+from sklearn.metrics import f1_score
+from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
+from torch.utils.data import Dataset
+from torchgan.losses import MinimaxGeneratorLoss, MinimaxDiscriminatorLoss
 from torchgan.models import DCGANGenerator, DCGANDiscriminator
 from torchgan.trainer import Trainer
-from torchgan.losses import MinimaxGeneratorLoss, MinimaxDiscriminatorLoss
-from torch.utils.data import TensorDataset, ConcatDataset
-from collections import Counter
-from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
-from collections import Counter
-import random
-from sklearn.metrics import f1_score
-import scipy.stats
+from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST, OxfordIIITPet
+from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
+
 
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
+
     def __len__(self):
         return len(self.dataset)
+
     def __getitem__(self, idx):
         x, y = self.dataset[idx]
         if not torch.is_tensor(y):
             y = torch.tensor(y)
         return x, y
-    
+
+
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 GLOBAL_ROUND_COUNTER = 1
 HGAN_DONE = False
@@ -95,9 +96,12 @@ AVAILABLE_DATASETS = {
 }
 
 _orig_make_grid = vutils.make_grid
+
+
 def make_grid_no_range(*args, **kwargs):
     kwargs.pop("range", None)
     return _orig_make_grid(*args, **kwargs)
+
 
 vutils.make_grid = make_grid_no_range
 
@@ -105,11 +109,13 @@ current_dir = os.path.abspath(os.path.dirname(__file__))
 config_dir = os.path.join(current_dir, 'configuration')
 config_file = os.path.join(config_dir, 'config.json')
 
+
 def get_valid_downscale_size(size: int) -> int:
     power = 32
     while power * 2 <= size and power * 2 <= 128:
         power *= 2
     return power
+
 
 def normalize_dataset_name(name: str) -> str:
     name_clean = name.replace("-", "").upper()
@@ -132,6 +138,7 @@ def normalize_dataset_name(name: str) -> str:
     else:
         return name
 
+
 if os.path.exists(config_file):
     with open(config_file, 'r') as f:
         configJSON = json.load(f)
@@ -149,14 +156,16 @@ if os.path.exists(config_file):
                 HETEROGENEOUS_DATA_HANDLER = True
     ds = configJSON.get("dataset") or configJSON["client_details"][0].get("dataset", None)
     if ds is None:
-        raise ValueError("Il file di configurazione non specifica il dataset né tramite la chiave 'dataset' né in 'client_details'.")
+        raise ValueError(
+            "Il file di configurazione non specifica il dataset né tramite la chiave 'dataset' né in 'client_details'.")
     DATASET_NAME = normalize_dataset_name(ds)
     DATASET_TYPE = configJSON["client_details"][0].get("data_distribution_type", "")
 
+
 class CNN_Dynamic(nn.Module):
     def __init__(
-        self, num_classes: int, input_size: int, in_ch: int,
-        conv1_out: int, conv2_out: int, fc1_out: int, fc2_out: int
+            self, num_classes: int, input_size: int, in_ch: int,
+            conv1_out: int, conv2_out: int, fc1_out: int, fc2_out: int
     ) -> None:
         super(CNN_Dynamic, self).__init__()
         self.conv1 = nn.Conv2d(in_ch, conv1_out, kernel_size=5)
@@ -177,7 +186,8 @@ class CNN_Dynamic(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         return self.fc3(x)
-    
+
+
 def get_weight_class_dynamic(model_name: str):
     weight_mapping = {
         "cnn": None,
@@ -258,6 +268,7 @@ def get_weight_class_dynamic(model_name: str):
     if weight_class_name is not None:
         return getattr(models, weight_class_name, None)
     return None
+
 
 def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool = True) -> nn.Module:
     if model_name is None:
@@ -347,6 +358,7 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
 
     return model
 
+
 def Net():
     with open(config_file, 'r') as f:
         configJSON = json.load(f)
@@ -357,6 +369,7 @@ def Net():
     model_name = configJSON["client_details"][0].get("model", None)
     num_classes = AVAILABLE_DATASETS[dataset_name]["num_classes"]
     return get_dynamic_model(num_classes, model_name)
+
 
 def get_non_iid_indices(dataset,
                         remove_class_frac,
@@ -379,7 +392,7 @@ def get_non_iid_indices(dataset,
     add_cls = random.sample(avail, n_add)
 
     pct_remove = {c: random.uniform(*remove_pct_range) for c in remove_cls}
-    pct_add    = {c: random.uniform(*add_pct_range)    for c in add_cls}
+    pct_add = {c: random.uniform(*add_pct_range) for c in add_cls}
 
     selected = []
     for c, idxs in cls2idx.items():
@@ -397,7 +410,7 @@ def get_non_iid_indices(dataset,
     if len(selected) > total:
         selected = random.sample(selected, total)
     elif len(selected) < total:
-        selected += random.choices(selected, k=total-len(selected))
+        selected += random.choices(selected, k=total - len(selected))
 
     zero_cls = random.choice(classes)
     selected = [i for i in selected if dataset[i][1] != zero_cls]
@@ -405,16 +418,17 @@ def get_non_iid_indices(dataset,
     if len(selected) > total:
         selected = random.sample(selected, total)
     elif len(selected) < total:
-        selected += random.choices(selected, k=total-len(selected))
+        selected += random.choices(selected, k=total - len(selected))
 
     return selected
+
 
 def load_data(client_config, dataset_name_override=None, apply_hdh=False):
     global DATASET_NAME, DATASET_TYPE
     DATASET_TYPE = client_config.get("data_distribution_type")
     dataset_name = dataset_name_override or client_config.get("dataset")
     DATASET_NAME = normalize_dataset_name(dataset_name)
-    
+
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
     dataset_config = AVAILABLE_DATASETS[DATASET_NAME]
@@ -463,21 +477,22 @@ def load_data(client_config, dataset_name_override=None, apply_hdh=False):
         batch_size = 64
         from torchvision.datasets import ImageFolder
         train_path = os.path.join("./data", "imagenet100-preprocessed", "train")
-        test_path  = os.path.join("./data", "imagenet100-preprocessed", "test")
+        test_path = os.path.join("./data", "imagenet100-preprocessed", "test")
         trainset = ImageFolder(train_path, transform=trf)
-        testset  = ImageFolder(test_path, transform=trf)
+        testset = ImageFolder(test_path, transform=trf)
         return DataLoader(trainset, batch_size=batch_size, shuffle=True), \
-               DataLoader(testset,  batch_size=batch_size)
+            DataLoader(testset, batch_size=batch_size)
 
     batch_size = 32
     dataset_class = dataset_config["class"]
+
     def get_datasets(transform):
         if DATASET_NAME == "OXFORDIIITPET":
             trainset = dataset_class("./data", split="trainval", download=True, transform=transform)
-            testset  = dataset_class("./data", split="test", download=True, transform=transform)
+            testset = dataset_class("./data", split="test", download=True, transform=transform)
         else:
-            trainset = dataset_class("./data", train=True,  download=True, transform=transform)
-            testset  = dataset_class("./data", train=False, download=True, transform=transform)
+            trainset = dataset_class("./data", train=True, download=True, transform=transform)
+            testset = dataset_class("./data", train=False, download=True, transform=transform)
         return trainset, testset
 
     trainset, testset = get_datasets(trf)
@@ -488,12 +503,12 @@ def load_data(client_config, dataset_name_override=None, apply_hdh=False):
     elif ds_type == "non-iid":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
-        remove_class_frac = random.uniform(1/n_cls, (n_cls-1)/n_cls)
-        add_class_frac    = random.uniform(0,     (n_cls-1)/n_cls)
-        low_r, high_r     = sorted([random.uniform(0.5, 1.0),
-                                     random.uniform(0.5, 1.0)])
-        low_a, high_a     = sorted([random.uniform(0.5, 1.0),
-                                     random.uniform(0.5, 1.0)])
+        remove_class_frac = random.uniform(1 / n_cls, (n_cls - 1) / n_cls)
+        add_class_frac = random.uniform(0, (n_cls - 1) / n_cls)
+        low_r, high_r = sorted([random.uniform(0.5, 1.0),
+                                random.uniform(0.5, 1.0)])
+        low_a, high_a = sorted([random.uniform(0.5, 1.0),
+                                random.uniform(0.5, 1.0)])
 
         idxs = get_non_iid_indices(
             trainset,
@@ -524,29 +539,32 @@ def load_data(client_config, dataset_name_override=None, apply_hdh=False):
         trainset = base
 
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
-    testloader  = DataLoader(testset,                 batch_size=batch_size, shuffle=False)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
 
+
 from collections import defaultdict
+
 
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)
     kept_indices = []
     for idx, (_, lbl) in enumerate(dataset):
-        lbl = int(lbl)  
+        lbl = int(lbl)
         if counts[lbl] < max_per_class:
             kept_indices.append(idx)
             counts[lbl] += 1
     return Subset(dataset, kept_indices)
 
+
 def balance_dataset_with_gan(
-    trainset,
-    num_classes,
-    target_per_class=None,
-    latent_dim=100,
-    epochs=1,
-    batch_size=32,
-    device=DEVICE,
+        trainset,
+        num_classes,
+        target_per_class=None,
+        latent_dim=100,
+        epochs=1,
+        batch_size=32,
+        device=DEVICE,
 ):
     counts = Counter(lbl.item() for _, lbl in trainset)
     total = len(trainset)
@@ -560,7 +578,7 @@ def balance_dataset_with_gan(
     idxs = [i for i, (_, lbl) in enumerate(trainset) if lbl in under_cls]
 
     C, H, W = trainset[0][0].shape
-    target_size = get_valid_downscale_size(min(H, W))  
+    target_size = get_valid_downscale_size(min(H, W))
     if H != target_size or W != target_size:
         resize_for_gan = Compose([
             ToPILImage(),
@@ -577,14 +595,17 @@ def balance_dataset_with_gan(
 
     import torchvision
     _orig_make_grid = torchvision.utils.make_grid
+
     def _make_grid_wrapper(*args, **kwargs):
         if 'range' in kwargs:
             kwargs['value_range'] = kwargs.pop('range')
         return _orig_make_grid(*args, **kwargs)
+
     torchvision.utils.make_grid = _make_grid_wrapper
 
     models_cfg = {
-        'generator': {'name': DCGANGenerator, 'args': {'encoding_dims': latent_dim, 'out_size': target_size, 'out_channels': C},
+        'generator': {'name': DCGANGenerator,
+                      'args': {'encoding_dims': latent_dim, 'out_size': target_size, 'out_channels': C},
                       'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
         'discriminator': {'name': DCGANDiscriminator, 'args': {'in_size': target_size, 'in_channels': C},
                           'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
@@ -607,7 +628,6 @@ def balance_dataset_with_gan(
         synth_imgs.append(gen)
         synth_lbls += [c] * to_gen
 
-    
     if synth_imgs:
         all_imgs_gan = torch.cat(synth_imgs, dim=0)
         downsample = Compose([ToPILImage(), Resize((H, W)), ToTensor()])
@@ -621,8 +641,9 @@ def balance_dataset_with_gan(
 
     return trainset
 
+
 def rebalance_trainloader_with_gan(trainloader):
-    global DATASET_NAME    
+    global DATASET_NAME
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
     dataset_config = AVAILABLE_DATASETS[DATASET_NAME]
@@ -657,19 +678,22 @@ def rebalance_trainloader_with_gan(trainloader):
     # Create new DataLoader
     return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
 
+
 def get_jsd(trainloader):
     log(INFO, "Calculating Jensen-Shannon Divergence (JSD) for dataset distribution...")
 
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
     dist = dict(Counter(labels))
-    
+
     num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
     total_samples = sum(dist.values())
     P = np.array([dist.get(i, 0) / total_samples for i in range(num_classes)])
     Q = np.array([1.0 / num_classes] * num_classes)
     M = 0.5 * (P + Q)
+
     def kl_div(p, q):
         return np.sum([pi * np.log2(pi / qi) if pi > 0 else 0.0 for pi, qi in zip(p, q)])
+
     JSD = 0.5 * kl_div(P, M) + 0.5 * kl_div(Q, M)
 
     log(INFO, f"Jensen-Shannon Divergence (client vs perfect IID): {JSD:.2f}")
@@ -716,6 +740,7 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     }
     return results, training_time
 
+
 def test(net, loader):
     net.to(DEVICE)
     criterion = nn.CrossEntropyLoss()
@@ -742,11 +767,13 @@ def test(net, loader):
         mae = None
     return avg_loss, accuracy, f1, mae
 
+
 def get_weights(net):
     return [val.cpu().numpy() for _, val in net.state_dict().items()]
+
 
 def set_weights(net, parameters):
     params_dict = zip(net.state_dict().keys(), parameters)
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-    state_dict._metadata = {"": {"version": 2}} 
+    state_dict._metadata = {"": {"version": 2}}
     net.load_state_dict(state_dict, strict=True)

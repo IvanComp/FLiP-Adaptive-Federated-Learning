@@ -293,7 +293,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
     val_accuracies = [n * (m.get("val_accuracy") or 0) for n, m in metrics]
     val_f1 = [n * (m.get("val_f1") or 0) for n, m in metrics]
     val_maes = [n * (m.get("val_mae") or 0) for n, m in metrics]
-    jsds = sorted([(m.get("client_id"), m.get("jsd") or 0) for _, m in metrics], 
+    jsds = sorted([(m.get("client_id"), m.get("jsd") or 0) for _, m in metrics],
                   key=lambda x: x[0])
 
     avg_train_loss = sum(train_losses) / total_examples

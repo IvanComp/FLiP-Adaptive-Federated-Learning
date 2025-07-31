@@ -1,7 +1,7 @@
 import json
 import os
 from logging import INFO
-from typing import List, Dict
+from typing import Dict
 
 from adaptation_utils.strategy import get_patterns, get_activation_criteria, ActivationCriterion
 from logger import log
@@ -37,7 +37,7 @@ class AdaptationManager:
             adaptation_config = json.load(open(adaptation_config_file, 'r'))
 
             self.patterns = get_patterns(adaptation_config)
-            
+
             pattern_act_criteria = get_activation_criteria(adaptation_config, default_config)
             self.adaptation_criteria: Dict[str, ActivationCriterion] = {c.pattern: c for c in pattern_act_criteria}
 
@@ -62,10 +62,12 @@ class AdaptationManager:
                     self.cached_config["patterns"][pattern]['enabled'] = new_config["patterns"][pattern]['enabled']
                 else:
                     self.cached_config["patterns"][pattern] = {'enabled': new_config["patterns"][pattern]['enabled'],
-                                                           'params': new_config["patterns"][pattern].get('params', {})}
-                    
+                                                               'params': new_config["patterns"][pattern].get('params',
+                                                                                                             {})}
+
                 if 'params' in self.cached_config["patterns"][pattern]:
-                    self.cached_config["patterns"][pattern]['params'] = new_config["patterns"][pattern].get('params', {})
+                    self.cached_config["patterns"][pattern]['params'] = new_config["patterns"][pattern].get('params',
+                                                                                                            {})
             else:
                 self.cached_config["patterns"][pattern] = {'enabled': new_config["patterns"][pattern]['enabled'],
                                                            'params': new_config["patterns"][pattern].get('params', {})}
