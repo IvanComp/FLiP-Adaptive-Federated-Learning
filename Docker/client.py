@@ -28,7 +28,9 @@ from taskA import (
     load_data as load_data_A,
     set_weights as set_weights_A,
     train as train_A,
-    test as test_A
+    test as test_A,
+    get_jsd as get_jsd_A,
+    rebalance_trainloader_with_gan as rebalance_trainloader_with_gan_A
 )
 
 sys.path.append(
@@ -164,7 +166,7 @@ class FlowerClient(NumPyClient):
 
         CLIENT_REGISTRY.register_client(self.cid, model_type)
         self.net = NetA().to(DEVICE)
-        self.trainloader, self.testloader = load_data_A(self.client_config)
+        self.trainloader, self.testloader = load_data_A(self.client_config, apply_hdh=False)
         self.DEVICE = DEVICE
 
     def fit(self, parameters, config):
@@ -173,7 +175,7 @@ class FlowerClient(NumPyClient):
         cpu_start = proc.cpu_times().user + proc.cpu_times().system
         wall_start = time.time()
 
-        # Carica pattern abilitati
+        # Load enabled patterns from config
         compressed_parameters_hex = config.get("compressed_parameters_hex")
         global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
         CLIENT_SELECTOR = CLIENT_CLUSTER = MESSAGE_COMPRESSOR = MODEL_COVERSIONING = MULTI_TASK_MODEL_TRAINER = HETEROGENEOUS_DATA_HANDLER = False
@@ -196,7 +198,12 @@ class FlowerClient(NumPyClient):
                     elif name == "multi-task_model_trainer":
                         MULTI_TASK_MODEL_TRAINER = True
                     elif name == "heterogeneous_data_handler":
-                        HETEROGENEOUS_DATA_HANDLER = True
+                        log(INFO, f"{self.cid} {info.get("params", {}).get("enabled_clients", [])}")
+                        if self.cid in info.get("params", {}).get("enabled_clients", []):
+                            HETEROGENEOUS_DATA_HANDLER = True
+
+        if HETEROGENEOUS_DATA_HANDLER:
+            self.trainloader = rebalance_trainloader_with_gan_A(self.trainloader)
 
         if CLIENT_SELECTOR:
             selector_params = configJSON["patterns"]["client_selector"]["params"]
@@ -398,6 +405,7 @@ class FlowerClient(NumPyClient):
                 "model_type": self.model_type,
                 "data_distribution_type": self.data_distribution_type,
                 "dataset": self.dataset,
+                "jsd": get_jsd_A(self.trainloader)
             }
             return new_parameters, len(self.trainloader.dataset), metrics
 

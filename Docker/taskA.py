@@ -409,7 +409,7 @@ def get_non_iid_indices(dataset,
 
     return selected
 
-def load_data(client_config, dataset_name_override=None):
+def load_data(client_config, dataset_name_override=None, apply_hdh=False):
     global DATASET_NAME, DATASET_TYPE
     DATASET_TYPE = client_config.get("data_distribution_type")
     dataset_name = dataset_name_override or client_config.get("dataset")
@@ -504,7 +504,7 @@ def load_data(client_config, dataset_name_override=None):
         )
         base = Subset(trainset, idxs)
 
-    if HETEROGENEOUS_DATA_HANDLER:
+    if apply_hdh:
         trainset = balance_dataset_with_gan(
             base,
             num_classes=dataset_config["num_classes"],
@@ -528,6 +528,7 @@ def load_data(client_config, dataset_name_override=None):
     return trainloader, testloader
 
 from collections import defaultdict
+
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)
     kept_indices = []
@@ -547,7 +548,7 @@ def balance_dataset_with_gan(
     batch_size=32,
     device=DEVICE,
 ):
-    counts = Counter(lbl for _, lbl in trainset)
+    counts = Counter(lbl.item() for _, lbl in trainset)
     total = len(trainset)
     if target_per_class is None:
         target_per_class = total // num_classes
@@ -620,11 +621,48 @@ def balance_dataset_with_gan(
 
     return trainset
 
-def train(net, trainloader, valloader, epochs, DEVICE):
+def rebalance_trainloader_with_gan(trainloader):
+    global DATASET_NAME    
+    if DATASET_NAME not in AVAILABLE_DATASETS:
+        raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
+    dataset_config = AVAILABLE_DATASETS[DATASET_NAME]
+
+    batch_size = 32
+
+    # Extract (data, label) pairs from the existing DataLoader
+    base = []
+    for x, y in trainloader:
+        for xi, yi in zip(x, y):
+            base.append((xi, yi))
+
+    # Apply GAN-based balancing
+    trainset = balance_dataset_with_gan(
+        base,
+        num_classes=dataset_config["num_classes"],
+        target_per_class=len(base) // dataset_config["num_classes"],
+    )
+
+    # Determine max_limit based on dataset name
+    ds_name = DATASET_NAME.lower()
+    if "cifar" in ds_name:
+        max_limit = 5000
+    elif "imagenet" in ds_name:
+        max_limit = 1300
+    else:
+        max_limit = len(base) // dataset_config["num_classes"]
+
+    # Truncate the dataset
+    trainset = truncate_dataset(trainset, max_limit)
+
+    # Create new DataLoader
+    return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
+
+def get_jsd(trainloader):
+    log(INFO, "Calculating Jensen-Shannon Divergence (JSD) for dataset distribution...")
+
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
     dist = dict(Counter(labels))
-    log(INFO, f"Training dataset distribution ({DATASET_NAME}): {dist}")
-
+    
     num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
     total_samples = sum(dist.values())
     P = np.array([dist.get(i, 0) / total_samples for i in range(num_classes)])
@@ -634,7 +672,17 @@ def train(net, trainloader, valloader, epochs, DEVICE):
         return np.sum([pi * np.log2(pi / qi) if pi > 0 else 0.0 for pi, qi in zip(p, q)])
     JSD = 0.5 * kl_div(P, M) + 0.5 * kl_div(Q, M)
 
-    log(INFO, f"Jensen-Shannon Divergence (client vs perfect IID): {JSD:.4f}")
+    log(INFO, f"Jensen-Shannon Divergence (client vs perfect IID): {JSD:.2f}")
+
+    return JSD
+
+
+def train(net, trainloader, valloader, epochs, DEVICE):
+    labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
+    dist = dict(Counter(labels))
+    log(INFO, f"Training dataset distribution ({DATASET_NAME}): {dist}")
+
+    num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
 
     log(INFO, "Starting training...")
     start_time = time.time()

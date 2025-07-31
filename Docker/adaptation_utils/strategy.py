@@ -12,6 +12,7 @@ def get_patterns(json_config):
 
 def get_activation_criteria(json_config, default_config):
     # TODO should work with multiple metrics
+    pattern_name = json_config['activation_criteria']['metrics'][0]['pattern']
     metric_name = json_config['activation_criteria']['metrics'][0]['metric']
     threshold_config = json_config['activation_criteria']['metrics'][0]['threshold']
     strategy_name = json_config['activation_criteria']['metrics'][0]['name']
@@ -21,17 +22,20 @@ def get_activation_criteria(json_config, default_config):
         with open(model_path, "rb") as f:
             model = load(f)
 
-        return [PredictorBasedActivationCriterion(metric_name, model, model_path, strategy_name, default_config)]
+        return [PredictorBasedActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name, default_config)]
     elif threshold_config['calculation_method'] == 'bayesian_optimization':
         model_path = threshold_config['predictor']['model_path']
         model = joblib.load(threshold_config['predictor']['model_path'])
 
-        return [BayesianOptimizationActivationCriterion(metric_name, model, model_path, strategy_name, default_config)]
-    elif threshold_config['calculation_method'] == 'fixed':
-        return [FixedThresholdActivationCriterion(metric_name, float(threshold_config['value']), strategy_name,
+        return [BayesianOptimizationActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name, default_config)]
+    elif threshold_config['calculation_method'] == 'fixed-global':
+        return [FixedGlobalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']), strategy_name,
+                                                  default_config)]
+    elif threshold_config['calculation_method'] == 'fixed-local':
+        return [FixedLocalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']), strategy_name,
                                                   default_config)]
     else:
-        return [RandomActivationCriterion(metric_name, strategy_name, default_config)]
+        return [RandomActivationCriterion(pattern_name, metric_name, strategy_name, default_config)]
 
 
 def get_no_iid_clients(clients_config):
@@ -48,7 +52,8 @@ def get_high_low_clients(clients_config):
 
 
 class ActivationCriterion:
-    def __init__(self, metric, strategy_name, clients_config):
+    def __init__(self, pattern, metric, strategy_name, clients_config):
+        self.pattern = pattern
         self.metric = metric
         self.strategy_name = strategy_name
         self.clients_config = clients_config
@@ -61,8 +66,8 @@ class ActivationCriterion:
 
 
 class RandomActivationCriterion(ActivationCriterion):
-    def __init__(self, metric, strategy_name, clients_config):
-        super().__init__(metric, strategy_name, clients_config)
+    def __init__(self, pattern, metric, strategy_name, clients_config):
+        super().__init__(pattern, metric, strategy_name, clients_config)
 
     def __str__(self):
         return f'Random activation criterion'
@@ -71,43 +76,66 @@ class RandomActivationCriterion(ActivationCriterion):
         activate = random.choice([True, False])
 
         if not activate:
-            return False, "Selector de-activated ❌"
+            return False, None, f"{self.pattern} de-activated ❌"
         else:
-            return True, "Selector activated ✅"
+            return True, None, f"{self.pattern} activated ✅"
 
 
-class FixedThresholdActivationCriterion(ActivationCriterion):
-    def __init__(self, metric, value, strategy_name, clients_config):
+class FixedGlobalThresholdActivationCriterion(ActivationCriterion):
+    def __init__(self, pattern, metric, value, strategy_name, clients_config):
         self.value = value
-        super().__init__(metric, strategy_name, clients_config)
+        super().__init__(pattern, metric, strategy_name, clients_config)
 
     def __str__(self):
-        return f'Metric: {self.metric}, comparison with fixed value: {self.value}'
+        return f'Global Metric: {self.metric}, comparison with fixed value: {self.value}'
 
     def activate_pattern(self, args):
         model_type = args['model_type']
         new_aggregated_metrics = args['metrics']
 
-        last_f1 = new_aggregated_metrics[model_type][self.metric][-1]
+        last_metric = new_aggregated_metrics[model_type][self.metric][-1]
         if len(new_aggregated_metrics[model_type][self.metric]) < 2:
-            second_last_f1 = None
+            second_last_metric = None
         else:
-            second_last_f1 = new_aggregated_metrics[model_type][self.metric][-2]
+            second_last_metric = new_aggregated_metrics[model_type][self.metric][-2]
 
-        decreasing_f1 = second_last_f1 is None or last_f1 < second_last_f1
-        low_f1 = last_f1 < self.value
+        decreasing_metric = second_last_metric is None or last_metric < second_last_metric
+        low_metric = last_metric < self.value
 
-        if decreasing_f1 or low_f1:
-            return False, "Accuracy too low or decreasing, Selector de-activated ❌"
+        if decreasing_metric or low_low_metric:
+            return False, None, f"{self.metric} too low or decreasing, {self.pattern} de-activated ❌"
         else:
-            return True, "Accuracy ok: Selector activated ✅"
+            return True, None, f"{self.metric} ok: {self.pattern} activated ✅"
+        
+class FixedLocalThresholdActivationCriterion(ActivationCriterion):
+    def __init__(self, pattern, metric, value, strategy_name, clients_config):
+        self.value = value
+        super().__init__(pattern, metric, strategy_name, clients_config)
+
+    def __str__(self):
+        return f'Local Metric: {self.metric}, comparison with fixed value: {self.value}'
+
+    def activate_pattern(self, args):
+        model_type = args['model_type']
+        new_aggregated_metrics = args['metrics']
+
+        last_metric = new_aggregated_metrics[model_type][self.metric][-1]
+        apply_pattern = []
+        for client_i in range(len(self.clients_config['client_details'])):
+            if last_metric[client_i] > self.value:
+                apply_pattern.append(f"Client {client_i + 1}")
+                
+        if len(apply_pattern) == 0:
+            return False, None, f"No client has {self.metric} above {self.value}, {self.pattern} de-activated ❌"
+        else:
+            return True, {"enabled_clients": apply_pattern}, f"{self.pattern} activated ✅ for clients: {apply_pattern}"
 
 
 class PredictorBasedActivationCriterion(ActivationCriterion):
-    def __init__(self, metric, model, model_name, strategy_name, clients_config):
+    def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
         self.model = model
         self.model_name = model_name
-        super().__init__(metric, strategy_name, clients_config)
+        super().__init__(pattern, metric, strategy_name, clients_config)
 
     def __str__(self):
         return f'Metric: {self.metric}, predictor-based: {self.model_name}'
@@ -120,29 +148,29 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         if len(new_aggregated_metrics[model_type][self.metric]) < 1:
             return True, "Less than 1 round completed, keeping default config."
 
-        last_f1 = new_aggregated_metrics[model_type][self.metric][-1]
+        last_metric = new_aggregated_metrics[model_type][self.metric][-1]
 
         iid_clients = get_no_iid_clients(self.clients_config)
         n_high, n_low = get_high_low_clients(self.clients_config)
 
         # TODO should be parametric w.r.t. predictor input
-        prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, last_f1 / last_round_time]])[0]
-        prediction_wo_pattern = self.model.predict([[n_high, n_low, iid_clients, False, last_f1 / last_round_time]])[0]
+        prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, last_metric / last_round_time]])[0]
+        prediction_wo_pattern = self.model.predict([[n_high, n_low, iid_clients, False, last_metric / last_round_time]])[0]
 
         expl = "{}-iid clients, predicted wo:{:.4f} vs w:{:.4f}, ".format(iid_clients, prediction_wo_pattern,
                                                                           prediction_w_pattern)
 
         if prediction_wo_pattern > prediction_w_pattern:
-            return False, expl + 'pattern de-activated ❌'
+            return False, None, expl + f'{self.pattern} de-activated ❌'
         else:
-            return True, expl + 'pattern activated ✅'
+            return True, None, expl + f'{self.pattern} activated ✅'
 
 
 class BayesianOptimizationActivationCriterion(ActivationCriterion):
-    def __init__(self, metric, model, model_name, strategy_name, clients_config):
+    def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
         self.model = model
         self.model_name = model_name
-        super().__init__(metric, strategy_name, clients_config)
+        super().__init__(pattern, metric, strategy_name, clients_config)
 
     def __str__(self):
         return f'Metric: {self.metric}, bo-based: {self.model_name}'
@@ -181,16 +209,16 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
                 best_policy.append(res.x[0])
 
             if sum(best_policy) / len(best_policy) < 0.5:
-                return False, "First round, average best policy: pattern de-activated ❌"
+                return False, None, f"First round, average best policy: {self.pattern} de-activated ❌"
             else:
-                return True, "First round, average best policy: pattern activated ✅"
+                return True, None, f"First round, average best policy: {self.pattern} activated ✅"
 
                 # Otherwise, we know the last round's F1 score and time
-        last_f1 = new_aggregated_metrics[model_type][self.metric][-1]
+        last_metric = new_aggregated_metrics[model_type][self.metric][-1]
         next_round = len(new_aggregated_metrics[model_type][self.metric]) + 1
 
         def wrapped_objective(pattern_on):
-            return objective(pattern_on, next_round, last_f1 / last_round_time)
+            return objective(pattern_on, next_round, last_metric / last_round_time)
 
         res = gp_minimize(wrapped_objective,  # objective fn
                           [(0, 1)],  # pattern_on ∈ {0,1}
@@ -201,6 +229,6 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
                                                                                            iid_clients, res.x[0])
 
         if not res.x[0]:
-            return False, expl + 'pattern de-activated ❌'
+            return False, None, expl + f'{self.pattern} de-activated ❌'
         else:
-            return True, expl + 'pattern activated ✅'
+            return True, None, expl + f'{self.pattern} activated ✅'

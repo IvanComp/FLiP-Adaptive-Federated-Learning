@@ -1,7 +1,7 @@
 import json
 import os
 from logging import INFO
-from typing import List
+from typing import List, Dict
 
 from adaptation_utils.strategy import get_patterns, get_activation_criteria, ActivationCriterion
 from logger import log
@@ -37,9 +37,9 @@ class AdaptationManager:
             adaptation_config = json.load(open(adaptation_config_file, 'r'))
 
             self.patterns = get_patterns(adaptation_config)
-
-            self.activation_criteria: List[ActivationCriterion] = get_activation_criteria(adaptation_config,
-                                                                                          default_config)
+            
+            pattern_act_criteria = get_activation_criteria(adaptation_config, default_config)
+            self.adaptation_criteria: Dict[str, ActivationCriterion] = {c.pattern: c for c in pattern_act_criteria}
 
             self.model_type = get_model_type(default_config)
 
@@ -50,7 +50,7 @@ class AdaptationManager:
             self.cached_aggregated_metrics = None
 
     def describe(self):
-        return log(INFO, '\n'.join([str(cr) for cr in self.activation_criteria]))
+        return log(INFO, '\n'.join([str(cr) for cr in self.adaptation_criteria.values()]))
 
     def update_metrics(self, new_aggregated_metrics):
         self.cached_aggregated_metrics = new_aggregated_metrics
@@ -61,15 +61,22 @@ class AdaptationManager:
                 if 'enabled' in self.cached_config["patterns"][pattern]:
                     self.cached_config["patterns"][pattern]['enabled'] = new_config["patterns"][pattern]['enabled']
                 else:
-                    self.cached_config["patterns"][pattern] = {'enabled': new_config["patterns"][pattern]['enabled']}
+                    self.cached_config["patterns"][pattern] = {'enabled': new_config["patterns"][pattern]['enabled'],
+                                                           'params': new_config["patterns"][pattern].get('params', {})}
+                    
+                if 'params' in self.cached_config["patterns"][pattern]:
+                    self.cached_config["patterns"][pattern]['params'] = new_config["patterns"][pattern].get('params', {})
             else:
-                self.cached_config["patterns"][pattern] = {'enabled': new_config["patterns"][pattern]['enabled']}
+                self.cached_config["patterns"][pattern] = {'enabled': new_config["patterns"][pattern]['enabled'],
+                                                           'params': new_config["patterns"][pattern].get('params', {})}
 
     def update_json(self, new_config):
         with open(config_file, 'r') as f:
             config = json.load(f)
             for pattern in new_config['patterns']:
                 config['patterns'][pattern]['enabled'] = new_config['patterns'][pattern]['enabled']
+                if 'params' in new_config['patterns'][pattern]:
+                    config['patterns'][pattern]['params'] = new_config['patterns'][pattern]['params']
             json.dump(config, open(config_file, 'w'), indent=4)
 
     def config_next_round(self, new_aggregated_metrics, last_round_time):
@@ -89,16 +96,20 @@ class AdaptationManager:
         new_config = self.cached_config.copy()
 
         for p_i, pattern in enumerate(self.patterns):
-            if self.default_config["patterns"][pattern]['enabled']:
+            if self.default_config["patterns"][pattern]['enabled'] and pattern in self.adaptation_criteria:
                 args = {"model_type": self.model_type, "metrics": new_aggregated_metrics, "time": last_round_time}
                 # FIXME: activation criteria may change from pattern to pattern
-                activate, expl = self.activation_criteria[0].activate_pattern(args)
+                activate, args, expl = self.adaptation_criteria[pattern].activate_pattern(args)
 
                 if not activate:
                     new_config["patterns"][pattern]['enabled'] = False
+                    if args is not None:
+                        new_config["patterns"][pattern]['params'] = args
                     log(INFO, expl)
                 else:
                     new_config["patterns"][pattern]['enabled'] = True
+                    if args is not None:
+                        new_config["patterns"][pattern]['params'] = args
                     log(INFO, expl)
 
         self.update_metrics(new_aggregated_metrics)

@@ -140,7 +140,7 @@ if os.path.exists(csv_file):
 with open(csv_file, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow([
-        'Client ID', 'FL Round', 'Training Time', 'Communication Time', 'Total Time of FL Round',
+        'Client ID', 'FL Round', 'Training Time', 'JSD', 'Communication Time', 'Total Time of FL Round',
         '# of CPU', 'CPU Usage (%)', 'RAM Usage (%)',
         'Model Type', 'Data Distr. Type', 'Dataset',
         'Train Loss', 'Train Accuracy', 'Train F1', 'Train MAE',
@@ -150,7 +150,7 @@ with open(csv_file, 'w', newline='') as file:
 
 def log_round_time(
         client_id, fl_round,
-        training_time, communication_time, time_between_rounds,
+        training_time, jsd, communication_time, time_between_rounds,
         n_cpu, cpu_percent, ram_percent,
         client_model_type, data_distr, dataset_value,
         already_logged, srt1, srt2, agg_key
@@ -191,6 +191,7 @@ def log_round_time(
             client_id,
             fl_round + 1,
             f"{training_time:.2f}",
+            f"{jsd:.2f}",
             f"{communication_time:.2f}",
             f"{time_between_rounds:.2f}",
             n_cpu,
@@ -224,6 +225,8 @@ def preprocess_csv():
     )
 
     df["Training Time"] = pd.to_numeric(df["Training Time"], errors="coerce")
+    df["JSD"] = pd.to_numeric(df["JSD"], errors="coerce")
+
     df["Total Time of FL Round"] = pd.to_numeric(
         df["Total Time of FL Round"], errors="coerce"
     )
@@ -264,7 +267,8 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
             "val_loss": [],
             "val_accuracy": [],
             "val_f1": [],
-            "val_mae": []
+            "val_mae": [],
+            "jsd": []
         }
     examples = [num_examples for num_examples, _ in metrics]
     total_examples = sum(examples)
@@ -289,6 +293,8 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
     val_accuracies = [n * (m.get("val_accuracy") or 0) for n, m in metrics]
     val_f1 = [n * (m.get("val_f1") or 0) for n, m in metrics]
     val_maes = [n * (m.get("val_mae") or 0) for n, m in metrics]
+    jsds = sorted([(m.get("client_id"), m.get("jsd") or 0) for _, m in metrics], 
+                  key=lambda x: x[0])
 
     avg_train_loss = sum(train_losses) / total_examples
     avg_train_accuracy = sum(train_accuracies) / total_examples
@@ -298,6 +304,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
     avg_val_accuracy = sum(val_accuracies) / total_examples
     avg_val_f1 = sum(val_f1) / total_examples
     avg_val_mae = sum(val_maes) / total_examples
+    sorted_jsds = tuple([tup[1] for tup in jsds])
 
     global_metrics[agg_model_type]["train_loss"].append(avg_train_loss)
     global_metrics[agg_model_type]["train_accuracy"].append(avg_train_accuracy)
@@ -307,6 +314,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
     global_metrics[agg_model_type]["val_accuracy"].append(avg_val_accuracy)
     global_metrics[agg_model_type]["val_f1"].append(avg_val_f1)
     global_metrics[agg_model_type]["val_mae"].append(avg_val_mae)
+    global_metrics[agg_model_type]["jsd"].append(sorted_jsds)
 
     client_data_list = []
     for num_examples, m in metrics:
@@ -317,6 +325,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
         data_distr = m.get("data_distribution_type", "N/A")
         dataset_value = m.get("dataset", "N/A")
         training_time = m.get("training_time") or 0.0
+        jsd = m.get("jsd") or 0.0
         communication_time = m.get("communication_time") or 0.0
         n_cpu = m.get("n_cpu") or 0
         cpu_percent = m.get("cpu_percent") or 0.0
@@ -325,6 +334,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
             client_data_list.append((
                 client_id,
                 training_time,
+                jsd,
                 communication_time,
                 time_between_rounds,
                 n_cpu,
@@ -342,6 +352,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
         (
             client_id,
             training_time,
+            jsd,
             communication_time,
             time_between_rounds,
             n_cpu,
@@ -358,6 +369,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
             client_id,
             currentRnd - 1,
             training_time,
+            jsd,
             communication_time,
             time_between_rounds,
             n_cpu,
@@ -381,6 +393,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
         "val_accuracy": avg_val_accuracy,
         "val_f1": avg_val_f1,
         "val_mae": avg_val_mae,
+        "jsd": sorted_jsds
     }
 
 

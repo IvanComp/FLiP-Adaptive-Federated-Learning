@@ -9,7 +9,7 @@ N_iid = int(sys.argv[2])
 json_tplt = """{{
             \"client_id\": {},
             \"cpu\": {},
-            \"ram\": 2,
+            \"ram\": 4,
             \"dataset\": \"CIFAR-10\",
             \"data_distribution_type\": \"{}\",
             \"model\": \"CNN 16k\"
@@ -54,12 +54,12 @@ docker_client_tplt = """  {}:
     environment:
       CLIENT_ID: '{}'
       NUM_CPUS: '{}'
-      NUM_RAM: '2'
+      NUM_RAM: '4'
       NUM_ROUNDS: '20'
       SERVER_ADDRESS: server:8080
     labels:
       - type=client
-    mem_limit: 2g
+    mem_limit: 4g
     networks:
       - flwr_network
     volumes:
