@@ -12,28 +12,24 @@ from recap_simulation import RecapSimulationPage
 from PyQt5.QtGui import QPixmap, QFont
 
 # ------------------------------------------------------------------------------------------
-# Dialog specializzato per configurare i parametri di "Client Selector"
+# Dialog window for the "Client Selector" parameters
 # ------------------------------------------------------------------------------------------
 class ClientSelectorDialog(QDialog):
     def __init__(self, existing_params=None):
         super().__init__()
         self.setWindowTitle("AP4Fed")
-        self.resize(400, 300)  # Modificato per aggiungere spazio al layout
-
+        self.resize(400, 300) 
         self.existing_params = existing_params or {}
-
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
-
-        # Selection Strategy
         self.strategy_label = QLabel("Selection Strategy:")
         self.strategy_combo = QComboBox()
-        self.strategy_combo.addItem("Resource-Based")  # Aggiungi prima la voce selezionabile
-        self.strategy_combo.addItem("Data-Based")  # Aggiungi le altre voci
+        self.strategy_combo.addItem("Resource-Based")  
+        self.strategy_combo.addItem("SSIM-Based") 
+        self.strategy_combo.addItem("Data-Based") 
         self.strategy_combo.addItem("Performance-based")
-        # Disabilita le altre voci
-        self.strategy_combo.model().item(1).setEnabled(False)
         self.strategy_combo.model().item(2).setEnabled(False)
+        self.strategy_combo.model().item(3).setEnabled(False)
         layout.addWidget(self.strategy_label)
         layout.addWidget(self.strategy_combo)
 
@@ -48,18 +44,15 @@ class ClientSelectorDialog(QDialog):
         # Selection Value
         self.value_label = QLabel("Minimum Value:")
         self.value_spinbox = QSpinBox()
-        self.value_spinbox.setRange(1, 128)  # Gamma personalizzabile
-        self.value_spinbox.setValue(1)  # Valore predefinito
+        self.value_spinbox.setRange(1, 128)  
+        self.value_spinbox.setValue(1) 
         layout.addWidget(self.value_label)
         layout.addWidget(self.value_spinbox)
-
-        # Messaggio esplicativo
         self.explanation_label = QLabel("The client should have at least a minimum value CPU or RAM based on the selected criteria.")
         self.explanation_label.setWordWrap(True)
         self.explanation_label.setStyleSheet("font-size: 12px; color: gray;")
         layout.addWidget(self.explanation_label)
 
-        # Prepopolazione dai parametri esistenti
         if "selection_strategy" in self.existing_params:
             self.strategy_combo.setCurrentText(self.existing_params["selection_strategy"])
         self.update_criteria_options()
@@ -69,7 +62,6 @@ class ClientSelectorDialog(QDialog):
         if "selection_value" in self.existing_params:
             self.value_spinbox.setValue(self.existing_params["selection_value"])
 
-        # Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -78,6 +70,11 @@ class ClientSelectorDialog(QDialog):
     def update_criteria_options(self):
         strategy = self.strategy_combo.currentText()
         self.criteria_combo.clear()
+        if strategy == "SSIM-Based":
+                self.criteria_combo.addItems(["Min","Mid","Max"])
+                self.value_label.hide()
+                self.value_spinbox.hide()
+                self.explanation_label.hide()
         if strategy == "Resource-Based":
             self.criteria_combo.addItems(["CPU", "RAM"])
         elif strategy == "Data-Based":
@@ -97,14 +94,13 @@ class ClientSelectorDialog(QDialog):
         }
 
 # ------------------------------------------------------------------------------------------
-# Dialog specializzato per configurare i parametri di "Client Cluster"
+# Dialog window for the "Client Cluster" parameters
 # ------------------------------------------------------------------------------------------
 class ClientClusterDialog(QDialog):
     def __init__(self, existing_params=None):
         super().__init__()
         self.setWindowTitle("Configure Client Cluster")
-        self.resize(400, 300)  # Modificato per aggiungere spazio al layout
-
+        self.resize(400, 300) 
         self.existing_params = existing_params or {}
 
         layout = QVBoxLayout(self)
@@ -113,36 +109,30 @@ class ClientClusterDialog(QDialog):
         # Clustering Strategy
         self.strategy_label = QLabel("Clustering Strategy:")
         self.strategy_combo = QComboBox()
-        self.strategy_combo.addItem("Resource-Based")  # Aggiungi prima la voce selezionabile
-        self.strategy_combo.addItem("Data-Based")  # Aggiungi le altre voci
+        self.strategy_combo.addItem("Resource-Based")  
+        self.strategy_combo.addItem("Data-Based")  
         self.strategy_combo.addItem("Network-Based")
         self.strategy_combo.model().item(2).setEnabled(False)
         layout.addWidget(self.strategy_label)
         layout.addWidget(self.strategy_combo)
 
-        # Clustering Criteria
         self.criteria_label = QLabel("Clustering Criteria:")
         self.criteria_combo = QComboBox()
         layout.addWidget(self.criteria_label)
         layout.addWidget(self.criteria_combo)
 
         self.strategy_combo.currentIndexChanged.connect(self.update_criteria_options)
-
-        # Clustering Value
         self.value_label = QLabel("Minimum Value:")
         self.value_spinbox = QSpinBox()
-        self.value_spinbox.setRange(1, 128)  # Gamma personalizzabile
-        self.value_spinbox.setValue(1)  # Valore predefinito
+        self.value_spinbox.setRange(1, 128) 
+        self.value_spinbox.setValue(1)  
         layout.addWidget(self.value_label)
         layout.addWidget(self.value_spinbox)
-
-        # Messaggio esplicativo
         self.explanation_label = QLabel("The clients will be clustered based on the selected criteria and a minimum [VALUE] if applicable.")
         self.explanation_label.setWordWrap(True)
         self.explanation_label.setStyleSheet("font-size: 12px; color: gray;")
         layout.addWidget(self.explanation_label)
 
-        # Prepopolazione dai parametri esistenti
         if "clustering_strategy" in self.existing_params:
             self.strategy_combo.setCurrentText(self.existing_params["clustering_strategy"])
         self.update_criteria_options()
@@ -152,7 +142,6 @@ class ClientClusterDialog(QDialog):
         if "clustering_value" in self.existing_params:
             self.value_spinbox.setValue(self.existing_params["clustering_value"])
 
-        # Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -176,7 +165,7 @@ class ClientClusterDialog(QDialog):
         }
 
 # ------------------------------------------------------------------------------------------
-# Dialog specializzato per configurare "Multi-Task Model Trainer"
+# Dialog window for the "Multi-Task Model Trainer" parameters
 # ------------------------------------------------------------------------------------------
 class MultiTaskModelTrainerDialog(QDialog):
     def __init__(self, existing_params=None):
@@ -201,7 +190,6 @@ class MultiTaskModelTrainerDialog(QDialog):
         layout.addWidget(self.m2_label)
         layout.addWidget(self.m2_combo)
 
-        # Se c’erano valori precedenti, li carico
         if "model1" in self.existing_params:
             self.m1_combo.setCurrentText(self.existing_params["model1"])
         if "model2" in self.existing_params:
@@ -213,7 +201,6 @@ class MultiTaskModelTrainerDialog(QDialog):
         layout.addWidget(button_box)
 
     def accept(self):
-        # Non possiamo selezionare lo stesso valore per model1 e model2
         if self.m1_combo.currentText() == self.m2_combo.currentText():
             QMessageBox.warning(self, "Configuration Error", 
                                 "Model1 and Model2 cannot be the same.")
@@ -227,7 +214,7 @@ class MultiTaskModelTrainerDialog(QDialog):
         }
 
 # ------------------------------------------------------------------------------------------
-# Dialog generico per configurare due parametri di esempio per altri pattern
+# Generic Dialog Window 
 # ------------------------------------------------------------------------------------------
 class GenericPatternDialog(QDialog):
     def __init__(self, pattern_name, existing_params=None):
@@ -269,7 +256,7 @@ class GenericPatternDialog(QDialog):
         }
 
 # ------------------------------------------------------------------------------------------
-# Classe principale PreSimulationPage
+# Main Class PreSimulationPage
 # ------------------------------------------------------------------------------------------
 class PreSimulationPage(QWidget):
     def __init__(self, user_choices, home_page_callback):
@@ -397,10 +384,7 @@ class PreSimulationPage(QWidget):
         super().__init__()
         self.user_choices = user_choices
         self.home_page_callback = home_page_callback
-
-        # Dizionario per memorizzare i parametri dei pattern
         self.temp_pattern_config = {}
-
         self.setWindowTitle("AP4Fed")
         self.resize(800, 600)
 
@@ -437,8 +421,6 @@ class PreSimulationPage(QWidget):
         header_layout.setContentsMargins(0, 0, 0, 10)
         header_layout.addWidget(back_btn, alignment=Qt.AlignLeft)
         header_layout.addWidget(choice_label, stretch=1)
-
-        # inserisce l’header in cima
         main_layout.insertLayout(0, header_layout)
 
         general_settings_group = QGroupBox("General Settings")
@@ -465,15 +447,12 @@ class PreSimulationPage(QWidget):
         bold_font = QFont()
         bold_font.setBold(True)
 
-        # Number of Rounds
         rounds_label = QLabel("Number of Rounds:")
         rounds_label.setFont(bold_font)
         self.rounds_input = QSpinBox()
         self.rounds_input.setRange(1, 100)
         self.rounds_input.setValue(2)
         g_layout.addRow(rounds_label, self.rounds_input)
-
-        # Number of Clients
         clients_label = QLabel("Number of Clients:")
         clients_label.setFont(bold_font)
         self.clients_input = QSpinBox()
@@ -486,7 +465,7 @@ class PreSimulationPage(QWidget):
         font.setBold(True)
         label.setFont(font)
         self.sim_type_combo = QComboBox()
-        self.sim_type_combo.addItems(["Docker","Local"])
+        self.sim_type_combo.addItems(["Local","Docker"])
         self.sim_type_combo.setFixedWidth(90)
         g_layout.addRow(label, self.sim_type_combo)
 
@@ -559,7 +538,6 @@ class PreSimulationPage(QWidget):
         ]
 
         row, col = 0, 0
-        # Pattern effettivamente disponibili al clic
         enabled_patterns = [
             "Client Registry",
             "Client Selector",
@@ -636,12 +614,10 @@ class PreSimulationPage(QWidget):
                 checkbox.setToolTip(pattern_desc)
                 checkbox.setStyleSheet("QCheckBox { color: black; font-size: 12px; }")
 
-                # Disabilitiamo i pattern non in enabled_patterns
                 if pattern_name not in enabled_patterns:
                     checkbox.setEnabled(False)
                     checkbox.setStyleSheet("QCheckBox { color: darkgray; font-size: 12px; }")
 
-                # Client Registry: attivo di default, non si può disattivare
                 if pattern_name == "Client Registry":
                     checkbox.setText("Client Registry (Active by Default)")
                     checkbox.setChecked(True)
@@ -652,7 +628,6 @@ class PreSimulationPage(QWidget):
                             checkbox.blockSignals(False)
                     checkbox.stateChanged.connect(prevent_uncheck)
 
-                # Se i pattern non necessitano parametri, non mostriamo pulsante Configure
                 if pattern_name in ["Message Compressor", "Heterogeneous Data Handler", "Model co-Versioning Registry"]:
                     configure_button = None
                 elif pattern_name in ["Client Selector", "Client Cluster", "Multi-Task Model Trainer"]:
@@ -884,8 +859,6 @@ class PreSimulationPage(QWidget):
         dialog.exec_()
 
     def save_preferences_and_open_client_config(self):
-        # Controllo se i pattern con pulsante "Configure" (Client Selector, Client Cluster, Multi-Task Model Trainer)
-        # sono selezionati ma non configurati, cioè se i loro params sono rimasti vuoti.
         config_needed_patterns = ["Client Selector", "Client Cluster", "Multi-Task Model Trainer"]
         for p_name in config_needed_patterns:
             if p_name in self.pattern_checkboxes and self.pattern_checkboxes[p_name].isChecked():
@@ -917,7 +890,6 @@ class PreSimulationPage(QWidget):
                     msg_box.exec_()
                     return
 
-        # Se il controllo sopra è passato, procediamo con il salvataggio
         patterns_data = {}
         relevant_patterns = [
             "Client Registry",
@@ -956,9 +928,6 @@ class PreSimulationPage(QWidget):
         self.client_config_page.show()
         self.close()
 
-# ------------------------------------------------------------------------------------------
-# Pagina di configurazione dei client, con card orizzontali e input per i parametri
-# ------------------------------------------------------------------------------------------
 class ClientConfigurationPage(QWidget):
     def __init__(self, user_choices, home_page_callback):
         super().__init__()
@@ -1038,8 +1007,6 @@ class ClientConfigurationPage(QWidget):
         grid_layout = QGridLayout()
         grid_layout.setSpacing(20)
         grid_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-
-        # Inserisco la grid in un QScrollArea per renderla scorrevole
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_widget = QWidget()
@@ -1057,7 +1024,6 @@ class ClientConfigurationPage(QWidget):
             grid_layout.addWidget(card_widget, row, col)
             self.client_configs.append(config_dict)
 
-        # Calcola la larghezza fissa del widget contenuto nello scroll area
         max_columns = min(num_clients, 3)
         fixed_width = max_columns * 300 + (max_columns - 1) * grid_layout.spacing()
         scroll_widget.setFixedWidth(fixed_width)
@@ -1139,7 +1105,7 @@ class ClientConfigurationPage(QWidget):
         card.setLayout(card_layout)
 
         fixed_width = 305
-        fixed_height = 300
+        fixed_height = 400
         card.setFixedWidth(fixed_width)
         card.setFixedHeight(fixed_height)
 
@@ -1154,7 +1120,6 @@ class ClientConfigurationPage(QWidget):
         client_title.setContentsMargins(0, 0, 0, 10)
         card_layout.addWidget(client_title)
 
-        # CPU Allocation
         cpu_label = QLabel("CPU Allocation:")
         cpu_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         cpu_label.setAlignment(Qt.AlignLeft)
@@ -1169,7 +1134,6 @@ class ClientConfigurationPage(QWidget):
         cpu_layout.addWidget(cpu_input)
         card_layout.addLayout(cpu_layout)
 
-        # RAM Allocation
         ram_label = QLabel("RAM Allocation:")
         ram_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         ram_label.setAlignment(Qt.AlignLeft)
@@ -1184,12 +1148,11 @@ class ClientConfigurationPage(QWidget):
         ram_layout.addWidget(ram_input)
         card_layout.addLayout(ram_layout)
 
-        # Dataset Selection – ora include anche "ImageNet100"
         dataset_label = QLabel("Testing Dataset:")
         dataset_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         dataset_label.setAlignment(Qt.AlignLeft)
         dataset_combobox = QComboBox()
-        dataset_combobox.addItems(["CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "FashionMNIST", "OXFORDIIITPET", "ImageNet100"])
+        dataset_combobox.addItems(["CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "FashionMNIST", "OXFORDIIITPET","ImageNet100"])
         dataset_combobox.setFixedWidth(160)
         dataset_layout = QHBoxLayout()
         dataset_layout.setSpacing(12)
@@ -1197,7 +1160,6 @@ class ClientConfigurationPage(QWidget):
         dataset_layout.addWidget(dataset_combobox)
         card_layout.addLayout(dataset_layout)
 
-        # Dataset Partition
         partition_label = QLabel("Data Distribution:")
         partition_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         partition_label.setAlignment(Qt.AlignLeft)
@@ -1209,19 +1171,65 @@ class ClientConfigurationPage(QWidget):
         partition_layout.addWidget(partition_combobox)
         card_layout.addLayout(partition_layout)
 
-        # Training Model – mostra tutti i modelli per ogni dataset
+        persistance_label = QLabel("Data Persistance:")
+        persistance_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
+        persistance_label.setAlignment(Qt.AlignLeft)
+        persistance_combobox = QComboBox()
+        persistance_combobox.addItems(["Same Data", "New Data", "Remove Data"])
+        persistance_combobox.setFixedWidth(160)
+        persistance_layout = QHBoxLayout()
+        persistance_layout.addWidget(persistance_label)
+        persistance_layout.addWidget(persistance_combobox)
+        card_layout.addLayout(persistance_layout)
+
+        model_group = QGroupBox("Model Training Settings")
+        model_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                font-size: 14px;
+                border: 1px solid gray;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding: 8px;
+            }
+            QGroupBox:title {
+                subcontrol-origin: margin;
+                subcontrol-position: top center;
+                padding: 0 3px;
+            }
+        """)
+
+        model_group_layout = QVBoxLayout()
+        model_group.setLayout(model_group_layout)  
+
         model_label = QLabel("Training Model:")
         model_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         model_label.setAlignment(Qt.AlignLeft)
         model_combobox = QComboBox()
         model_combobox.setFixedWidth(160)
+
         model_layout = QHBoxLayout()
         model_layout.setSpacing(17)
         model_layout.addWidget(model_label)
         model_layout.addWidget(model_combobox)
-        card_layout.addLayout(model_layout)
+        model_group_layout.addLayout(model_layout)
 
-        # Funzione per aggiornare il contenuto del combobox del modello mostrando sempre lo stesso elenco completo
+        epochs_label = QLabel("Epochs:")
+        epochs_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
+        epochs_label.setAlignment(Qt.AlignLeft)
+        epochs_spinbox = QSpinBox()
+        epochs_spinbox.setRange(1, 100)
+        epochs_spinbox.setValue(1)
+        epochs_spinbox.setFixedWidth(60)
+
+        epochs_layout = QHBoxLayout()
+        epochs_layout.setSpacing(17)
+        epochs_layout.addWidget(epochs_label)
+        epochs_layout.addWidget(epochs_spinbox)
+        model_group_layout.addLayout(epochs_layout)
+
+        card_layout.addWidget(model_group)
+
         def update_model_options():
             models_list = [
                 "CNN 16k", "CNN 64k","CNN 256k","alexnet", "convnext_tiny", "convnext_small", "convnext_base", "convnext_large",
@@ -1246,14 +1254,16 @@ class ClientConfigurationPage(QWidget):
             model_combobox.addItems(models_list)
 
         dataset_combobox.currentIndexChanged.connect(update_model_options)
-        update_model_options()  # inizializza il combobox in base al dataset predefinito
+        update_model_options() 
 
         config_dict = {
             "cpu_input": cpu_input,
             "ram_input": ram_input,
             "dataset_combobox": dataset_combobox,
+            "persistance_combobox": persistance_combobox,
             "partition_combobox": partition_combobox,
-            "model_combobox": model_combobox
+            "model_combobox": model_combobox,
+            "epochs_spinbox": epochs_spinbox
         }
 
         return card, config_dict
@@ -1267,12 +1277,13 @@ class ClientConfigurationPage(QWidget):
                 "ram": cfg["ram_input"].value(),
                 "dataset": cfg["dataset_combobox"].currentText(),
                 "data_distribution_type": cfg["partition_combobox"].currentText(),
-                "model": cfg["model_combobox"].currentText()
+                "data_persistance_type": cfg["persistance_combobox"].currentText(),
+                "model": cfg["model_combobox"].currentText(),
+                "epochs": cfg["epochs_spinbox"].value()
             }
             client_details.append(client_info)
 
         self.user_choices[-1]["client_details"] = client_details
-        # (Ulteriori controlli e salvataggio della configurazione)
         self.save_configuration_to_file()
         self.recap_simulation_page = RecapSimulationPage(self.user_choices, home_page_callback=self.show)
         self.recap_simulation_page.show()
