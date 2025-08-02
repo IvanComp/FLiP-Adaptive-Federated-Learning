@@ -1075,27 +1075,35 @@ class ClientConfigurationPage(QWidget):
 
     def copy_to_each_client(self):
         first = self.client_configs[0]
-        cpu    = first["cpu_input"].value()
-        ram    = first["ram_input"].value()
-        ds     = first["dataset_combobox"].currentText()
-        part   = first["partition_combobox"].currentText()
-        model  = first["model_combobox"].currentText()
+        cpu = first["cpu_input"].value()
+        ram = first["ram_input"].value()
+        ds = first["dataset_combobox"].currentText()
+        part = first["partition_combobox"].currentText()
+        pers = first["persistance_combobox"].currentText()
+        model = first["model_combobox"].currentText()
+        epochs = first["epochs_spinbox"].value()
 
         for cfg in self.client_configs:
             cfg["cpu_input"].setValue(cpu)
             cfg["ram_input"].setValue(ram)
 
-            idx = cfg["dataset_combobox"].findText(ds)
-            if idx >= 0:
-                cfg["dataset_combobox"].setCurrentIndex(idx)
+            idx_ds = cfg["dataset_combobox"].findText(ds)
+            if idx_ds >= 0:
+                cfg["dataset_combobox"].setCurrentIndex(idx_ds)
 
-            idx = cfg["partition_combobox"].findText(part)
-            if idx >= 0:
-                cfg["partition_combobox"].setCurrentIndex(idx)
+            idx_part = cfg["partition_combobox"].findText(part)
+            if idx_part >= 0:
+                cfg["partition_combobox"].setCurrentIndex(idx_part)
 
-            idx = cfg["model_combobox"].findText(model)
-            if idx >= 0:
-                cfg["model_combobox"].setCurrentIndex(idx)
+            idx_pers = cfg["persistance_combobox"].findText(pers)
+            if idx_pers >= 0:
+                cfg["persistance_combobox"].setCurrentIndex(idx_pers)
+
+            idx_model = cfg["model_combobox"].findText(model)
+            if idx_model >= 0:
+                cfg["model_combobox"].setCurrentIndex(idx_model)
+
+            cfg["epochs_spinbox"].setValue(epochs)
 
     def create_client_card(self, client_id):
         card = QFrame(objectName="ClientCard")
