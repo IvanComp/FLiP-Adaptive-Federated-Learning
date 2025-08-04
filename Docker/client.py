@@ -6,11 +6,9 @@ import platform
 import sys
 import time
 import zlib
-
 import numpy as np
 import psutil
 import torch
-
 import taskA
 
 logging.getLogger("onnx2keras").setLevel(logging.ERROR)
@@ -166,11 +164,11 @@ class FlowerClient(NumPyClient):
 
         CLIENT_REGISTRY.register_client(self.cid, model_type)
         self.net = NetA().to(DEVICE)
-        self.trainloader, self.testloader = load_data_A(self.client_config, apply_hdh=False)
         self.DEVICE = DEVICE
 
     def fit(self, parameters, config):
         global GLOBAL_ROUND_COUNTER
+        self.trainloader, self.testloader = load_data_A(self.client_config, GLOBAL_ROUND_COUNTER)
         proc = psutil.Process(os.getpid())
         cpu_start = proc.cpu_times().user + proc.cpu_times().system
         wall_start = time.time()
@@ -327,10 +325,7 @@ class FlowerClient(NumPyClient):
                 self.net.load_state_dict(sd)
             self.net.train()
 
-        results, training_time = train_A(
-            self.net, self.trainloader, self.testloader,
-            epochs=1, DEVICE=self.DEVICE
-        )
+        results, training_time = train_A(self.net, self.trainloader, self.testloader, epochs=1, DEVICE=self.DEVICE)
         new_parameters = get_weights_A(self.net)
         compressed_parameters_hex = None
 

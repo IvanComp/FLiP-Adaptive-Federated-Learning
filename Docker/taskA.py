@@ -2,16 +2,17 @@ import json
 import os
 import random
 import time
+from pathlib import Path
 from collections import Counter
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from logging import INFO
-
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 import torchvision.utils as vutils
+from torchvision.datasets import ImageFolder
 from flwr.common.logger import log
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
@@ -21,7 +22,6 @@ from torchgan.models import DCGANGenerator, DCGANDiscriminator
 from torchgan.trainer import Trainer
 from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST, OxfordIIITPet
 from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
-
 
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
@@ -423,123 +423,129 @@ def get_non_iid_indices(dataset,
     return selected
 
 
-def load_data(client_config, dataset_name_override=None, apply_hdh=False):
-    global DATASET_NAME, DATASET_TYPE
-    DATASET_TYPE = client_config.get("data_distribution_type")
-    dataset_name = dataset_name_override or client_config.get("dataset")
+def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
+    global DATASET_NAME, DATASET_TYPE, DATASET_PERSISTANCE
+
+    DATASET_TYPE = client_config.get("data_distribution_type", "").lower()
+    DATASET_PERSISTANCE = client_config.get("data_persistance_type", "")
+    dataset_name = dataset_name_override or client_config.get("dataset", "")
     DATASET_NAME = normalize_dataset_name(dataset_name)
 
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
-    dataset_config = AVAILABLE_DATASETS[DATASET_NAME]
+    config = AVAILABLE_DATASETS[DATASET_NAME]
+    normalize_params = config["normalize"]
 
-    normalize_params = dataset_config["normalize"]
+    # Dimensioni e batch
+    base_size = {
+        "CIFAR10": 32, "CIFAR100": 32, "MNIST": 28,
+        "FashionMNIST": 28, "KMNIST": 28,
+        "ImageNet100": 256, "OXFORDIIITPET": 256
+    }[DATASET_NAME]
+    model_name = client_config.get("model", "resnet18").lower()
+    target_size = 256 if model_name in ["alexnet","vgg11","vgg13","vgg16","vgg19"] else base_size
 
-    default_sizes = {
-        "CIFAR10": 32,
-        "CIFAR100": 32,
-        "FashionMNIST": 28,
-        "KMNIST": 28,
-        "FMNIST": 28,
-        "ImageNet100": 256,
-        "OXFORDIIITPET": 256
-    }
-    base_size = default_sizes.get(DATASET_NAME, 32)
-
-    model_name = client_config.get("model", "CNN 16k").lower()
-    target_size = 256 if model_name in ["alexnet", "vgg11", "vgg13", "vgg16", "vgg19"] else base_size
-
-    if DATASET_NAME == "OXFORDIIITPET":
-        transform_list = [
-            Resize((base_size, base_size)),
-            CenterCrop(224),
-            ToTensor(),
-            Normalize(*normalize_params),
-        ]
-    elif DATASET_NAME == "ImageNet100":
-        transform_list = [
-            Resize((target_size, target_size)),
-            CenterCrop(224),
-            ToTensor(),
-            Normalize(*normalize_params),
-        ]
-    else:
-        transform_list = []
-        if target_size != base_size:
-            transform_list.append(Resize((target_size, target_size)))
-        transform_list += [
-            ToTensor(),
-            Normalize(*normalize_params),
-        ]
-    trf = Compose(transform_list)
-
+    # Trasformazioni
+    transforms_list = []
     if DATASET_NAME == "ImageNet100":
+        transforms_list = [Resize(224), CenterCrop(224)]
         batch_size = 64
-        from torchvision.datasets import ImageFolder
-        train_path = os.path.join("./data", "imagenet100-preprocessed", "train")
-        test_path = os.path.join("./data", "imagenet100-preprocessed", "test")
+    else:
+        if target_size != base_size:
+            transforms_list.append(Resize((target_size, target_size)))
+        batch_size = 64
+    transforms_list += [ToTensor(), Normalize(*normalize_params)]
+    trf = Compose(transforms_list)
+
+    # Caricamento trainset / testset
+    if DATASET_NAME == "ImageNet100":
+        DATA_ROOT = Path(__file__).resolve().parent / "data"
+        train_path = DATA_ROOT / "imagenet100-preprocessed" / "train"
+        test_path  = DATA_ROOT / "imagenet100-preprocessed" / "test"
+        if not os.path.isdir(train_path) or not os.path.isdir(test_path):
+            raise FileNotFoundError(
+                f"Dataset ImageNet100 non trovato in {train_path} e {test_path}"
+            )
         trainset = ImageFolder(train_path, transform=trf)
-        testset = ImageFolder(test_path, transform=trf)
-        return DataLoader(trainset, batch_size=batch_size, shuffle=True), \
-            DataLoader(testset, batch_size=batch_size)
-
-    batch_size = 32
-    dataset_class = dataset_config["class"]
-
-    def get_datasets(transform):
+        testset  = ImageFolder(test_path,  transform=trf)
+    else:
+        cls = config["class"]
         if DATASET_NAME == "OXFORDIIITPET":
-            trainset = dataset_class("./data", split="trainval", download=True, transform=transform)
-            testset = dataset_class("./data", split="test", download=True, transform=transform)
+            trainset = cls("./data", split="trainval", download=True, transform=trf)
+            testset  = cls("./data", split="test",     download=True, transform=trf)
         else:
-            trainset = dataset_class("./data", train=True, download=True, transform=transform)
-            testset = dataset_class("./data", train=False, download=True, transform=transform)
-        return trainset, testset
+            trainset = cls("./data", train=True,  download=True, transform=trf)
+            testset  = cls("./data", train=False, download=True, transform=trf)
 
-    trainset, testset = get_datasets(trf)
-
-    ds_type = DATASET_TYPE.lower()
-    if ds_type == "iid":
-        base = trainset
-    elif ds_type == "non-iid":
+    if DATASET_TYPE == "non-iid":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
-        remove_class_frac = random.uniform(1 / n_cls, (n_cls - 1) / n_cls)
-        add_class_frac = random.uniform(0, (n_cls - 1) / n_cls)
-        low_r, high_r = sorted([random.uniform(0.5, 1.0),
-                                random.uniform(0.5, 1.0)])
-        low_a, high_a = sorted([random.uniform(0.5, 1.0),
-                                random.uniform(0.5, 1.0)])
+        remove_frac = random.uniform(1/n_cls, (n_cls-1)/n_cls)
+        add_frac    = random.uniform(0,     (n_cls-1)/n_cls)
+        low_r, high_r = sorted((random.uniform(0.5,1.0), random.uniform(0.5,1.0)))
+        low_a, high_a = sorted((random.uniform(0.5,1.0), random.uniform(0.5,1.0)))
 
         idxs = get_non_iid_indices(
             trainset,
-            remove_class_frac,
-            add_class_frac,
+            remove_frac,
+            add_frac,
             (low_r, high_r),
             (low_a, high_a),
         )
         base = Subset(trainset, idxs)
 
-    if apply_hdh:
-        trainset = balance_dataset_with_gan(
-            base,
-            num_classes=dataset_config["num_classes"],
-            target_per_class=len(base) // dataset_config["num_classes"],
-        )
-        ds_name = client_config.get("dataset", "").lower()
-        if "cifar" in ds_name:
-            max_limit = 5000
-        elif "imagenet" in ds_name:
-            max_limit = 1300
+        if HETEROGENEOUS_DATA_HANDLER:
+            trainset = balance_dataset_with_gan(
+                base,
+                num_classes=config["num_classes"],
+                target_per_class=len(base) // config["num_classes"],
+            )
+            ds_name = client_config.get("dataset", "").lower()
+            if "cifar" in ds_name:
+                max_limit = 5000
+            elif "imagenet" in ds_name:
+                max_limit = 1300
+            else:
+                max_limit = len(base) // config["num_classes"]
+
+            trainset = truncate_dataset(trainset, max_limit)
         else:
-            max_limit = len(base) // dataset_config["num_classes"]
+            trainset = base
 
-        trainset = truncate_dataset(trainset, max_limit)
+    config_path = os.path.join(os.path.dirname(__file__), 'configuration', 'config.json')
+    with open(config_path, 'r') as f:
+        total_rounds = json.load(f).get("rounds")
 
+    # carica tutto (default)
+    if DATASET_PERSISTANCE == "Same Data":   
+        pass
     else:
-        trainset = base
+        class_to_indices = defaultdict(list)
+        for idx in range(len(trainset)):
+            _, label = trainset[idx]
+            class_to_indices[label].append(idx)
+
+        selected_indices = []
+
+        for label, indices in class_to_indices.items():
+            n_total = len(indices)
+            if DATASET_PERSISTANCE == "New Data":
+                # incrementale
+                n_take = int(n_total * GLOBAL_ROUND_COUNTER / total_rounds)
+            elif DATASET_PERSISTANCE == "Remove Data":
+                # decrementale
+                n_take = int(n_total * (total_rounds - GLOBAL_ROUND_COUNTER + 1) / total_rounds)
+            else:
+                n_take = n_total
+
+            if n_take > 0:
+                selected_indices.extend(indices[:n_take])
+
+        trainset = Subset(trainset, selected_indices)
 
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
+
     return trainloader, testloader
 
 

@@ -1,22 +1,7 @@
 {
-    "adaptation": true,
-    "activation_criteria": {
-        "metrics": [
-            {
-                "name": "fixed",
-                "pattern": "heterogeneous_data_handler",
-                "metric": "jsd",
-                "threshold": {
-                    "type": "decreasing",
-                    "calculation_method": "fixed-local",
-                    "value": 0.1
-                }
-            }
-        ]
-    },
     "simulation_type": "Docker",
-    "rounds": 20,
-    "clients": 4,
+    "rounds": 2,
+    "clients": 2,
     "patterns": {
         "client_registry": {
             "enabled": true,
@@ -35,7 +20,7 @@
             "params": {}
         },
         "model_co-versioning_registry": {
-            "enabled": false,
+            "enabled": true,
             "params": {}
         },
         "multi-task_model_trainer": {
@@ -44,47 +29,29 @@
         },
         "heterogeneous_data_handler": {
             "enabled": false,
-            "params": {
-                "enabled_clients": [
-                    "Client 1",
-                    "Client 3",
-                    "Client 4"
-                ]
-            }
+            "params": {}
         }
     },
     "client_details": [
         {
             "client_id": 1,
-            "cpu": 2,
-            "ram": 4,
+            "cpu": 5,
+            "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "model": "CNN 16k"
+            "data_distribution_type": "IID",
+            "data_persistance_type": "Remove Data",
+            "model": "CNN 16k",
+            "epochs": 1
         },
         {
             "client_id": 2,
-            "cpu": 2,
-            "ram": 4,
+            "cpu": 5,
+            "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "model": "CNN 16k"
-        },
-        {
-            "client_id": 3,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "model": "CNN 16k"
-        },
-        {
-            "client_id": 4,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "model": "CNN 16k"
+            "data_distribution_type": "IID",
+            "data_persistance_type": "Remove Data",
+            "model": "CNN 16k",
+            "epochs": 1
         }
     ]
 }
