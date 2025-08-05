@@ -2,17 +2,21 @@ import sys
 
 # Usage: python setup.py <config_name> <N_iid> <N_high> <N_low> [<threshold>]
 
+N_iid = int(sys.argv[2])
 N_high = int(sys.argv[3])
 N_low = int(sys.argv[4])
-N_iid = int(sys.argv[2])
+persistence = sys.argv[5] 
+data_persistente_types = {'new': 'New Data', 'same': 'Same Data', 'remove': 'Remove Data'}
 
 json_tplt = """{{
             \"client_id\": {},
             \"cpu\": {},
-            \"ram\": 4,
+            \"ram\": 2,
             \"dataset\": \"CIFAR-10\",
             \"data_distribution_type\": \"{}\",
-            \"model\": \"CNN 16k\"
+            \"data_persistence_type\": \"{}\",
+            \"model\": \"CNN 16k\",
+            \"epochs\": 1
         }}"""
 
 with open("configuration/config.json", "w") as config_file:
@@ -24,28 +28,28 @@ with open("configuration/config.json", "w") as config_file:
         clients_config = []
         for i in range(N_high):
             if i < N_high * N_iid/100:
-                clients_config.append(json_tplt.format(i+1, 2, "IID"))
+                clients_config.append(json_tplt.format(i+1, 2, "IID", data_persistente_types[persistence]))
             else:
-                clients_config.append(json_tplt.format(i+1, 2, "non-IID"))
+                clients_config.append(json_tplt.format(i+1, 2, "non-IID", data_persistente_types[persistence]))
         for i in range(N_low):
             if i < N_low * N_iid/100:
-                clients_config.append(json_tplt.format(i+1 + N_high, 1, "IID"))
+                clients_config.append(json_tplt.format(i+1 + N_high, 1, "IID", data_persistente_types[persistence]))
             else:
-                clients_config.append(json_tplt.format(i+1 + N_high, 1, "non-IID"))
+                clients_config.append(json_tplt.format(i+1 + N_high, 1, "non-IID", data_persistente_types[persistence]))
         to_copy = to_copy.replace("**CLIENTS**", ",\n".join(clients_config))
 
-        if len(sys.argv) > 5:
-            to_copy = to_copy.replace("**TH**", sys.argv[5])
+        if len(sys.argv) > 6:
+            to_copy = to_copy.replace("**TH**", sys.argv[6])
 
         config_file.writelines(to_copy)
 
-print("Configuration file created with {} high-spec, {} low-spec clients, {} IID.".format(N_high, N_low, N_iid))
+print("Configuration file created with {} high-spec, {} low-spec clients, {} IID, {} data persistence.".format(N_high, N_low, N_iid, persistence))
 
 docker_client_tplt = """  {}:
     build:
       context: .
       dockerfile: Dockerfile.client
-    command: sh -c "sleep 5 && python client.py"
+    command: sh -c "sleep 20 && python client.py"
     container_name: {}
     cpus: {}
     cpuset: \"{}\"

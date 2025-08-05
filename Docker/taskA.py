@@ -424,10 +424,10 @@ def get_non_iid_indices(dataset,
 
 
 def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
-    global DATASET_NAME, DATASET_TYPE, DATASET_PERSISTANCE
+    global DATASET_NAME, DATASET_TYPE, DATASET_PERSISTENCE
 
     DATASET_TYPE = client_config.get("data_distribution_type", "").lower()
-    DATASET_PERSISTANCE = client_config.get("data_persistance_type", "")
+    DATASET_PERSISTENCE = client_config.get("data_persistence_type", "")
     dataset_name = dataset_name_override or client_config.get("dataset", "")
     DATASET_NAME = normalize_dataset_name(dataset_name)
 
@@ -494,30 +494,14 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         )
         base = Subset(trainset, idxs)
 
-        if HETEROGENEOUS_DATA_HANDLER:
-            trainset = balance_dataset_with_gan(
-                base,
-                num_classes=config["num_classes"],
-                target_per_class=len(base) // config["num_classes"],
-            )
-            ds_name = client_config.get("dataset", "").lower()
-            if "cifar" in ds_name:
-                max_limit = 5000
-            elif "imagenet" in ds_name:
-                max_limit = 1300
-            else:
-                max_limit = len(base) // config["num_classes"]
-
-            trainset = truncate_dataset(trainset, max_limit)
-        else:
-            trainset = base
+        trainset = base
 
     config_path = os.path.join(os.path.dirname(__file__), 'configuration', 'config.json')
     with open(config_path, 'r') as f:
         total_rounds = json.load(f).get("rounds")
 
     # carica tutto (default)
-    if DATASET_PERSISTANCE == "Same Data":   
+    if DATASET_PERSISTENCE == "Same Data":   
         pass
     else:
         class_to_indices = defaultdict(list)
@@ -529,10 +513,10 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
 
         for label, indices in class_to_indices.items():
             n_total = len(indices)
-            if DATASET_PERSISTANCE == "New Data":
+            if DATASET_PERSISTENCE == "New Data":
                 # incrementale
                 n_take = int(n_total * GLOBAL_ROUND_COUNTER / total_rounds)
-            elif DATASET_PERSISTANCE == "Remove Data":
+            elif DATASET_PERSISTENCE == "Remove Data":
                 # decrementale
                 n_take = int(n_total * (total_rounds - GLOBAL_ROUND_COUNTER + 1) / total_rounds)
             else:

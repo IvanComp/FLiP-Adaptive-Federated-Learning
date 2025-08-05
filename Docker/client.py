@@ -151,8 +151,11 @@ class FlowerClient(NumPyClient):
         self.ram = client_config.get("ram")
         self.dataset = client_config.get("dataset")
         self.data_distribution_type = client_config.get("data_distribution_type")
+        self.data_persistence_type = client_config.get("data_persistence_type", "Same Data")
         self.model = client_config.get("model")
         self.model_type = model_type
+        self.did_hdh = False
+        self.trainloader, self.testloader = None, None
 
         if self.n_cpu is not None:
             try:
@@ -168,7 +171,6 @@ class FlowerClient(NumPyClient):
 
     def fit(self, parameters, config):
         global GLOBAL_ROUND_COUNTER
-        self.trainloader, self.testloader = load_data_A(self.client_config, GLOBAL_ROUND_COUNTER)
         proc = psutil.Process(os.getpid())
         cpu_start = proc.cpu_times().user + proc.cpu_times().system
         wall_start = time.time()
@@ -183,6 +185,7 @@ class FlowerClient(NumPyClient):
         if os.path.exists(config_file):
             with open(config_file, 'r') as f:
                 configJSON = json.load(f)
+            ADAPTATION_ENABLED = configJSON.get("adaptation", False)
             for name, info in configJSON.get("patterns", {}).items():
                 if info.get("enabled"):
                     if name == "client_selector":
@@ -196,12 +199,20 @@ class FlowerClient(NumPyClient):
                     elif name == "multi-task_model_trainer":
                         MULTI_TASK_MODEL_TRAINER = True
                     elif name == "heterogeneous_data_handler":
-                        log(INFO, f"{self.cid} {info.get("params", {}).get("enabled_clients", [])}")
-                        if self.cid in info.get("params", {}).get("enabled_clients", []):
+                        if not ADAPTATION_ENABLED or self.cid in info.get("params", {}).get("enabled_clients", []):
                             HETEROGENEOUS_DATA_HANDLER = True
 
-        if HETEROGENEOUS_DATA_HANDLER:
+        # If data persistence is "Same Data", load data only once
+        never_loaded_data = self.trainloader is None and self.testloader is None
+        needs_to_reload_data = self.data_persistence_type != "Same Data" and not never_loaded_data
+        if never_loaded_data or needs_to_reload_data:
+            self.trainloader, self.testloader = load_data_A(self.client_config, GLOBAL_ROUND_COUNTER)
+
+        # If adaptation is not enabled, HDG is performed at most once per client at the first round
+        # If adaptation is enabled, HDG is performed whenever the adaptation manager decides to do so for this client
+        if HETEROGENEOUS_DATA_HANDLER and (ADAPTATION_ENABLED or not self.did_hdh):
             self.trainloader = rebalance_trainloader_with_gan_A(self.trainloader)
+            self.did_hdh = True
 
         if CLIENT_SELECTOR:
             selector_params = configJSON["patterns"]["client_selector"]["params"]

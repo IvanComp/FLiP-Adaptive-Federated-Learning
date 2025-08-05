@@ -1079,7 +1079,7 @@ class ClientConfigurationPage(QWidget):
         ram = first["ram_input"].value()
         ds = first["dataset_combobox"].currentText()
         part = first["partition_combobox"].currentText()
-        pers = first["persistance_combobox"].currentText()
+        pers = first["persistence_combobox"].currentText()
         model = first["model_combobox"].currentText()
         epochs = first["epochs_spinbox"].value()
 
@@ -1095,9 +1095,9 @@ class ClientConfigurationPage(QWidget):
             if idx_part >= 0:
                 cfg["partition_combobox"].setCurrentIndex(idx_part)
 
-            idx_pers = cfg["persistance_combobox"].findText(pers)
+            idx_pers = cfg["persistence_combobox"].findText(pers)
             if idx_pers >= 0:
-                cfg["persistance_combobox"].setCurrentIndex(idx_pers)
+                cfg["persistence_combobox"].setCurrentIndex(idx_pers)
 
             idx_model = cfg["model_combobox"].findText(model)
             if idx_model >= 0:
@@ -1179,16 +1179,16 @@ class ClientConfigurationPage(QWidget):
         partition_layout.addWidget(partition_combobox)
         card_layout.addLayout(partition_layout)
 
-        persistance_label = QLabel("Data Persistance:")
-        persistance_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
-        persistance_label.setAlignment(Qt.AlignLeft)
-        persistance_combobox = QComboBox()
-        persistance_combobox.addItems(["Same Data", "New Data", "Remove Data"])
-        persistance_combobox.setFixedWidth(160)
-        persistance_layout = QHBoxLayout()
-        persistance_layout.addWidget(persistance_label)
-        persistance_layout.addWidget(persistance_combobox)
-        card_layout.addLayout(persistance_layout)
+        persistence_label = QLabel("Data Persistence:")
+        persistence_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
+        persistence_label.setAlignment(Qt.AlignLeft)
+        persistence_combobox = QComboBox()
+        persistence_combobox.addItems(["Same Data", "New Data", "Remove Data"])
+        persistence_combobox.setFixedWidth(160)
+        persistence_layout = QHBoxLayout()
+        persistence_layout.addWidget(persistence_label)
+        persistence_layout.addWidget(persistence_combobox)
+        card_layout.addLayout(persistence_layout)
 
         model_group = QGroupBox("Model Training Settings")
         model_group.setStyleSheet("""
@@ -1267,7 +1267,7 @@ class ClientConfigurationPage(QWidget):
             "cpu_input": cpu_input,
             "ram_input": ram_input,
             "dataset_combobox": dataset_combobox,
-            "persistance_combobox": persistance_combobox,
+            "persistence_combobox": persistence_combobox,
             "partition_combobox": partition_combobox,
             "model_combobox": model_combobox,
             "epochs_spinbox": epochs_spinbox
@@ -1284,7 +1284,7 @@ class ClientConfigurationPage(QWidget):
                 "ram": cfg["ram_input"].value(),
                 "dataset": cfg["dataset_combobox"].currentText(),
                 "data_distribution_type": cfg["partition_combobox"].currentText(),
-                "data_persistance_type": cfg["persistance_combobox"].currentText(),
+                "data_persistence_type": cfg["persistence_combobox"].currentText(),
                 "model": cfg["model_combobox"].currentText(),
                 "epochs": cfg["epochs_spinbox"].value()
             }

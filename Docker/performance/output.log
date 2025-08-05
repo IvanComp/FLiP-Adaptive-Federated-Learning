@@ -9,4 +9,26 @@
 ==========================================
 Simulation Started!
 List of the Architectural Patterns enabled:
+Adaptation Enabled ✅
+Global Metric: val_f1, comparison with fixed value: 0.3
 Client Registry ✅
+Client Selector ✅
+ AP Parameters: {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}
+==========================================
+Client Client 1 participates in this round. (CPU: 2, RAM: 4)
+Client Client 4 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 2 participates in this round. (CPU: 2, RAM: 4)
+Client Client 3 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 79.37 seconds.
+{'CNN 16k': {'train_loss': [1.6915711439572847], 'train_accuracy': [0.3890224358974359], 'train_f1': [0.10730459575625392], 'train_mae': [1.709334935897436], 'val_loss': [3.019287299537659], 'val_accuracy': [0.13069999999999998], 'val_f1': [0.04662718085524832], 'val_mae': [2.7031], 'jsd': [(0, 0.10329429919262303, 0.3297460516941946, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+val_f1 too low or decreasing, client_selector de-activated ❌
+Results Aggregated in 86.73 seconds.
+{'CNN 16k': {'train_loss': [1.6915711439572847, 1.7955520255761528], 'train_accuracy': [0.3890224358974359, 0.3287726089568177], 'train_f1': [0.10730459575625392, 0.1601311266126494], 'train_mae': [1.709334935897436, 2.3423880397784154], 'val_loss': [3.019287299537659, 2.6474311560516925], 'val_accuracy': [0.13069999999999998, 0.17697963692184476], 'val_f1': [0.04662718085524832, 0.10445798547710904], 'val_mae': [2.7031, 2.973408422879263], 'jsd': [(0, 0.10329429919262303, 0.3297460516941946, 0), (0.1436041989430539, 0.15199929762951686, 0.09965069602733084, 0.1390421103636817)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': False, 'params': {}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+val_f1 too low or decreasing, client_selector de-activated ❌
+Results Aggregated in 12.43 seconds.
