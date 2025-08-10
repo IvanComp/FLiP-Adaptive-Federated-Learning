@@ -3,13 +3,15 @@
     "activation_criteria": {
         "metrics": [
             {
-                "name": "fixed",
+                "name": "f1overtime",
                 "pattern": "client_selector",
                 "metric": "val_f1",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "fixed-global",
-                    "value": 0.4
+                    "calculation_method": "predictor_based",
+                    "predictor": {
+                        "model_path": "predictors/f1overtime_tree_regressor_2000.pkl"
+                    }
                 }
             }
         ]
@@ -23,7 +25,7 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
+            "enabled": true,
             "params": {
                 "selection_strategy": "Resource-Based",
                 "selection_criteria": "CPU",
