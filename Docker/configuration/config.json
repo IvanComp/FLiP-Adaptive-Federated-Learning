@@ -4,11 +4,14 @@
         "metrics": [
             {
                 "name": "f1overtime",
-                "pattern": "client_selector",
                 "metric": "val_f1",
+                "pattern": "client_selector",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "random"
+                    "calculation_method": "bayesian_optimization",
+                    "predictor": {
+                        "model_path": "predictors/bo_model.pkl"
+                    }
                 }
             }
         ]
@@ -56,7 +59,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -66,7 +69,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -76,7 +79,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -86,7 +89,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -96,7 +99,7 @@
             "cpu": 2,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -106,7 +109,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -116,7 +119,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -126,7 +129,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -136,7 +139,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
@@ -146,7 +149,7 @@
             "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
+            "data_distribution_type": "IID",
             "data_persistence_type": "New Data",
             "model": "CNN 16k",
             "epochs": 1
