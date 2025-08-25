@@ -4,14 +4,11 @@
         "metrics": [
             {
                 "name": "f1overtime",
-                "metric": "val_f1",
                 "pattern": "client_selector",
+                "metric": "val_f1",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "bayesian_optimization",
-                    "predictor": {
-                        "model_path": "predictors/bo_model.pkl"
-                    }
+                    "calculation_method": "random"
                 }
             }
         ]
@@ -76,7 +73,7 @@
         },
         {
             "client_id": 3,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
             "data_distribution_type": "IID",
@@ -86,7 +83,7 @@
         },
         {
             "client_id": 4,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
             "data_distribution_type": "IID",
@@ -96,7 +93,7 @@
         },
         {
             "client_id": 5,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 2,
             "dataset": "CIFAR-10",
             "data_distribution_type": "IID",
