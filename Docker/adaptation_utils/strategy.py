@@ -33,7 +33,7 @@ def get_activation_criteria(json_config, default_config):
             model = load(f)
 
         return [PredictorBasedLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
-                                                  default_config)]
+                                                       default_config)]
     elif threshold_config['calculation_method'] == 'bayesian_optimization':
         model_path = threshold_config['predictor']['model_path']
         model = joblib.load(threshold_config['predictor']['model_path'])
@@ -88,7 +88,7 @@ class RandomActivationCriterion(ActivationCriterion):
 
     def activate_pattern(self, args):
         activate = random.choice([True, False])
-        
+
         if activate:
             apply_pattern = []
             for client_i in range(len(self.clients_config['client_details'])):
@@ -188,6 +188,7 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         else:
             return True, None, expl + f'{self.pattern} activated ✅'
 
+
 class PredictorBasedLocalActivationCriterion(ActivationCriterion):
     def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
         self.model = model
@@ -214,15 +215,17 @@ class PredictorBasedLocalActivationCriterion(ActivationCriterion):
         last_val_f1 = last_metrics['val_f1']
 
         n_high, n_low = get_high_low_clients(self.clients_config)
-        
+
         apply_pattern = []
         for client_i in range(len(self.clients_config['client_details'])):
             # TODO should be parametric w.r.t. metric name
             last_jsd = last_metrics['jsd'][client_i]
-            
+
             # TODO should be parametric w.r.t. predictor input
-            prediction_w_pattern = self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1 / last_round_time]])[0]
-            prediction_wo_pattern = self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
+            prediction_w_pattern = \
+            self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1 / last_round_time]])[0]
+            prediction_wo_pattern = \
+            self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
 
             expl = f"client {client_i + 1}, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
             log(INFO, expl)
@@ -234,6 +237,7 @@ class PredictorBasedLocalActivationCriterion(ActivationCriterion):
             return False, None, f'{self.pattern} de-activated ❌'
         else:
             return True, {"enabled_clients": apply_pattern}, f'{self.pattern} activated ✅ for clients: {apply_pattern}'
+
 
 class BayesianOptimizationActivationCriterion(ActivationCriterion):
     def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
