@@ -5,6 +5,9 @@ import joblib
 import numpy as np
 from skopt import gp_minimize
 
+from logging import INFO
+from logger import log
+
 
 def get_patterns(json_config):
     return json_config['patterns']
@@ -23,6 +26,13 @@ def get_activation_criteria(json_config, default_config):
             model = load(f)
 
         return [PredictorBasedActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                  default_config)]
+    elif threshold_config['calculation_method'] == 'predictor-local':
+        model_path = threshold_config['predictor']['model_path']
+        with open(model_path, "rb") as f:
+            model = load(f)
+
+        return [PredictorBasedLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
                                                   default_config)]
     elif threshold_config['calculation_method'] == 'bayesian_optimization':
         model_path = threshold_config['predictor']['model_path']
@@ -78,11 +88,17 @@ class RandomActivationCriterion(ActivationCriterion):
 
     def activate_pattern(self, args):
         activate = random.choice([True, False])
+        
+        if activate:
+            apply_pattern = []
+            for client_i in range(len(self.clients_config['client_details'])):
+                if random.choice([True, False]):
+                    apply_pattern.append(f"Client {client_i + 1}")
 
         if not activate:
             return False, None, f"{self.pattern} de-activated ❌"
         else:
-            return True, None, f"{self.pattern} activated ✅"
+            return True, {"enabled_clients": apply_pattern}, f"{self.pattern} activated ✅"
 
 
 class FixedGlobalThresholdActivationCriterion(ActivationCriterion):
@@ -172,6 +188,52 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         else:
             return True, None, expl + f'{self.pattern} activated ✅'
 
+class PredictorBasedLocalActivationCriterion(ActivationCriterion):
+    def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
+        self.model = model
+        self.model_name = model_name
+        super().__init__(pattern, metric, strategy_name, clients_config)
+
+    def __str__(self):
+        return f'Metric: {self.metric}, local predictor-based: {self.model_name}'
+
+    def activate_pattern(self, args):
+        model_type = args['model_type']
+        new_aggregated_metrics = args['metrics']
+        last_round_time = args['time']
+        performed_rounds = len(new_aggregated_metrics[model_type]['val_f1'])
+
+        # TODO should be parametric w.r.t. metric name
+        if performed_rounds < 1:
+            return True, "Less than 1 round completed, keeping default config."
+
+        metrics = self.metric.split(',')
+        last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}
+
+        # TODO should be parametric w.r.t. metric name        
+        last_val_f1 = last_metrics['val_f1']
+
+        n_high, n_low = get_high_low_clients(self.clients_config)
+        
+        apply_pattern = []
+        for client_i in range(len(self.clients_config['client_details'])):
+            # TODO should be parametric w.r.t. metric name
+            last_jsd = last_metrics['jsd'][client_i]
+            
+            # TODO should be parametric w.r.t. predictor input
+            prediction_w_pattern = self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1 / last_round_time]])[0]
+            prediction_wo_pattern = self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
+
+            expl = f"client {client_i + 1}, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
+            log(INFO, expl)
+
+            if prediction_w_pattern >= prediction_wo_pattern:
+                apply_pattern.append(f"Client {client_i + 1}")
+
+        if len(apply_pattern) == 0:
+            return False, None, f'{self.pattern} de-activated ❌'
+        else:
+            return True, {"enabled_clients": apply_pattern}, f'{self.pattern} activated ✅ for clients: {apply_pattern}'
 
 class BayesianOptimizationActivationCriterion(ActivationCriterion):
     def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
