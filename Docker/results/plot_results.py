@@ -12,16 +12,66 @@ warnings.warn = warn
 import matplotlib.pyplot as plt
 import pandas as pd
 
-pattern = 'selector'
-persistence = 'new'
-iid_percentage = 100
+from bisect import bisect_left
+from typing import List
+
+import scipy.stats as ss
+from scipy.stats import mannwhitneyu
+import itertools
+
+
+def VD_A(treatment: List[float], control: List[float]):
+    """
+    Computes Vargha and Delaney A index
+    A. Vargha and H. D. Delaney.
+    A critique and improvement of the CL common language
+    effect size statistics of McGraw and Wong.
+    Journal of Educational and Behavioral Statistics, 25(2):101-132, 2000
+    The formula to compute A has been transformed to minimize accuracy errors
+    See: http://mtorchiano.wordpress.com/2014/05/19/effect-size-of-r-precision/
+    :param treatment: a numeric list
+    :param control: another numeric list
+    :returns the value estimate and the magnitude
+    """
+    m = len(treatment)
+    n = len(control)
+
+    if m != n:
+        raise ValueError("Data d and f must have the same length")
+
+    r = ss.rankdata(treatment + control)
+    r1 = sum(r[0:m])
+
+    # Compute the measure
+    # A = (r1/m - (m+1)/2)/n # formula (14) in Vargha and Delaney, 2000
+    A = (2 * r1 - m * (m + 1)) / (2 * n * m)  # equivalent formula to avoid accuracy errors
+
+    levels = [0.147, 0.33, 0.474]  # effect sizes from Hess and Kromrey, 2004
+    magnitude = ["negligible", "small", "medium", "large"]
+    scaled_A = (A - 0.5) * 2
+
+    magnitude = magnitude[bisect_left(levels, abs(scaled_A))]
+    estimate = A
+
+    return estimate, magnitude
+
+
+metric = 'F1 Score Over Total Time for FL Round'
+
+patterns = ['selector', 'hdh']
+persistences = ['same', 'new']
+iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
+
+selected_confs = ['no-selector', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}']
 
 filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow')
 filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow')
 filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow')
 
 filters = [filter_1, filter_2, filter_3]
+
+setups = list(itertools.product(patterns, persistences, iid_percentages, filters))
 
 
 def get_exp_data(n_high, n_low, iid_percentage, data_persistence):
@@ -37,29 +87,25 @@ def get_exp_data(n_high, n_low, iid_percentage, data_persistence):
                 df = pd.read_csv(exp_path + '/FLwithAP_performance_metrics.csv')
                 df = df[df['Val F1'] >= 0]
                 df['Cumulative Time'] = df['Total Time of FL Round'].cumsum()
-                print(df)
                 df['F1 Score Over Total Time for FL Round'] = df['Val F1'] / df['Cumulative Time']
                 model_data = df[df['Val F1'] >= 0]
                 exp_data.append((folder + '/' + exp, model_data))
     return exp_data
 
 
-def plot_by_filter(filter):
+def plot_by_filter(pattern, persistence, iid_percentage, filter):
     exp_data = []
     for pair in pairs:
         if filter[0](pair):
             exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
 
-    selected_confs = ['no-selector', 'random-selector', 'always-selector', 'fixed-selector', 'tree-selector',
-                      'bo-adaptive']
-
-    metric = 'F1 Score Over Total Time for FL Round'
     colors = ['red', 'purple', 'green', 'blue', 'orange', 'pink'][:len(selected_confs)]
     labels = ['never', 'random', 'all-high', 'fixed', 'tree', 'bo'][:len(selected_confs)]
     d = []
     for conf in selected_confs:
         d.append([])
-        data = [model_data[metric].tolist() for exp, model_data in exp_data if exp.split('/')[-1].split('_')[0] == conf]
+        data = [model_data[metric].tolist() for exp, model_data in exp_data if
+                exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
         for i in range(len(data)):
             d[-1].append(data[i][-1])
     plt.rcParams.update({'font.size': 12})
@@ -82,5 +128,48 @@ def plot_by_filter(filter):
     fig.savefig('plots/exp/{}/{}-{}-{}.png'.format(persistence, pattern, filter[1], iid_percentage), dpi=300)
 
 
-for filter in filters:
-    plot_by_filter(filter)
+# GENERATES BOX PLOTS
+for setup in setups:
+    if setup[0] == 'hdh' and setup[2] == 100:
+        continue
+    print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
+    plot_by_filter(setup[0], setup[1], setup[2], setup[3])
+
+
+def run_statistical_tests(pattern, persistence, iid_percentage, filter):
+    exp_data = []
+    for pair in pairs:
+        if filter[0](pair):
+            exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
+
+    d = []
+    for conf in selected_confs:
+        d.append([])
+        data = [model_data[metric].tolist() for exp, model_data in exp_data if
+                exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
+        for i in range(len(data)):
+            d[-1].append(data[i][-1])
+
+    with open('plots/exp/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f:
+        # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
+        conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4), (0, 5), (1, 5), (2, 5)]
+        for conf_pair in conf_to_compare:
+            d_1 = d[conf_pair[0]]
+            d_2 = d[conf_pair[1]]
+            U1, p = mannwhitneyu(d_1, d_2, method="auto")
+            estimate, magnitude = VD_A(d_1, d_2)
+            conf_a = selected_confs[conf_pair[0]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
+            conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
+            f.write('{}\t{}\t{:.3f}\t{}\t{}\n'.format(conf_a, conf_b, p, estimate, magnitude))
+
+
+# PERFORMS STATISTICAL TESTS AND GENERATES TABLE
+for setup in setups:
+    if setup[0] == 'hdh' and setup[2] == 100:
+        continue
+
+    print(f'Performing statistical tests for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
+    try:
+        run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
+    except ValueError:
+        print('All configurations must have the same number of replications.')
