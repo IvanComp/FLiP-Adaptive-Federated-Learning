@@ -65,9 +65,9 @@ pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
 
 selected_confs = ['no-selector', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}']
 
-filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow')
-filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow')
-filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow')
+filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow', '$\mathsf{N_{high}}=\mathsf{N_{low}}$')
+filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow', '$\mathsf{N_{high}}>\mathsf{N_{low}}$')
+filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow', '$\mathsf{N_{high}}<\mathsf{N_{low}}$')
 
 filters = [filter_1, filter_2, filter_3]
 
@@ -150,26 +150,35 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
         for i in range(len(data)):
             d[-1].append(data[i][-1])
 
+    effect_size = {'negligible': 'negl.', 'small': 'small', 'medium': 'med.', 'large': 'large'}
+
     with open('plots/exp/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f:
         # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
         conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4), (0, 5), (1, 5), (2, 5)]
+        latex_str = f"\n{filter[2]} & {iid_percentage}"
         for conf_pair in conf_to_compare:
             d_1 = d[conf_pair[0]]
             d_2 = d[conf_pair[1]]
-            U1, p = mannwhitneyu(d_1, d_2, method="auto")
-            estimate, magnitude = VD_A(d_1, d_2)
-            conf_a = selected_confs[conf_pair[0]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
-            conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
-            f.write('{}\t{}\t{:.3f}\t{}\t{}\n'.format(conf_a, conf_b, p, estimate, magnitude))
+            try:
+                U1, p = mannwhitneyu(d_1, d_2, method="auto")
+                estimate, magnitude = VD_A(d_1, d_2)
+                conf_a = selected_confs[conf_pair[0]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
+                conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
+                f.write('{}\t{}\t{:.3f}\t{}\t{}\n'.format(conf_a, conf_b, p, estimate, magnitude))
+                if p < 0.05:
+                    latex_str += f" & \\better{{<0.05 ({effect_size[magnitude]})}}"
+                else:
+                    latex_str += f" & {p:.2f} ({effect_size[magnitude]})"
+            except ValueError:
+                print('Selected conf. do not have the same number of replications.')
+                latex_str += " & TODO"
+        f.write(latex_str + '\\\\\n')
 
 
-# PERFORMS STATISTICAL TESTS AND GENERATES TABLE
+# PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE
 for setup in setups:
     if setup[0] == 'hdh' and setup[2] == 100:
         continue
 
     print(f'Performing statistical tests for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
-    try:
-        run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
-    except ValueError:
-        print('All configurations must have the same number of replications.')
+    run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
