@@ -501,40 +501,123 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         total_rounds = json.load(f).get("rounds")
 
     # carica tutto (default)
-    if DATASET_PERSISTENCE == "Same Data":   
+    if DATASET_PERSISTENCE == "Same Data":
         pass
     else:
+        from collections import defaultdict
+        import numpy as np 
         class_to_indices = defaultdict(list)
         for idx in range(len(trainset)):
             _, label = trainset[idx]
-            class_to_indices[label].append(idx)
+            class_to_indices[int(label)].append(idx)
 
         selected_indices = []
 
-        for label, indices in class_to_indices.items():
-            n_total = len(indices)
-            if DATASET_PERSISTENCE == "New Data":
-                # incrementale
-                n_take = int(n_total * GLOBAL_ROUND_COUNTER / total_rounds)
-            elif DATASET_PERSISTENCE == "Remove Data":
-                # decrementale
-                n_take = int(n_total * (total_rounds - GLOBAL_ROUND_COUNTER + 1) / total_rounds)
-            else:
-                n_take = n_total
+        NON_IID_ROUNDS = True
+        NON_IID_ALPHA  = 0.30
+        NON_IID_SEED   = 1234
 
+        cid_raw   = int(os.environ.get("CLIENT_ID", "1"))
+        cid0      = max(0, cid_raw - 1) 
+
+        n_cls     = len(class_to_indices)
+        R         = int(total_rounds)
+        round_idx = max(1, min(GLOBAL_ROUND_COUNTER, R))  
+
+        shape_now = None  
+        if NON_IID_ROUNDS and DATASET_PERSISTENCE in {"New Data", "Remove Data"}:
+            rng = np.random.default_rng(NON_IID_SEED + cid0)
+            inc = rng.dirichlet([NON_IID_ALPHA] * R, size=n_cls)  
+
+            if DATASET_PERSISTENCE == "New Data":
+                shape_now = np.cumsum(inc, axis=1)[:, round_idx - 1]
+                target_frac_total = round_idx / R 
+            else: 
+                m = R - round_idx + 1
+                shape_now = inc[:, :m].sum(axis=1)    
+                target_frac_total = m / R            
+        else:
+            if DATASET_PERSISTENCE == "New Data":
+                target_frac_total = round_idx / R
+            elif DATASET_PERSISTENCE == "Remove Data":
+                target_frac_total = (R - round_idx + 1) / R
+            else:
+                target_frac_total = 1.0
+
+        labels_sorted = sorted(class_to_indices)
+        pools = {}
+        caps  = []
+        for lab in labels_sorted:
+            idxs_all = np.array(class_to_indices[lab])
+            r = np.random.default_rng(NON_IID_SEED + int(lab) + 1000 * cid0)
+            idxs_all = r.permutation(idxs_all)
+            pool = idxs_all
+            pools[lab] = pool
+            caps.append(len(pool))
+        caps = np.array(caps, dtype=np.int64)
+        pool_total = int(caps.sum())  
+        T_target = int(np.clip(np.floor(pool_total * float(target_frac_total)), 0, pool_total))
+
+        if shape_now is None:
+            raw = caps.astype(np.float64)             
+        else:
+            raw = np.clip(shape_now, 0.0, 1.0) * caps    
+
+        def sum_at_scale(s: float) -> int:
+            return int(np.floor(np.minimum(s * raw, caps)).sum())
+
+        if raw.sum() == 0:
+            scaled = np.zeros_like(raw, dtype=np.float64)
+        else:
+            lo, hi = 0.0, 1.0
+            while sum_at_scale(hi) < T_target:
+                hi *= 2.0
+                if hi > 1e12:
+                    break
+            for _ in range(48):
+                mid = 0.5 * (lo + hi)
+                if sum_at_scale(mid) >= T_target:
+                    hi = mid
+                else:
+                    lo = mid
+            scaled = np.minimum(hi * raw, caps)
+
+        base = np.floor(scaled).astype(np.int64)
+        rem  = T_target - int(base.sum())
+
+        if rem > 0:
+            frac = (scaled - base) if raw.sum() > 0 else np.ones_like(base, dtype=float)
+            order = np.argsort(-frac) 
+            i, L = 0, len(base)
+            while rem > 0 and L > 0:
+                idx = order[i % L]
+                if base[idx] < caps[idx]:
+                    base[idx] += 1
+                    rem -= 1
+                i += 1
+        elif rem < 0:
+            frac = (scaled - base) if raw.sum() > 0 else np.zeros_like(base, dtype=float)
+            order = np.argsort(frac)  
+            i, L = 0, len(base)
+            while rem < 0 and L > 0:
+                idx = order[i % L]
+                if base[idx] > 0:
+                    base[idx] -= 1
+                    rem += 1
+                i += 1
+
+        for k, lab in enumerate(labels_sorted):
+            n_take = int(base[k])
             if n_take > 0:
-                selected_indices.extend(indices[:n_take])
+                selected_indices.extend(pools[lab][:n_take].tolist())
 
         trainset = Subset(trainset, selected_indices)
 
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
-    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
-
+    testloader  = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
 
-
 from collections import defaultdict
-
 
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)
