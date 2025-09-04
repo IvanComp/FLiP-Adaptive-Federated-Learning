@@ -11,7 +11,7 @@ warnings.warn = warn
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import numpy as np
 from bisect import bisect_left
 from typing import List
 
@@ -166,7 +166,10 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
                 conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
                 f.write('{}\t{}\t{:.3f}\t{}\t{}\n'.format(conf_a, conf_b, p, estimate, magnitude))
                 if p < 0.05:
-                    latex_str += f" & \\better{{<0.05 ({effect_size[magnitude]})}}"
+                    if np.mean(d_1) < np.mean(d_2):
+                        latex_str += f" & \\better{{<0.05 ({effect_size[magnitude]})}}"
+                    else:
+                        latex_str += f" & \\worse{{<0.05 ({effect_size[magnitude]})}}"
                 else:
                     latex_str += f" & {p:.2f} ({effect_size[magnitude]})"
             except ValueError:
