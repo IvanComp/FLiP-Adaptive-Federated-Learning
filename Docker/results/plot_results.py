@@ -56,7 +56,12 @@ def VD_A(treatment: List[float], control: List[float]):
     return estimate, magnitude
 
 
-metric = 'F1 Score Over Total Time for FL Round'
+metric = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
+          ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+          ('hdh', 'same'): 'Val F1', ('hdh', 'new'): 'Val F1'}
+
+label_dict = {'selector': ['never', 'random', 'all-high', 'fixed', 'tree', 'bo'],
+              'hdh': ['never', 'random', 'round1', 'fixed', 'tree', 'bo']}
 
 patterns = ['selector', 'hdh']
 persistences = ['same', 'new']
@@ -100,11 +105,11 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
             exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
 
     colors = ['red', 'purple', 'green', 'blue', 'orange', 'pink'][:len(selected_confs)]
-    labels = ['never', 'random', 'all-high', 'fixed', 'tree', 'bo'][:len(selected_confs)]
+    labels = label_dict[pattern][:len(selected_confs)]
     d = []
     for conf in selected_confs:
         d.append([])
-        data = [model_data[metric].tolist() for exp, model_data in exp_data if
+        data = [model_data[metric[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
                 exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
         for i in range(len(data)):
             d[-1].append(data[i][-1])
@@ -145,7 +150,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
     d = []
     for conf in selected_confs:
         d.append([])
-        data = [model_data[metric].tolist() for exp, model_data in exp_data if
+        data = [model_data[metric[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
                 exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
         for i in range(len(data)):
             d[-1].append(data[i][-1])
