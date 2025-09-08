@@ -1,6 +1,19 @@
 {
-    "adaptation": false,
-    "activation_criteria": {},
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "fixed",
+                "pattern": "heterogeneous_data_handler",
+                "metric": "jsd",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "fixed-local",
+                    "value": 0.1
+                }
+            }
+        ]
+    },
     "simulation_type": "Docker",
     "rounds": 20,
     "clients": 10,
@@ -10,7 +23,8 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": false
+            "enabled": false,
+            "params": {}
         },
         "client_cluster": {
             "enabled": false,
@@ -29,8 +43,14 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "enabled_clients": [
+                    "Client 1",
+                    "Client 7",
+                    "Client 10"
+                ]
+            }
         }
     },
     "client_details": [
@@ -44,7 +64,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 2,
             "cpu": 2,
             "ram": 2,
@@ -54,7 +74,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 3,
             "cpu": 2,
             "ram": 2,
@@ -64,7 +84,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 4,
             "cpu": 2,
             "ram": 2,
@@ -74,7 +94,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 5,
             "cpu": 2,
             "ram": 2,
@@ -84,7 +104,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 6,
             "cpu": 1,
             "ram": 2,
@@ -94,7 +114,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 7,
             "cpu": 1,
             "ram": 2,
@@ -104,7 +124,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 8,
             "cpu": 1,
             "ram": 2,
@@ -114,7 +134,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 9,
             "cpu": 1,
             "ram": 2,
@@ -124,7 +144,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 10,
             "cpu": 1,
             "ram": 2,
