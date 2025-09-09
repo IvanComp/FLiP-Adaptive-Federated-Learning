@@ -3,13 +3,15 @@
     "activation_criteria": {
         "metrics": [
             {
-                "name": "fixed",
-                "pattern": "heterogeneous_data_handler",
-                "metric": "jsd",
+                "name": "f1overtime",
+                "metric": "val_f1",
+                "pattern": "client_selector",
                 "threshold": {
-                    "type": "decreasing",
-                    "calculation_method": "fixed-local",
-                    "value": 0.1
+                    "type": "increasing",
+                    "calculation_method": "bayesian_optimization",
+                    "predictor": {
+                        "model_path": "predictors/bo_model.pkl"
+                    }
                 }
             }
         ]
@@ -23,8 +25,12 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "selection_strategy": "Resource-Based",
+                "selection_criteria": "CPU",
+                "selection_value": 2
+            }
         },
         "client_cluster": {
             "enabled": false,
@@ -43,14 +49,8 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": true,
-            "params": {
-                "enabled_clients": [
-                    "Client 1",
-                    "Client 7",
-                    "Client 10"
-                ]
-            }
+            "enabled": false,
+            "params": {}
         }
     },
     "client_details": [
