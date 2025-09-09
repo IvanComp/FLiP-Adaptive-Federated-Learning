@@ -6,10 +6,10 @@ import pickle
 import shutil
 import time
 import zlib
+import base64
 from io import BytesIO
 from logging import INFO
 from typing import List, Tuple, Dict, Optional
-
 import docker
 import matplotlib
 import numpy as np
@@ -180,11 +180,9 @@ def log_round_time(
     val_f1 = tm["val_f1"][-1] if tm["val_f1"] else None
     val_mae = tm["val_mae"][-1] if tm["val_mae"] else None
 
-    # Per le righe non-last, vuoto i metrici e srt2
     if already_logged:
         srt2 = None
 
-    # Scrivo i valori nella CSV nell’ordine giusto
     with open(csv_file, 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([
@@ -405,6 +403,7 @@ class MultiModelStrategy(Strategy):
     def __init__(self, initial_parameters_a: Parameters):
         self.round_start_time: float | None = None
         self.parameters_a = initial_parameters_a
+        self._send_ts = {}
         banner = r"""
   ___  ______  ___ ______       _ 
  / _ \ | ___ \/   ||  ___|     | |
@@ -450,44 +449,41 @@ class MultiModelStrategy(Strategy):
         return None
 
     def configure_fit(
-            self,
-            server_round: int,
-            parameters: Parameters,
-            client_manager: ClientManager,
+        self,
+        server_round: int,
+        parameters: Parameters,
+        client_manager: ClientManager,
     ) -> List[Tuple[ClientProxy, FitIns]]:
         self.round_start_time = time.time()
-        client_manager.wait_for(client_count)
-        clients = client_manager.sample(num_clients=client_count)
-        fit_configurations = []
+        available = client_manager.num_available()
+        if available < 1:
+            return []
 
-        if MESSAGE_COMPRESSOR:
-            fake_tensors = []
-            for tensor in self.parameters_a.tensors:
-                buffer = BytesIO(tensor)
-                loaded_array = np.load(buffer)
-                reduced_shape = tuple(max(dim // 10, 1) for dim in loaded_array.shape)
-                fake_array = np.zeros(reduced_shape, dtype=loaded_array.dtype)
-                fake_serialized = BytesIO()
-                np.save(fake_serialized, fake_array)
-                fake_serialized.seek(0)
-                fake_tensors.append(fake_serialized.read())
-            fake_parameters = Parameters(tensors=fake_tensors, tensor_type=self.parameters_a.tensor_type)
-            serialized_parameters = pickle.dumps(self.parameters_a)
-            original_size = len(serialized_parameters)
-            compressed_parameters = zlib.compress(serialized_parameters)
-            compressed_parameters_hex = compressed_parameters.hex()
-            compressed_size = len(compressed_parameters)
-            reduction_bytes = original_size - compressed_size
-            reduction_percentage = (reduction_bytes / original_size) * 100
-            log(INFO,
-                f"Global Model Parameters compressed (from Server to Client) reduction of {reduction_bytes} bytes ({reduction_percentage:.2f}%)")
+        num_fit = available
+        clients: List[ClientProxy] = client_manager.sample(
+            num_clients=num_fit,
+            min_num_clients=1
+        )
 
+        base_params: Parameters = self.parameters_a if self.parameters_a is not None else parameters
+        if base_params is None:
+            return []
+
+        fake_parameters = Parameters(tensors=[], tensor_type=base_params.tensor_type)
+        blob = pickle.dumps(base_params, protocol=pickle.HIGHEST_PROTOCOL)
+        compressed = zlib.compress(blob, level=1)
+        compressed_parameters_b64 = base64.b64encode(compressed).decode("ascii")
+        fit_configurations: List[Tuple[ClientProxy, FitIns]] = []
         for client in clients:
-            if MESSAGE_COMPRESSOR:
-                fit_ins = FitIns(fake_parameters, {"compressed_parameters_hex": compressed_parameters_hex})
+            self._send_ts[client.cid] = time.time()
+            if 'MESSAGE_COMPRESSOR' in globals() and MESSAGE_COMPRESSOR:
+                cfg = {"compressed_parameters_b64": compressed_parameters_b64}
+                fit_ins = FitIns(fake_parameters, cfg)
             else:
-                fit_ins = FitIns(self.parameters_a, {})
+                fit_ins = FitIns(base_params, {})
+
             fit_configurations.append((client, fit_ins))
+
         return fit_configurations
 
     def aggregate_fit(
@@ -507,7 +503,6 @@ class MultiModelStrategy(Strategy):
         currentRnd += 1
 
         for client_proxy, fit_res in results:
-            # se il client non partecipa, metto tutte le metriche a None
             if fit_res.num_examples == 0:
                 training_time = None
                 communication_time = None
@@ -533,18 +528,21 @@ class MultiModelStrategy(Strategy):
                 metrics = fit_res.metrics or {}
                 training_time = metrics.get("training_time")
                 communication_time = metrics.get("communication_time")
-                compressed_parameters_hex = metrics.get("compressed_parameters_hex")
+                compressed_parameters_b64 = metrics.get("compressed_parameters_b64")
                 client_id = metrics.get("client_id")
                 model_type = metrics.get("model_type")
                 client_model_mapping[client_id] = model_type
+                recv_ts = time.time()
+                send_ts = self._send_ts.get(client_proxy.cid, recv_ts)
+                rt_total = recv_ts - send_ts
+                train_t = training_time or 0.0
+                metrics["communication_time"] = max(rt_total - train_t, 0.0)
 
-            # decompressione se abilitata
-            if MESSAGE_COMPRESSOR and compressed_parameters_hex:
-                compressed = bytes.fromhex(compressed_parameters_hex)
+            if MESSAGE_COMPRESSOR and compressed_parameters_b64:
+                compressed = base64.b64decode(compressed_parameters_b64)
                 decompressed = pickle.loads(zlib.decompress(compressed))
                 fit_res.parameters = ndarrays_to_parameters(decompressed)
 
-            # raccolgo i tempi validi
             if training_time is not None:
                 training_times.append(training_time)
 
@@ -554,7 +552,6 @@ class MultiModelStrategy(Strategy):
         max_train = max(training_times) if training_times else 0.0
         agg_end = time.time()
         aggregation_time = agg_end - agg_start
-        # log(INFO, f"Aggregation completed in {aggregation_time:.2f}s")
 
         self.parameters_a = self.aggregate_parameters(
             results_a,
@@ -599,7 +596,6 @@ class MultiModelStrategy(Strategy):
         )
         shutil.copy(csv_file, round_csv)
 
-        # If enabled, the Adaptation module determines the preferable configuration for the next round.
         log(INFO, metrics_history)
         next_round_config = self.adapt_mgr.config_next_round(metrics_history, round_total_time)
         config_patterns(next_round_config)

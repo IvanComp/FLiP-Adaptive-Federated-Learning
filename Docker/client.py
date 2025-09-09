@@ -10,7 +10,7 @@ import numpy as np
 import psutil
 import torch
 import taskA
-
+import base64
 logging.getLogger("onnx2keras").setLevel(logging.ERROR)
 logging.getLogger("ray").setLevel(logging.WARNING)
 import onnx
@@ -174,8 +174,6 @@ class FlowerClient(NumPyClient):
         proc = psutil.Process(os.getpid())
         cpu_start = proc.cpu_times().user + proc.cpu_times().system
         wall_start = time.time()
-
-        # Load enabled patterns from config
         compressed_parameters_hex = config.get("compressed_parameters_hex")
         global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
         CLIENT_SELECTOR = CLIENT_CLUSTER = MESSAGE_COMPRESSOR = MODEL_COVERSIONING = MULTI_TASK_MODEL_TRAINER = HETEROGENEOUS_DATA_HANDLER = False
@@ -202,14 +200,11 @@ class FlowerClient(NumPyClient):
                         if not ADAPTATION_ENABLED or self.cid in info.get("params", {}).get("enabled_clients", []):
                             HETEROGENEOUS_DATA_HANDLER = True
 
-        # If data persistence is "Same Data", load data only once
         never_loaded_data = self.trainloader is None and self.testloader is None
         needs_to_reload_data = self.data_persistence_type != "Same Data" and not never_loaded_data
         if never_loaded_data or needs_to_reload_data:
             self.trainloader, self.testloader = load_data_A(self.client_config, GLOBAL_ROUND_COUNTER)
 
-        # If adaptation is not enabled, HDG is performed at most once per client at the first round
-        # If adaptation is enabled, HDG is performed whenever the adaptation manager decides to do so for this client
         if HETEROGENEOUS_DATA_HANDLER and (ADAPTATION_ENABLED or not self.did_hdh):
             self.trainloader = rebalance_trainloader_with_gan_A(self.trainloader)
             self.did_hdh = True
@@ -248,13 +243,15 @@ class FlowerClient(NumPyClient):
                     log(INFO, f"Client {self.cid} assigned to non-IID Cluster {self.model_type}")
 
         if MESSAGE_COMPRESSOR:
-            compressed_parameters = bytes.fromhex(compressed_parameters_hex)
+            payload_b64 = config.get("compressed_parameters_b64")
+            compressed_parameters = base64.b64decode(payload_b64)
             decompressed_parameters = pickle.loads(zlib.decompress(compressed_parameters))
             numpy_arrays = [np.load(BytesIO(tensor)) for tensor in decompressed_parameters.tensors]
             numpy_arrays = [arr.astype(np.float32) for arr in numpy_arrays]
             parameters = numpy_arrays
         else:
             parameters = parameters
+
 
         set_weights_A(self.net, parameters)
 
@@ -365,7 +362,7 @@ class FlowerClient(NumPyClient):
             original_size = len(serialized_parameters)
             compressed_parameters = zlib.compress(serialized_parameters)
             compressed_size = len(compressed_parameters)
-            compressed_parameters_hex = compressed_parameters.hex()
+            compressed_parameters_b64 = base64.b64encode(compressed_parameters).decode("ascii")
             reduction_bytes = original_size - compressed_size
             reduction_percentage = (reduction_bytes / original_size) * 100
             log(INFO, f"Local parameters compressed: reduced {reduction_bytes} bytes ({reduction_percentage:.2f}%)")
@@ -388,7 +385,7 @@ class FlowerClient(NumPyClient):
                 "model_type": self.model_type,
                 "data_distribution_type": self.data_distribution_type,
                 "dataset": self.dataset,
-                "compressed_parameters_hex": compressed_parameters_hex,
+                "compressed_parameters_b64": compressed_parameters_b64,
             }
             return [], len(self.trainloader.dataset), metrics
         else:
@@ -423,7 +420,6 @@ class FlowerClient(NumPyClient):
             "client_id": self.cid,
             "model_type": self.model_type,
         }
-
 
 if __name__ == "__main__":
     details = load_client_details()
