@@ -140,8 +140,6 @@ class HomePage(QWidget):
         footer_layout.addWidget(github_button)
 
         layout.addLayout(footer_layout)
-
-        # Personalizza la finestra
         self.setStyleSheet("background-color: white;")
 
     def start_new_project(self):

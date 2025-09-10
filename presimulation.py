@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+import random
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QFrame, QVBoxLayout, QLabel, QPushButton, QSpinBox,
     QCheckBox, QGroupBox, QFormLayout, QHBoxLayout, QGridLayout,
@@ -1296,6 +1297,12 @@ class ClientConfigurationPage(QWidget):
     def save_client_configurations_and_continue(self):
         client_details = []
         for idx, cfg in enumerate(self.client_configs):
+            _dist = cfg['partition_combobox'].currentText()
+            if _dist == 'Random':
+                _dist = 'IID' if random.random() < 0.5 else 'non-IID'
+            _delay = cfg['delay_combobox'].currentText()
+            if _delay == 'Random':
+                _delay = 'Yes' if random.random() < 0.5 else 'No'
             client_info = {
                 "client_id": idx + 1,
                 "cpu": cfg["cpu_input"].value(),
@@ -1317,6 +1324,12 @@ class ClientConfigurationPage(QWidget):
 
     def save_configuration_to_file(self):
         try:
+            cfg = self.user_choices[-1]
+            for c in cfg.get('client_details', []):
+                if c.get('data_distribution_type') == 'Random':
+                    c['data_distribution_type'] = 'IID' if random.random() < 0.5 else 'non-IID'
+                if c.get('delay_combobox') == 'Random':
+                    c['delay_combobox'] = 'Yes' if random.random() < 0.5 else 'No'
             base_dir = os.path.dirname(os.path.abspath(__file__))
             sim_type = self.user_choices[-1].get("simulation_type")
             if sim_type.lower() == "docker":
