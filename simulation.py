@@ -396,7 +396,6 @@ class SimulationPage(QWidget):
                 env['NUM_CPUS']   = str(cpu)
                 env['NUM_RAM']    = str(ram)
                 env['CLIENT_ID']  = str(cid)
-                env['DELAY_FLAG'] = '1' if detail.get('delay_combobox') == 'Yes' else '0'
                 new_svcs[f'client{cid}'] = svc
 
             compose['services'] = new_svcs
@@ -417,9 +416,6 @@ class SimulationPage(QWidget):
                 self.output_area.appendPlainText("Error: Docker Compose failed to start")
                 self.output_area.appendPlainText(self.process.errorString())
                 return
-
-            if any(d.get('delay_combobox') == 'Yes' for d in self.config.get('client_details', [])):
-                QTimer.singleShot(3000, self._apply_netem_latency)
 
         else:
             # ** Ramo locale: working dir = progetto/Local **
@@ -496,41 +492,7 @@ class SimulationPage(QWidget):
         ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         return ansi_escape.sub('', text)
     
-    
-    def _apply_netem_latency(self):
-        flagged = [d.get('client_id') for d in self.config.get('client_details', []) if d.get('delay_combobox') == 'Yes']
-        if not flagged:
-            return
-        self.pumba_name = f"pumba_netem_{os.getpid()}"
-        pattern = '^(' + '|'.join(f"Client{cid}" for cid in flagged) + ')$'
-        # Apply conservative delay 200ms ±80ms for long enough duration
-        dur = max(300, int(self.config.get('rounds', 10)) * 120)
-        cmd = [
-            'docker', 'run', '-d', '--rm', '--name', self.pumba_name,
-            '--privileged', '--net=host', '-v', '/var/run/docker.sock:/var/run/docker.sock',
-            'gaiaadm/pumba', 'netem', '--duration', f'{dur}s',
-            'delay', '--time', '200', '--jitter', '80', '--distribution', 'normal',
-            f're2:{pattern}'
-        ]
-        try:
-            import subprocess
-            subprocess.run(cmd, check=True)
-            self.output_area.appendPlainText(f"[netem] Applied to clients {flagged} via {self.pumba_name}")
-        except Exception as e:
-            self.output_area.appendPlainText(f"[netem] Failed to apply: {e}")
-
-    def _stop_pumba_if_running(self):
-        name = getattr(self, 'pumba_name', None)
-        if name:
-            try:
-                import subprocess
-                subprocess.run(['docker', 'stop', name], check=False)
-                self.output_area.appendPlainText(f"[netem] Stopped {name}")
-            finally:
-                self.pumba_name = None
-
     def process_finished(self):
-        self._stop_pumba_if_running()
         self.output_area.appendPlainText("Simulation finished.")
         self.title_label.setText("Simulation Results")
         self.stop_button.setText("Close")
@@ -539,7 +501,6 @@ class SimulationPage(QWidget):
         self.process = None
 
     def stop_simulation(self):
-        self._stop_pumba_if_running()
         if self.process:
             self.process.terminate()
             self.process.waitForFinished()
@@ -820,3 +781,7 @@ class XAIWindow(QDialog):
         )
 
         self.canvas.draw()
+
+
+
+

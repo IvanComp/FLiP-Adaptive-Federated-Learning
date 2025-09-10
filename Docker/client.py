@@ -156,6 +156,8 @@ class FlowerClient(NumPyClient):
         self.model_type = model_type
         self.did_hdh = False
         self.trainloader, self.testloader = None, None
+        self.delay_enabled = (client_config.get("delay_combobox") == "Yes")
+        self.delay_injection = 50
 
         if self.n_cpu is not None:
             try:
@@ -339,6 +341,9 @@ class FlowerClient(NumPyClient):
         compressed_parameters_hex = None
 
         train_end_ts = taskA.TRAIN_COMPLETED_TS or time.time()
+        if self.delay_enabled:
+            log(INFO, f"client {self.cid} injecting delay of {self.delay_injection} seconds")
+            time.sleep(self.delay_injection)
         send_ready_ts = time.time()
         communication_time = send_ready_ts - train_end_ts
 
@@ -383,6 +388,8 @@ class FlowerClient(NumPyClient):
                 "ram_percent": ram_percent,
                 "hdh_ms": hdh_ms if HETEROGENEOUS_DATA_HANDLER else 0.0,
                 "communication_time": communication_time,
+                "client_sent_ts": send_ready_ts,
+                "train_end_ts": train_end_ts,
                 "client_id": self.cid,
                 "model_type": self.model_type,
                 "data_distribution_type": self.data_distribution_type,
@@ -405,8 +412,10 @@ class FlowerClient(NumPyClient):
                 "ram": self.ram,
                 "cpu_percent": cpu_percent,
                 "ram_percent": ram_percent,
-                "hdh_ms": hdh_ms if not None else 0.0,
+                "hdh_ms": hdh_ms if hdh_ms is not None else 0.0,
                 "communication_time": communication_time,
+                "client_sent_ts": send_ready_ts,
+                "train_end_ts": train_end_ts,
                 "client_id": self.cid,
                 "model_type": self.model_type,
                 "data_distribution_type": self.data_distribution_type,

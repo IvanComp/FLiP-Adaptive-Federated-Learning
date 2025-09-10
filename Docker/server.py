@@ -539,11 +539,16 @@ class MultiModelStrategy(Strategy):
                 model_type = metrics.get("model_type")
                 hdh_ms = metrics.get("hdh_ms", 0.0)
                 client_model_mapping[client_id] = model_type
-                recv_ts = time.time()
+                recv_ts = metrics.get("client_sent_ts", None) or time.time()
                 send_ts = self._send_ts.get(client_proxy.cid, recv_ts)
                 rt_total = recv_ts - send_ts
                 train_t = training_time or 0.0
-                metrics["communication_time"] = max(rt_total - train_t - hdh_ms, 0.0)
+                server_comm_time = max(rt_total - train_t - hdh_ms, 0.0)
+                if metrics.get("communication_time") is None:
+                    metrics["communication_time"] = server_comm_time
+                else:
+                    metrics["server_comm_time"] = server_comm_time
+
 
             if MESSAGE_COMPRESSOR and compressed_parameters_b64:
                 compressed = base64.b64decode(compressed_parameters_b64)
