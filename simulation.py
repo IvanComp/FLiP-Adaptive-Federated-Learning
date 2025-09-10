@@ -781,8 +781,3 @@ class XAIWindow(QDialog):
         )
 
         self.canvas.draw()
-
-
-
-
-

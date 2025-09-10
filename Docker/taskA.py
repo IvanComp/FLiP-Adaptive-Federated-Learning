@@ -716,6 +716,7 @@ def balance_dataset_with_gan(
 
 
 def rebalance_trainloader_with_gan(trainloader):
+    _t0_hdh = time.time()
     global DATASET_NAME
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
@@ -747,9 +748,12 @@ def rebalance_trainloader_with_gan(trainloader):
 
     # Truncate the dataset
     trainset = truncate_dataset(trainset, max_limit)
-
-    # Create new DataLoader
-    return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
+    hdh_ms = (time.time() - _t0_hdh)
+    #Temporal workaround
+    if hdh_ms < 10:
+        hdh_ms = 0.0
+    log(INFO,f"HDH Data Handler (GAN) Total Processing time: {hdh_ms:.2f} seconds")
+    return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True), hdh_ms
 
 
 def get_jsd(trainloader):

@@ -140,7 +140,7 @@ if os.path.exists(csv_file):
 with open(csv_file, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow([
-        'Client ID', 'FL Round', 'Training Time', 'JSD', 'Communication Time', 'Total Time of FL Round',
+        'Client ID', 'FL Round', 'Training Time', 'JSD', 'HDH Time','Communication Time', 'Total Time of FL Round',
         '# of CPU', 'CPU Usage (%)', 'RAM Usage (%)',
         'Model Type', 'Data Distr. Type', 'Dataset',
         'Train Loss', 'Train Accuracy', 'Train F1', 'Train MAE',
@@ -150,7 +150,7 @@ with open(csv_file, 'w', newline='') as file:
 
 def log_round_time(
         client_id, fl_round,
-        training_time, jsd, communication_time, time_between_rounds,
+        training_time, jsd, hdh_ms, communication_time, time_between_rounds,
         n_cpu, cpu_percent, ram_percent,
         client_model_type, data_distr, dataset_value,
         already_logged, srt1, srt2, agg_key
@@ -190,6 +190,7 @@ def log_round_time(
             fl_round + 1,
             f"{training_time:.2f}",
             f"{jsd:.2f}",
+            f"{hdh_ms:.2f}",
             f"{communication_time:.2f}",
             f"{time_between_rounds:.2f}",
             n_cpu,
@@ -326,6 +327,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
         jsd = m.get("jsd") or 0.0
         communication_time = m.get("communication_time") or 0.0
         n_cpu = m.get("n_cpu") or 0
+        hdh_ms = m.get("hdh_ms") or 0.0
         cpu_percent = m.get("cpu_percent") or 0.0
         ram_percent = m.get("ram_percent") or 0.0
         if client_id:
@@ -333,6 +335,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
                 client_id,
                 training_time,
                 jsd,
+                hdh_ms,
                 communication_time,
                 time_between_rounds,
                 n_cpu,
@@ -351,6 +354,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
             client_id,
             training_time,
             jsd,
+            hdh_ms,
             communication_time,
             time_between_rounds,
             n_cpu,
@@ -368,6 +372,7 @@ def weighted_average_global(metrics, agg_model_type, srt1, srt2, time_between_ro
             currentRnd - 1,
             training_time,
             jsd,
+            hdh_ms,
             communication_time,
             time_between_rounds,
             n_cpu,
@@ -454,6 +459,7 @@ class MultiModelStrategy(Strategy):
         parameters: Parameters,
         client_manager: ClientManager,
     ) -> List[Tuple[ClientProxy, FitIns]]:
+        client_manager.wait_for(client_count) 
         self.round_start_time = time.time()
         available = client_manager.num_available()
         if available < 1:
@@ -531,12 +537,13 @@ class MultiModelStrategy(Strategy):
                 compressed_parameters_b64 = metrics.get("compressed_parameters_b64")
                 client_id = metrics.get("client_id")
                 model_type = metrics.get("model_type")
+                hdh_ms = metrics.get("hdh_ms", 0.0)
                 client_model_mapping[client_id] = model_type
                 recv_ts = time.time()
                 send_ts = self._send_ts.get(client_proxy.cid, recv_ts)
                 rt_total = recv_ts - send_ts
                 train_t = training_time or 0.0
-                metrics["communication_time"] = max(rt_total - train_t, 0.0)
+                metrics["communication_time"] = max(rt_total - train_t - hdh_ms, 0.0)
 
             if MESSAGE_COMPRESSOR and compressed_parameters_b64:
                 compressed = base64.b64decode(compressed_parameters_b64)

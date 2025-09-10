@@ -6,262 +6,52 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
+    command: sh -c "sleep 5 && python client.py"
     container_name: Client1
-    cpus: 2
-    cpuset: "0,1"
+    cpus: 5
     depends_on:
-      - server
+    - server
     environment:
       CLIENT_ID: '1'
-      NUM_CPUS: '2'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
+      NUM_CPUS: '5'
+      NUM_RAM: '2'
+      NUM_ROUNDS: '2'
       SERVER_ADDRESS: server:8080
     labels:
-      - type=client
-    mem_limit: 4g
+    - type=client
+    mem_limit: 2g
     networks:
-      - flwr_network
+    - flwr_network
     volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
+    - ./data:/app/data
+    - ./performance:/app/performance
+    - ./configuration:/app/configuration
+    - ./model_weights:/app/model_weights
   client2:
     build:
       context: .
       dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
+    command: sh -c "sleep 5 && python client.py"
     container_name: Client2
-    cpus: 2
-    cpuset: "2,3"
+    cpus: 5
     depends_on:
-      - server
+    - server
     environment:
       CLIENT_ID: '2'
-      NUM_CPUS: '2'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
+      NUM_CPUS: '5'
+      NUM_RAM: '2'
+      NUM_ROUNDS: '2'
       SERVER_ADDRESS: server:8080
     labels:
-      - type=client
-    mem_limit: 4g
+    - type=client
+    mem_limit: 2g
     networks:
-      - flwr_network
+    - flwr_network
     volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client3:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client3
-    cpus: 2
-    cpuset: "4,5"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '3'
-      NUM_CPUS: '2'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client4:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client4
-    cpus: 2
-    cpuset: "6,7"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '4'
-      NUM_CPUS: '2'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client5:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client5
-    cpus: 2
-    cpuset: "8,9"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '5'
-      NUM_CPUS: '2'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client6:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client6
-    cpus: 1
-    cpuset: "10"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '6'
-      NUM_CPUS: '1'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client7:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client7
-    cpus: 1
-    cpuset: "11"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '7'
-      NUM_CPUS: '1'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client8:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client8
-    cpus: 1
-    cpuset: "12"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '8'
-      NUM_CPUS: '1'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client9:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client9
-    cpus: 1
-    cpuset: "13"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '9'
-      NUM_CPUS: '1'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
-  client10:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    command: sh -c "sleep 20 && python client.py"
-    container_name: Client10
-    cpus: 1
-    cpuset: "14"
-    depends_on:
-      - server
-    environment:
-      CLIENT_ID: '10'
-      NUM_CPUS: '1'
-      NUM_RAM: '4'
-      NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
-    labels:
-      - type=client
-    mem_limit: 4g
-    networks:
-      - flwr_network
-    volumes:
-      - ./data:/app/data
-      - ./performance:/app/performance
-      - ./configuration:/app/configuration
-      - ./model_weights:/app/model_weights
+    - ./data:/app/data
+    - ./performance:/app/performance
+    - ./configuration:/app/configuration
+    - ./model_weights:/app/model_weights
   server:
     build:
       context: .

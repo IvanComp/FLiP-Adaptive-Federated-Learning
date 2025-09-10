@@ -169,8 +169,9 @@ class FlowerClient(NumPyClient):
         self.net = NetA().to(DEVICE)
         self.DEVICE = DEVICE
 
-    def fit(self, parameters, config):
+    def fit(self, parameters, config):    
         global GLOBAL_ROUND_COUNTER
+        hdh_ms = 0.0
         proc = psutil.Process(os.getpid())
         cpu_start = proc.cpu_times().user + proc.cpu_times().system
         wall_start = time.time()
@@ -206,7 +207,7 @@ class FlowerClient(NumPyClient):
             self.trainloader, self.testloader = load_data_A(self.client_config, GLOBAL_ROUND_COUNTER)
 
         if HETEROGENEOUS_DATA_HANDLER and (ADAPTATION_ENABLED or not self.did_hdh):
-            self.trainloader = rebalance_trainloader_with_gan_A(self.trainloader)
+            self.trainloader, hdh_ms = rebalance_trainloader_with_gan_A(self.trainloader)
             self.did_hdh = True
 
         if CLIENT_SELECTOR:
@@ -380,6 +381,7 @@ class FlowerClient(NumPyClient):
                 "ram": self.ram,
                 "cpu_percent": cpu_percent,
                 "ram_percent": ram_percent,
+                "hdh_ms": hdh_ms if HETEROGENEOUS_DATA_HANDLER else 0.0,
                 "communication_time": communication_time,
                 "client_id": self.cid,
                 "model_type": self.model_type,
@@ -403,6 +405,7 @@ class FlowerClient(NumPyClient):
                 "ram": self.ram,
                 "cpu_percent": cpu_percent,
                 "ram_percent": ram_percent,
+                "hdh_ms": hdh_ms if not None else 0.0,
                 "communication_time": communication_time,
                 "client_id": self.cid,
                 "model_type": self.model_type,

@@ -610,9 +610,9 @@ class PreSimulationPage(QWidget):
 
                 checkbox = QCheckBox(pattern_name)
                 if pattern_name == "Model co-Versioning Registry":
-                    checkbox.setChecked(True)
-                checkbox.setToolTip(pattern_desc)
-                checkbox.setStyleSheet("QCheckBox { color: black; font-size: 12px; }")
+                    #checkbox.setChecked(True)
+                    checkbox.setToolTip(pattern_desc)
+                    checkbox.setStyleSheet("QCheckBox { color: black; font-size: 12px; }")
 
                 if pattern_name not in enabled_patterns:
                     checkbox.setEnabled(False)
@@ -1080,6 +1080,7 @@ class ClientConfigurationPage(QWidget):
         ds = first["dataset_combobox"].currentText()
         part = first["partition_combobox"].currentText()
         pers = first["persistence_combobox"].currentText()
+        delay = first["delay_combobox"].currentText()
         model = first["model_combobox"].currentText()
         epochs = first["epochs_spinbox"].value()
 
@@ -1099,6 +1100,10 @@ class ClientConfigurationPage(QWidget):
             if idx_pers >= 0:
                 cfg["persistence_combobox"].setCurrentIndex(idx_pers)
 
+            idx_delay = cfg["delay_combobox"].findText(delay)
+            if idx_delay >= 0:
+                cfg["delay_combobox"].setCurrentIndex(idx_delay)
+
             idx_model = cfg["model_combobox"].findText(model)
             if idx_model >= 0:
                 cfg["model_combobox"].setCurrentIndex(idx_model)
@@ -1108,12 +1113,12 @@ class ClientConfigurationPage(QWidget):
     def create_client_card(self, client_id):
         card = QFrame(objectName="ClientCard")
         card_layout = QVBoxLayout()
-        card_layout.setContentsMargins(8, 8, 8, 8)
+        card_layout.setContentsMargins(8, 8, 9, 9)
         card_layout.setSpacing(5)
         card.setLayout(card_layout)
 
         fixed_width = 305
-        fixed_height = 400
+        fixed_height = 420
         card.setFixedWidth(fixed_width)
         card.setFixedHeight(fixed_height)
 
@@ -1160,7 +1165,7 @@ class ClientConfigurationPage(QWidget):
         dataset_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         dataset_label.setAlignment(Qt.AlignLeft)
         dataset_combobox = QComboBox()
-        dataset_combobox.addItems(["CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "FashionMNIST", "OXFORDIIITPET","ImageNet100"])
+        dataset_combobox.addItems(["FashionMNIST", "CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "OXFORDIIITPET","ImageNet100"])
         dataset_combobox.setFixedWidth(160)
         dataset_layout = QHBoxLayout()
         dataset_layout.setSpacing(12)
@@ -1189,6 +1194,18 @@ class ClientConfigurationPage(QWidget):
         persistence_layout.addWidget(persistence_label)
         persistence_layout.addWidget(persistence_combobox)
         card_layout.addLayout(persistence_layout)
+
+        delay_label = QLabel("Delay Injection:")
+        delay_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
+        delay_label.setAlignment(Qt.AlignLeft)
+        delay_combobox = QComboBox()
+        delay_combobox.addItems(["No","Yes","Random"])
+        delay_combobox.setFixedWidth(160)
+        delay_layout = QHBoxLayout()
+        delay_layout.addWidget(delay_label)
+        delay_layout.setSpacing(17) 
+        delay_layout.addWidget(delay_combobox)
+        card_layout.addLayout(delay_layout)
 
         model_group = QGroupBox("Model Training Settings")
         model_group.setStyleSheet("""
@@ -1269,6 +1286,7 @@ class ClientConfigurationPage(QWidget):
             "dataset_combobox": dataset_combobox,
             "persistence_combobox": persistence_combobox,
             "partition_combobox": partition_combobox,
+            "delay_combobox": delay_combobox,
             "model_combobox": model_combobox,
             "epochs_spinbox": epochs_spinbox
         }
@@ -1285,6 +1303,7 @@ class ClientConfigurationPage(QWidget):
                 "dataset": cfg["dataset_combobox"].currentText(),
                 "data_distribution_type": cfg["partition_combobox"].currentText(),
                 "data_persistence_type": cfg["persistence_combobox"].currentText(),
+                "delay_combobox": cfg["delay_combobox"].currentText(),
                 "model": cfg["model_combobox"].currentText(),
                 "epochs": cfg["epochs_spinbox"].value()
             }
