@@ -15,7 +15,7 @@
     },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 2,
+    "clients": **CLIENTS_COUNT**,
     "patterns": {
         "client_registry": {
             "enabled": true,
@@ -30,12 +30,8 @@
             "params": {}
         },
         "message_compressor": {
-            "enabled": false,
-            "params": {
-                "enabled_clients": [
-                    "Client 23"
-                ]
-            }
+            "enabled": true,
+            "params": {}
         },
         "model_co-versioning_registry": {
             "enabled": false,
@@ -51,25 +47,6 @@
         }
     },
     "client_details": [
-        {
-            "client_id": 32,
-            "cpu": 2,
-            "ram": 4,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "Same Data",
-            "model": "CNN 16k",
-            "epochs": 1
-        },
-        {
-            "client_id": 33,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "Same Data",
-            "model": "CNN 16k",
-            "epochs": 1
-        }
+        **CLIENTS**
     ]
 }

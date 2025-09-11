@@ -2,61 +2,63 @@ networks:
   flwr_network:
     driver: bridge
 services:
-  client1:
+  client32:
     build:
       context: .
       dockerfile: Dockerfile.client
-    command: sh -c "sleep 5 && python client.py"
-    container_name: Client1
-    cpus: 5
+    command: sh -c "sleep 20 && python client.py"
+    container_name: Client32
+    cpus: 2
+    cpuset: "31,32"
     depends_on:
-    - server
+      - server2
     environment:
-      CLIENT_ID: '1'
-      NUM_CPUS: '5'
-      NUM_RAM: '2'
-      NUM_ROUNDS: '2'
-      SERVER_ADDRESS: server:8080
+      CLIENT_ID: '32'
+      NUM_CPUS: '2'
+      NUM_RAM: '4'
+      NUM_ROUNDS: '20'
+      SERVER_ADDRESS: server2:8081
     labels:
-    - type=client
-    mem_limit: 2g
+      - type=client
+    mem_limit: 4g
     networks:
-    - flwr_network
+      - flwr_network
     volumes:
-    - ./data:/app/data
-    - ./performance:/app/performance
-    - ./configuration:/app/configuration
-    - ./model_weights:/app/model_weights
-  client2:
+      - ./data:/app/data
+      - ./performance:/app/performance
+      - ./configuration:/app/configuration
+      - ./model_weights:/app/model_weights
+  client33:
     build:
       context: .
       dockerfile: Dockerfile.client
-    command: sh -c "sleep 5 && python client.py"
-    container_name: Client2
-    cpus: 5
+    command: sh -c "sleep 20 && python client.py"
+    container_name: Client33
+    cpus: 1
+    cpuset: "33"
     depends_on:
-    - server
+      - server2
     environment:
-      CLIENT_ID: '2'
-      NUM_CPUS: '5'
-      NUM_RAM: '2'
-      NUM_ROUNDS: '2'
-      SERVER_ADDRESS: server:8080
+      CLIENT_ID: '33'
+      NUM_CPUS: '1'
+      NUM_RAM: '4'
+      NUM_ROUNDS: '20'
+      SERVER_ADDRESS: server2:8081
     labels:
-    - type=client
-    mem_limit: 2g
+      - type=client
+    mem_limit: 4g
     networks:
-    - flwr_network
+      - flwr_network
     volumes:
-    - ./data:/app/data
-    - ./performance:/app/performance
-    - ./configuration:/app/configuration
-    - ./model_weights:/app/model_weights
-  server:
+      - ./data:/app/data
+      - ./performance:/app/performance
+      - ./configuration:/app/configuration
+      - ./model_weights:/app/model_weights
+  server2:
     build:
       context: .
       dockerfile: Dockerfile.server
-    container_name: flwr_server
+    container_name: flwr_server2
     deploy:
       resources:
         limits:
@@ -67,7 +69,7 @@ services:
     networks:
     - flwr_network
     ports:
-    - 8080:8080
+    - 8081:8081
     volumes:
     - ./data:/app/data
     - ./performance:/app/performance

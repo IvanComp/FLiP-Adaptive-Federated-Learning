@@ -83,19 +83,18 @@ def config_patterns(config):
     global CLIENT_SELECTOR, CLIENT_CLUSTER, MESSAGE_COMPRESSOR, MODEL_COVERSIONING, MULTI_TASK_MODEL_TRAINER, HETEROGENEOUS_DATA_HANDLER
 
     for pattern_name, pattern_info in config.items():
-        if pattern_info["enabled"]:
-            if pattern_name == "client_selector":
-                CLIENT_SELECTOR = True
-            elif pattern_name == "client_cluster":
-                CLIENT_CLUSTER = True
-            elif pattern_name == "message_compressor":
-                MESSAGE_COMPRESSOR = True
-            elif pattern_name == "model_co-versioning_registry":
-                MODEL_COVERSIONING = True
-            elif pattern_name == "multi-task_model_trainer":
-                MULTI_TASK_MODEL_TRAINER = True
-            elif pattern_name == "heterogeneous_data_handler":
-                HETEROGENEOUS_DATA_HANDLER = True
+        if pattern_name == "client_selector":
+            CLIENT_SELECTOR = pattern_info["enabled"]
+        elif pattern_name == "client_cluster":
+            CLIENT_CLUSTER = pattern_info["enabled"]
+        elif pattern_name == "message_compressor":
+            MESSAGE_COMPRESSOR = pattern_info["enabled"]
+        elif pattern_name == "model_co-versioning_registry":
+            MODEL_COVERSIONING = pattern_info["enabled"]
+        elif pattern_name == "multi-task_model_trainer":
+            MULTI_TASK_MODEL_TRAINER = pattern_info["enabled"]
+        elif pattern_name == "heterogeneous_data_handler":
+            HETEROGENEOUS_DATA_HANDLER = pattern_info["enabled"]
 
 
 # Path to the 'configuration' directory
