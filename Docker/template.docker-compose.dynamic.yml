@@ -3,11 +3,11 @@ networks:
     driver: bridge
 services:
 **CLIENTS**
-  server2:
+  server:
     build:
       context: .
       dockerfile: Dockerfile.server
-    container_name: flwr_server2
+    container_name: flwr_server
     deploy:
       resources:
         limits:
@@ -18,7 +18,7 @@ services:
     networks:
     - flwr_network
     ports:
-    - 8081:8081
+    - 8080:8080
     volumes:
     - ./data:/app/data
     - ./performance:/app/performance
