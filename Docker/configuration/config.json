@@ -4,21 +4,18 @@
         "metrics": [
             {
                 "name": "f1overtime",
+                "pattern": "message_compressor",
                 "metric": "val_f1",
-                "pattern": "client_selector",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "bayesian_optimization",
-                    "predictor": {
-                        "model_path": "predictors/bo_model.pkl"
-                    }
+                    "calculation_method": "random"
                 }
             }
         ]
     },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 10,
+    "clients": 2,
     "patterns": {
         "client_registry": {
             "enabled": true,
@@ -38,7 +35,11 @@
         },
         "message_compressor": {
             "enabled": false,
-            "params": {}
+            "params": {
+                "enabled_clients": [
+                    "Client 23"
+                ]
+            }
         },
         "model_co-versioning_registry": {
             "enabled": false,
@@ -55,12 +56,12 @@
     },
     "client_details": [
         {
-            "client_id": 1,
+            "client_id": 32,
             "cpu": 2,
-            "ram": 2,
+            "ram": 4,
             "dataset": "CIFAR-10",
             "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
+            "data_persistence_type": "Same Data",
             "model": "CNN 16k",
             "epochs": 1
         },
@@ -107,50 +108,10 @@
         {
             "client_id": 6,
             "cpu": 1,
-            "ram": 2,
+            "ram": 4,
             "dataset": "CIFAR-10",
             "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "model": "CNN 16k",
-            "epochs": 1
-        },
-        {
-            "client_id": 7,
-            "cpu": 1,
-            "ram": 2,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "model": "CNN 16k",
-            "epochs": 1
-        },
-        {
-            "client_id": 8,
-            "cpu": 1,
-            "ram": 2,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "model": "CNN 16k",
-            "epochs": 1
-        },
-        {
-            "client_id": 9,
-            "cpu": 1,
-            "ram": 2,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "model": "CNN 16k",
-            "epochs": 1
-        },
-        {
-            "client_id": 10,
-            "cpu": 1,
-            "ram": 2,
-            "dataset": "CIFAR-10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
+            "data_persistence_type": "Same Data",
             "model": "CNN 16k",
             "epochs": 1
         }

@@ -398,9 +398,6 @@ class RecapSimulationPage(QWidget):
         from simulation import SimulationPage
         merged={}
         for c in self.user_choices: merged.update(c if isinstance(c,dict) else {})
-        for cli in merged.get('client_details',[]):
-            if cli.get('data_distribution_type')=='Random':
-                cli['data_distribution_type'] = 'IID' if random.random()<0.5 else 'non-IID'
         base=os.path.dirname(os.path.abspath(__file__))
         st=merged.get('simulation_type','local').lower()
         cfg_folder = os.path.join(base, 'Local' if st=='local' else 'Docker', 'configuration')

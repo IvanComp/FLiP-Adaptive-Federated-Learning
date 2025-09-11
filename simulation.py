@@ -785,4 +785,3 @@ class XAIWindow(QDialog):
 
 
 
-

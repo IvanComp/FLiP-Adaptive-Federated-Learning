@@ -8,10 +8,12 @@ N_low = int(sys.argv[4])
 persistence = sys.argv[5] 
 data_persistente_types = {'new': 'New Data', 'same': 'Same Data', 'remove': 'Remove Data'}
 
+N_other = 31
+
 json_tplt = """{{
             \"client_id\": {},
             \"cpu\": {},
-            \"ram\": 2,
+            \"ram\": 4,
             \"dataset\": \"CIFAR-10\",
             \"data_distribution_type\": \"{}\",
             \"data_persistence_type\": \"{}\",
@@ -28,14 +30,14 @@ with open("configuration/config.json", "w") as config_file:
         clients_config = []
         for i in range(N_high):
             if i < N_high * N_iid/100:
-                clients_config.append(json_tplt.format(i+1, 2, "IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i+1+N_other, 2, "IID", data_persistente_types[persistence]))
             else:
-                clients_config.append(json_tplt.format(i+1, 2, "non-IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i+1+N_other, 2, "non-IID", data_persistente_types[persistence]))
         for i in range(N_low):
             if i < N_low * N_iid/100:
-                clients_config.append(json_tplt.format(i+1 + N_high, 1, "IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i+1 + N_high+N_other, 1, "IID", data_persistente_types[persistence]))
             else:
-                clients_config.append(json_tplt.format(i+1 + N_high, 1, "non-IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i+1 + N_high+N_other, 1, "non-IID", data_persistente_types[persistence]))
         to_copy = to_copy.replace("**CLIENTS**", ",\n".join(clients_config))
 
         if len(sys.argv) > 6:
@@ -54,13 +56,13 @@ docker_client_tplt = """  {}:
     cpus: {}
     cpuset: \"{}\"
     depends_on:
-      - server
+      - server2
     environment:
       CLIENT_ID: '{}'
       NUM_CPUS: '{}'
       NUM_RAM: '4'
       NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server:8080
+      SERVER_ADDRESS: server2:8081
     labels:
       - type=client
     mem_limit: 4g
@@ -75,24 +77,24 @@ docker_client_tplt = """  {}:
 with open("docker-compose.dynamic.yml", "w") as docker_file:
     with open("template.docker-compose.dynamic.yml") as default_docker_file:
         docker_tplt = default_docker_file.read()
-        cpu_set = list(range(0, 2 * N_high + N_low))
+        cpu_set = list(range(N_other, N_other + 2 * N_high + N_low))
         docker_clients = []
         for i in range(N_high):
             docker_clients.append(docker_client_tplt.format(
-                "client{}".format(i+1),
-                "Client{}".format(i+1),
+                "client{}".format(i+1+N_other),
+                "Client{}".format(i+1+N_other),
                 2,
                 ",".join(str(cpu) for cpu in cpu_set[i*2:i*2+2]),
-                i+1,
+                i+1+N_other,
                 2
             ))
         for i in range(N_low):
             docker_clients.append(docker_client_tplt.format(
-                "client{}".format(i+1 + N_high),
-                "Client{}".format(i+1 + N_high),
+                "client{}".format(i+1 + N_high+N_other),
+                "Client{}".format(i+1 + N_high+N_other),
                 1,
                 str(cpu_set[i + 2 * N_high]),
-                i+1 + N_high,
+                i+1 + N_high+N_other,
                 1
             ))
         docker_file.write(docker_tplt.replace("**CLIENTS**", "\n".join(docker_clients)))
