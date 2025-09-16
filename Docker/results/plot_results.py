@@ -58,12 +58,15 @@ def VD_A(treatment: List[float], control: List[float]):
 
 metric = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-          ('hdh', 'same'): 'Val F1', ('hdh', 'new'): 'Val F1'}
+          ('hdh', 'same'): 'Val F1', ('hdh', 'new'): 'Val F1',
+          ('compressor', 'same'): 'Communication Time',
+          ('compressor', 'new'): 'Communication Time'}
 
 label_dict = {'selector': ['never', 'random', 'all-high', 'fixed', 'tree', 'bo'],
-              'hdh': ['never', 'random', 'round1', 'fixed', 'tree', 'bo']}
+              'hdh': ['never', 'random', 'round1', 'fixed', 'tree', 'bo'],
+              'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo']}
 
-patterns = ['selector', 'hdh']
+patterns = ['selector', 'hdh', 'compressor']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
