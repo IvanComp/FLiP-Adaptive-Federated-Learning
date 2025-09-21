@@ -223,9 +223,9 @@ class PredictorBasedLocalActivationCriterion(ActivationCriterion):
 
             # TODO should be parametric w.r.t. predictor input
             prediction_w_pattern = \
-            self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1 / last_round_time]])[0]
+            self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1]])[0]
             prediction_wo_pattern = \
-            self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
+            self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1]])[0]
 
             expl = f"client {client_i + 1}, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
             log(INFO, expl)
