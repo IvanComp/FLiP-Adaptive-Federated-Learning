@@ -59,10 +59,11 @@ def VD_A(treatment: List[float], control: List[float]):
 metric = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
           ('hdh', 'same'): 'Val F1', ('hdh', 'new'): 'Val F1',
-          ('compressor', 'same'): 'Communication Time',
-          ('compressor', 'new'): 'Communication Time'}
+          ('compressor', 'same'): 'Cumulative Communication Time',
+          ('compressor', 'new'): 'Cumulative Communication Time'}
 
-label_dict = {'selector': ['never', 'random', 'all-high', 'fixed', 'tree', 'bo'],
+label_dict = {'selector': ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                           r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               'hdh': ['never', 'random', 'round1', 'fixed', 'tree', 'bo'],
               'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo']}
 
@@ -90,12 +91,18 @@ def get_exp_data(n_high, n_low, iid_percentage, data_persistence):
     for folder in folders:
         experiments = [subfolder for subfolder in os.listdir(os.getcwd() + '/' + folder)]
         for exp in experiments:
+            if exp.startswith('.'):
+                continue
+
             exp_path = os.getcwd() + '/' + folder + '/' + exp
             if 'FLwithAP_performance_metrics.csv' in os.listdir(exp_path):
                 df = pd.read_csv(exp_path + '/FLwithAP_performance_metrics.csv')
+                df['Cumulative Training Time'] = df['Training Time'].cumsum()
                 df = df[df['Val F1'] >= 0]
                 df['Cumulative Time'] = df['Total Time of FL Round'].cumsum()
+                df['Cumulative Communication Time'] = df['Communication Time'].cumsum()
                 df['F1 Score Over Total Time for FL Round'] = df['Val F1'] / df['Cumulative Time']
+                df['F1 Over Total Training Time'] = df['Val F1'] / df['Cumulative Training Time']
                 model_data = df[df['Val F1'] >= 0]
                 exp_data.append((folder + '/' + exp, model_data))
     return exp_data
@@ -107,7 +114,7 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
         if filter[0](pair):
             exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
 
-    colors = ['red', 'purple', 'green', 'blue', 'orange', 'pink'][:len(selected_confs)]
+    colors = ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600'][:len(selected_confs)]
     labels = label_dict[pattern][:len(selected_confs)]
     d = []
     for conf in selected_confs:
@@ -117,18 +124,25 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
         for i in range(len(data)):
             d[-1].append(data[i][-1])
     plt.rcParams.update({'font.size': 12})
-    fig = plt.figure(figsize=(5, 5))
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['font.family'] = 'sans-serif'  # Often looks good with LaTeX
+    plt.rcParams['font.serif'] = ['Helvetica']  # Specify LaTeX font
+    fig = plt.figure(figsize=(5, 4))
     ax = fig.add_subplot(111)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     meanprops = dict(marker='^', markerfacecolor='white', markeredgecolor='black', markersize=8)
     bp = ax.boxplot(d, labels=labels, patch_artist=True, showmeans=True, meanprops=meanprops)
     # fill with colors
+    for box in bp['boxes']:
+        box.set(linewidth=0.5)
     for patch, color in zip(bp['boxes'], colors):
         patch.set_facecolor(color)
-        patch.set_alpha(0.5)
+        patch.set_alpha(1.0)
     for median in bp['medians']:
         median.set_color('black')
     # ax.set_title('{} high - {} low - {}% iid'.format(N_high, N_low, iid_percentage))
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
+                  alpha=0.7, zorder=0)
     offset_text = ax.yaxis.get_offset_text()
     offset_text.set_verticalalignment('bottom')  # Align text top to bottom position
     offset_text.set_position((-0.12, -1.0))  # (x, y) in axis coordinates; tweak x as needed
