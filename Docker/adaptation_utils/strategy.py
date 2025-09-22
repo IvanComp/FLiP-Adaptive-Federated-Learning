@@ -40,6 +40,12 @@ def get_activation_criteria(json_config, default_config):
 
         return [BayesianOptimizationActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
                                                         default_config)]
+    elif threshold_config['calculation_method'] == 'bayesian_optimization-local':
+        model_path = threshold_config['predictor']['model_path']
+        model = joblib.load(threshold_config['predictor']['model_path'])
+
+        return [BayesianOptimizationLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                        default_config)]
     elif threshold_config['calculation_method'] == 'fixed-global':
         return [FixedGlobalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
                                                         strategy_name,
@@ -305,3 +311,65 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
             return False, None, expl + f'{self.pattern} de-activated ❌'
         else:
             return True, None, expl + f'{self.pattern} activated ✅'
+
+class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
+    def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
+        self.model = model
+        self.model_name = model_name
+        super().__init__(pattern, metric, strategy_name, clients_config)
+
+    def __str__(self):
+        return f'Metric: {self.metric}, bo-based: {self.model_name}'
+
+    def activate_pattern(self, args):
+        model_type = args['model_type']
+        new_aggregated_metrics = args['metrics']
+        last_round_time = args['time']
+
+        iid_clients = get_no_iid_clients(self.clients_config)
+        n_high, n_low = get_high_low_clients(self.clients_config)
+
+        # TODO should be parametric 
+        scaler = joblib.load('predictors/bo_scaler_hdh.pkl')
+
+        def objective(policy_on, curr_round, last_jsd, prev_f1):  # binary: 0 or 1
+            X = [[curr_round, policy_on[0], last_jsd, prev_f1]]
+            X_scaled = scaler.transform(X)
+            y_pred = -self.model.predict(X_scaled)[0]  # maximize → minimize negative
+            return y_pred
+
+        # Otherwise, we know the last round's F1 score and time
+        metrics = self.metric.split(',')
+
+        if len(new_aggregated_metrics[model_type][metrics[0]]) < 1:
+            return True, "Less than 1 round completed, keeping default config."
+
+        last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}
+
+        # TODO should be parametric w.r.t. metric name        
+        last_val_f1 = last_metrics['val_f1']
+
+        next_round = len(new_aggregated_metrics[model_type][metrics[0]]) + 1
+
+        n_high, n_low = get_high_low_clients(self.clients_config)
+
+        apply_pattern = []
+        for client_i in range(len(self.clients_config['client_details'])):
+            # TODO should be parametric w.r.t. metric name
+            last_jsd = last_metrics['jsd'][client_i]
+            
+            def wrapped_objective(pattern_on):
+                return objective(pattern_on, next_round, last_jsd, last_val_f1)
+            
+            res = gp_minimize(wrapped_objective,  # objective fn
+                    [(0, 1)],  # policy_on ∈ {0,1}
+                    acq_func="EI",  # acquisition function
+                    n_calls=10, random_state=42)
+            
+            if res.x[0]:
+                apply_pattern.append(f"Client {client_i + 1}")
+
+        if len(apply_pattern) == 0:
+            return False, None, f'{self.pattern} de-activated ❌'
+        else:
+            return True, {"enabled_clients": apply_pattern}, f'{self.pattern} activated ✅ for clients: {apply_pattern}'
