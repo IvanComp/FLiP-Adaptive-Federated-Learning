@@ -19,7 +19,7 @@
     },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 6,
+    "clients": 10,
     "patterns": {
         "client_registry": {
             "enabled": true,
@@ -50,7 +50,15 @@
             "params": {
                 "enabled_clients": [
                     "Client 1",
-                    "Client 6"
+                    "Client 2",
+                    "Client 3",
+                    "Client 4",
+                    "Client 5",
+                    "Client 6",
+                    "Client 7",
+                    "Client 8",
+                    "Client 9",
+                    "Client 10"
                 ]
             }
         }
@@ -98,7 +106,7 @@
         },
         {
             "client_id": 5,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 4,
             "dataset": "CIFAR-10",
             "data_distribution_type": "non-IID",
@@ -108,6 +116,46 @@
         },
         {
             "client_id": 6,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 7,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 8,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 9,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 10,
             "cpu": 1,
             "ram": 4,
             "dataset": "CIFAR-10",
