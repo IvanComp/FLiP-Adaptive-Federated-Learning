@@ -1,32 +1,16 @@
 {
-    "adaptation": true,
-    "activation_criteria": {
-        "metrics": [
-            {
-                "name": "f1overtime",
-                "pattern": "heterogeneous_data_handler",
-                "metric": "val_f1,jsd",
-                "threshold": {
-                    "type": "decreasing",
-                    "calculation_method": "predictor-local",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_tree_hdh_3990.pkl"
-                    }
-                }
-            }
-        ]
-    },
+    "adaptation": false,
+    "activation_criteria": {},
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 6,
+    "clients": 12,
     "patterns": {
         "client_registry": {
             "enabled": true,
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {}
+            "enabled": false
         },
         "client_cluster": {
             "enabled": false,
@@ -46,16 +30,7 @@
         },
         "heterogeneous_data_handler": {
             "enabled": false,
-            "params": {
-                "enabled_clients": [
-                    "Client 1",
-                    "Client 2",
-                    "Client 3",
-                    "Client 4",
-                    "Client 5",
-                    "Client 6"
-                ]
-            }
+            "params": {}
         }
     },
     "client_details": [
@@ -69,7 +44,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-        {
+{
             "client_id": 2,
             "cpu": 2,
             "ram": 4,
@@ -79,7 +54,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-        {
+{
             "client_id": 3,
             "cpu": 2,
             "ram": 4,
@@ -89,9 +64,9 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-        {
+{
             "client_id": 4,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 4,
             "dataset": "CIFAR-10",
             "data_distribution_type": "non-IID",
@@ -99,8 +74,48 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-        {
+{
             "client_id": 5,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "Same Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+{
+            "client_id": 6,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "Same Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+{
+            "client_id": 7,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "Same Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+{
+            "client_id": 8,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "Same Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+{
+            "client_id": 9,
             "cpu": 1,
             "ram": 4,
             "dataset": "CIFAR-10",
@@ -109,8 +124,28 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-        {
-            "client_id": 6,
+{
+            "client_id": 10,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "Same Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+{
+            "client_id": 11,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "Same Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+{
+            "client_id": 12,
             "cpu": 1,
             "ram": 4,
             "dataset": "CIFAR-10",
