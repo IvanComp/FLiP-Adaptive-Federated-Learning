@@ -44,7 +44,10 @@ def VD_A(treatment: List[float], control: List[float]):
 
     # Compute the measure
     # A = (r1/m - (m+1)/2)/n # formula (14) in Vargha and Delaney, 2000
-    A = (2 * r1 - m * (m + 1)) / (2 * n * m)  # equivalent formula to avoid accuracy errors
+    try:
+        A = (2 * r1 - m * (m + 1)) / (2 * n * m)  # equivalent formula to avoid accuracy errors
+    except ZeroDivisionError:
+        return 0, 'negligible'
 
     levels = [0.147, 0.33, 0.474]  # effect sizes from Hess and Kromrey, 2004
     magnitude = ["negligible", "small", "medium", "large"]
@@ -58,16 +61,22 @@ def VD_A(treatment: List[float], control: List[float]):
 
 metric = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-          ('hdh', 'same'): 'Val F1', ('hdh', 'new'): 'Val F1',
-          ('compressor', 'same'): 'Cumulative Communication Time',
-          ('compressor', 'new'): 'Cumulative Communication Time'}
+          ('hdh', 'same'): 'Val F1',
+          ('hdh', 'new'): 'Val F1',
+          ('compressor', 'same'): 'Cumulative Total Time',
+          ('compressor-delay', 'same'): 'Cumulative Total Time'}
+
+should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1']
+should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 'Cumulative Time With HDH',
+                   'Total Time With HDH', 'Cumulative Total Time']
 
 label_dict = {'selector': ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                            r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               'hdh': ['never', 'random', 'round1', 'fixed', 'tree', 'bo'],
-              'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo']}
+              'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
+              'compressor-delay': ['never', 'random', 'always', 'fixed', 'tree', 'bo']}
 
-patterns = ['selector', 'hdh', 'compressor']
+patterns = ['selector', 'hdh', 'compressor', 'compressor-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -98,10 +107,16 @@ def get_exp_data(n_high, n_low, iid_percentage, data_persistence):
             if 'FLwithAP_performance_metrics.csv' in os.listdir(exp_path):
                 df = pd.read_csv(exp_path + '/FLwithAP_performance_metrics.csv')
                 df['Cumulative Training Time'] = df['Training Time'].cumsum()
-                df = df[df['Val F1'] >= 0]
-                df['Cumulative Time'] = df['Total Time of FL Round'].cumsum()
                 df['Cumulative Communication Time'] = df['Communication Time'].cumsum()
-                df['F1 Score Over Total Time for FL Round'] = df['Val F1'] / df['Cumulative Time']
+                try:
+                    df['Cumulative HDH Time'] = df['HDH Time'].cumsum()
+                except KeyError:
+                    df['Cumulative HDH Time'] = 0
+                df = df[df['Val F1'] >= 0]
+                df['Cumulative Total Time'] = df['Total Time of FL Round'].cumsum()
+                df['Total Time With HDH'] = df['Cumulative Total Time'] + df['Cumulative HDH Time']
+                df['F1 Score Over Total Time for FL Round'] = df['Val F1'] / df['Cumulative Total Time']
+                df['F1 Score Over Total Time With HDH'] = df['Val F1'] / df['Total Time With HDH']
                 df['F1 Over Total Training Time'] = df['Val F1'] / df['Cumulative Training Time']
                 model_data = df[df['Val F1'] >= 0]
                 exp_data.append((folder + '/' + exp, model_data))
@@ -152,8 +167,11 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
 
 # GENERATES BOX PLOTS
 for setup in setups:
-    if setup[0] == 'hdh' and setup[2] == 100:
+    exclude = ((setup[0] == 'hdh' and setup[2] == 100) or
+               (setup[0] in ['compressor', 'compressor-delay'] and setup[1] == 'new'))
+    if exclude:
         continue
+
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     plot_by_filter(setup[0], setup[1], setup[2], setup[3])
 
@@ -174,7 +192,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 
     effect_size = {'negligible': 'negl.', 'small': 'small', 'medium': 'med.', 'large': 'large'}
 
-    with open('plots/exp/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f:
+    with (open('plots/exp/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f):
         # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
         conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4), (0, 5), (1, 5), (2, 5)]
         latex_str = f"\n{filter[2]} & {iid_percentage}"
@@ -187,8 +205,13 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
                 conf_a = selected_confs[conf_pair[0]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
                 conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
                 f.write('{}\t{}\t{:.3f}\t{}\t{}\n'.format(conf_a, conf_b, p, estimate, magnitude))
+
+                the_lower_the_better = metric[(pattern, persistence)] in should_decrease
+                the_higher_the_better = metric[(pattern, persistence)] in should_increase
+
                 if p < 0.05:
-                    if np.mean(d_1) < np.mean(d_2):
+                    if (the_higher_the_better and np.mean(d_2) > np.mean(d_1)) or (
+                            the_lower_the_better and np.mean(d_2) < np.mean(d_1)):
                         latex_str += f" & \\better{{<0.05 ({effect_size[magnitude]})}}"
                     else:
                         latex_str += f" & \\worse{{<0.05 ({effect_size[magnitude]})}}"
@@ -202,7 +225,9 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 
 # PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE
 for setup in setups:
-    if setup[0] == 'hdh' and setup[2] == 100:
+    exclude = ((setup[0] == 'hdh' and setup[2] == 100) or
+               (setup[0] in ['compressor', 'compressor-delay'] and setup[1] == 'new'))
+    if exclude:
         continue
 
     print(f'Performing statistical tests for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
