@@ -70,9 +70,9 @@ should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1']
 should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 'Cumulative Time With HDH',
                    'Total Time With HDH', 'Cumulative Total Time']
 
-label_dict = {'selector': ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+label_dict = {'selector': ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                            r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              'hdh': ['never', 'random', 'round1', 'fixed', 'tree', 'bo'],
+              'hdh': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
               'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
               'compressor-delay': ['never', 'random', 'always', 'fixed', 'tree', 'bo']}
 
@@ -86,10 +86,18 @@ selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-
 filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow', '$\mathsf{N_{high}}=\mathsf{N_{low}}$')
 filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow', '$\mathsf{N_{high}}>\mathsf{N_{low}}$')
 filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow', '$\mathsf{N_{high}}<\mathsf{N_{low}}$')
+filter_4 = (lambda tup: tup[0] > 0 and tup[1] > 0, 'any-Nhigh-Nlow', '$\\text{any}\\nhigh,\\nlow$')
 
-filters = [filter_1, filter_2, filter_3]
+filters = {
+    'selector': [filter_4],
+    'hdh': [filter_4],
+    'compressor': [filter_4],
+    'compressor-delay': [filter_4]
+}
 
-setups = list(itertools.product(patterns, persistences, iid_percentages, filters))
+setups = []
+for pattern in patterns:
+    setups.extend(list(itertools.product([pattern], persistences, iid_percentages, filters[pattern])))
 
 
 def get_exp_data(n_high, n_low, iid_percentage, data_persistence):
@@ -145,6 +153,8 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     fig = plt.figure(figsize=(5, 4))
     ax = fig.add_subplot(111)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+    if pattern == 'compressor-delay' and iid_percentage == 0:
+        ax.set_ylim(2.15*10**3, 2.7*10**3)
     meanprops = dict(marker='^', markerfacecolor='white', markeredgecolor='black', markersize=8)
     bp = ax.boxplot(d, labels=labels, patch_artist=True, showmeans=True, meanprops=meanprops)
     # fill with colors
