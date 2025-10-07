@@ -61,16 +61,16 @@ def VD_A(treatment: List[float], control: List[float]):
 
 metric = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-          ('hdh', 'same'): 'Val F1',
-          ('hdh', 'new'): 'Val F1',
+          ('hdh', 'same'): 'Cumulative F1',
+          ('hdh', 'new'): 'Cumulative F1',
           ('compressor', 'same'): 'Cumulative Total Time',
           ('compressor-delay', 'same'): 'Cumulative Total Time'}
 
-should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1']
+should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1', 'Cumulative F1']
 should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 'Cumulative Time With HDH',
                    'Total Time With HDH', 'Cumulative Total Time']
 
-label_dict = {'selector': ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+label_dict = {'selector': ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                            r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               'hdh': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
               'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
@@ -121,6 +121,7 @@ def get_exp_data(n_high, n_low, iid_percentage, data_persistence):
                 except KeyError:
                     df['Cumulative HDH Time'] = 0
                 df = df[df['Val F1'] >= 0]
+                df['Cumulative F1'] = df['Val F1'].cumsum()
                 df['Cumulative Total Time'] = df['Total Time of FL Round'].cumsum()
                 df['Total Time With HDH'] = df['Cumulative Total Time'] + df['Cumulative HDH Time']
                 df['F1 Score Over Total Time for FL Round'] = df['Val F1'] / df['Cumulative Total Time']
@@ -200,7 +201,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
         for i in range(len(data)):
             d[-1].append(data[i][-1])
 
-    effect_size = {'negligible': 'negl.', 'small': 'small', 'medium': 'med.', 'large': 'large'}
+    effect_size = {'negligible': 'N', 'small': 'S', 'medium': 'M', 'large': 'L'}
 
     with (open('plots/exp/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f):
         # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
