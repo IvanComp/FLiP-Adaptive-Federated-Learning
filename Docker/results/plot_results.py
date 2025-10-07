@@ -72,9 +72,12 @@ should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 
 
 label_dict = {'selector': ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                            r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              'hdh': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
-              'compressor': ['never', 'random', 'always', 'fixed', 'tree', 'bo'],
-              'compressor-delay': ['never', 'random', 'always', 'fixed', 'tree', 'bo']}
+              'hdh': ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$', r'$\mathrm{FliP_{rule}}$',
+                      r'$\mathrm{FliP_{rule}}$'],
+              'compressor': ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$', r'$\mathrm{FliP_{rule}}$',
+                             r'$\mathrm{FliP_{rule}}$'],
+              'compressor-delay': ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$', r'$\mathrm{FliP_{rule}}$',
+                                   r'$\mathrm{FliP_{rule}}$']}
 
 patterns = ['selector', 'hdh', 'compressor', 'compressor-delay']
 persistences = ['same', 'new']
@@ -155,7 +158,7 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     ax = fig.add_subplot(111)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     if pattern == 'compressor-delay' and iid_percentage == 0:
-        ax.set_ylim(2.15*10**3, 2.7*10**3)
+        ax.set_ylim(2.15 * 10 ** 3, 2.7 * 10 ** 3)
     meanprops = dict(marker='^', markerfacecolor='white', markeredgecolor='black', markersize=8)
     bp = ax.boxplot(d, labels=labels, patch_artist=True, showmeans=True, meanprops=meanprops)
     # fill with colors
