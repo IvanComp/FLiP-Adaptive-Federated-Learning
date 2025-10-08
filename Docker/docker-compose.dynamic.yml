@@ -60,13 +60,13 @@ services:
       dockerfile: Dockerfile.client
     command: sh -c "sleep 20 && python client.py"
     container_name: Client3
-    cpus: 1
-    cpuset: "4"
+    cpus: 2
+    cpuset: "4,5"
     depends_on:
       - server
     environment:
       CLIENT_ID: '3'
-      NUM_CPUS: '1'
+      NUM_CPUS: '2'
       NUM_RAM: '4'
       NUM_ROUNDS: '20'
       SERVER_ADDRESS: server:8080
@@ -86,13 +86,13 @@ services:
       dockerfile: Dockerfile.client
     command: sh -c "sleep 20 && python client.py"
     container_name: Client4
-    cpus: 1
-    cpuset: "5"
+    cpus: 2
+    cpuset: "6,7"
     depends_on:
       - server
     environment:
       CLIENT_ID: '4'
-      NUM_CPUS: '1'
+      NUM_CPUS: '2'
       NUM_RAM: '4'
       NUM_ROUNDS: '20'
       SERVER_ADDRESS: server:8080
@@ -113,7 +113,7 @@ services:
     command: sh -c "sleep 20 && python client.py"
     container_name: Client5
     cpus: 1
-    cpuset: "6"
+    cpuset: "8"
     depends_on:
       - server
     environment:
@@ -139,7 +139,7 @@ services:
     command: sh -c "sleep 20 && python client.py"
     container_name: Client6
     cpus: 1
-    cpuset: "7"
+    cpuset: "9"
     depends_on:
       - server
     environment:
