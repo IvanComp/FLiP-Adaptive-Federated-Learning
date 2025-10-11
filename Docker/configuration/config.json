@@ -8,9 +8,10 @@
                 "metric": "val_f1,jsd",
                 "threshold": {
                     "type": "decreasing",
-                    "calculation_method": "predictor-local",
+                    "calculation_method": "bayesian_optimization-local",
                     "predictor": {
-                        "model_path": "predictors/f1overtime_tree_hdh_3990.pkl"
+                        "model_path": "predictors/bo_model_hdh.pkl",
+                        "scaler_path": "predictors/bo_scaler_hdh.pkl"
                     }
                 }
             }
@@ -48,9 +49,7 @@
             "enabled": true,
             "params": {
                 "enabled_clients": [
-                    "Client 1",
                     "Client 2",
-                    "Client 3",
                     "Client 4",
                     "Client 5",
                     "Client 6"
