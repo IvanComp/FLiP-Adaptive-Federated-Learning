@@ -3,12 +3,15 @@
     "activation_criteria": {
         "metrics": [
             {
-                "name": "random",
+                "name": "f1overtime",
                 "pattern": "heterogeneous_data_handler",
-                "metric": "jsd",
+                "metric": "val_f1,jsd",
                 "threshold": {
                     "type": "decreasing",
-                    "calculation_method": "random"
+                    "calculation_method": "predictor-local",
+                    "predictor": {
+                        "model_path": "predictors/f1overtime_tree_hdh_3990.pkl"
+                    }
                 }
             }
         ]
@@ -46,7 +49,11 @@
             "params": {
                 "enabled_clients": [
                     "Client 1",
-                    "Client 5"
+                    "Client 2",
+                    "Client 3",
+                    "Client 4",
+                    "Client 5",
+                    "Client 6"
                 ]
             }
         }
