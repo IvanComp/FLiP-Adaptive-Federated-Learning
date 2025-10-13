@@ -1,6 +1,22 @@
 {
-    "adaptation": false,
-    "activation_criteria": {},
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "f1overtime",
+                "pattern": "heterogeneous_data_handler",
+                "metric": "val_f1,jsd",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "bayesian_optimization-local",
+                    "predictor": {
+                        "model_path": "predictors/bo_model_hdh.pkl",
+                        "scaler_path": "predictors/bo_scaler_hdh.pkl"
+                    }
+                }
+            }
+        ]
+    },
     "simulation_type": "Docker",
     "rounds": 20,
     "clients": 6,
@@ -10,7 +26,8 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": false
+            "enabled": false,
+            "params": {}
         },
         "client_cluster": {
             "enabled": false,
@@ -29,8 +46,10 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "enabled_clients": []
+            }
         }
     },
     "client_details": [
@@ -44,7 +63,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 2,
             "cpu": 2,
             "ram": 4,
@@ -54,7 +73,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 3,
             "cpu": 2,
             "ram": 4,
@@ -64,7 +83,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 4,
             "cpu": 2,
             "ram": 4,
@@ -74,7 +93,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 5,
             "cpu": 1,
             "ram": 4,
@@ -84,7 +103,7 @@
             "model": "CNN 16k",
             "epochs": 1
         },
-{
+        {
             "client_id": 6,
             "cpu": 1,
             "ram": 4,
