@@ -8,10 +8,9 @@
                 "metric": "val_f1,jsd",
                 "threshold": {
                     "type": "decreasing",
-                    "calculation_method": "bayesian_optimization-local",
+                    "calculation_method": "predictor-local",
                     "predictor": {
-                        "model_path": "predictors/bo_model_hdh.pkl",
-                        "scaler_path": "predictors/bo_scaler_hdh.pkl"
+                        "model_path": "predictors/f1overtime_tree_hdh_3990.pkl"
                     }
                 }
             }
@@ -19,7 +18,7 @@
     },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 6,
+    "clients": 10,
     "patterns": {
         "client_registry": {
             "enabled": true,
@@ -46,9 +45,13 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": true,
+            "enabled": false,
             "params": {
-                "enabled_clients": []
+                "enabled_clients": [
+                    "Client 4",
+                    "Client 9",
+                    "Client 10"
+                ]
             }
         }
     },
@@ -95,7 +98,7 @@
         },
         {
             "client_id": 5,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 4,
             "dataset": "CIFAR-10",
             "data_distribution_type": "non-IID",
@@ -105,6 +108,46 @@
         },
         {
             "client_id": 6,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 7,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 8,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 9,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR-10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 10,
             "cpu": 1,
             "ram": 4,
             "dataset": "CIFAR-10",

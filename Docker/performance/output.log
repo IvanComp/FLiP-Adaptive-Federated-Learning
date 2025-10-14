@@ -10,8 +10,56 @@
 Simulation Started!
 List of the Architectural Patterns enabled:
 Adaptation Enabled ✅
-Metric: val_f1,jsd, bo-based: predictors/bo_model_hdh.pkl
+Metric: val_f1,jsd, local predictor-based: predictors/f1overtime_tree_hdh_3990.pkl
 Client Registry ✅
 Heterogeneous Data Handler ✅
  AP Parameters: {'enabled_clients': []}
 ==========================================
+Results Aggregated in 73.72 seconds.
+{'CNN 16k': {'train_loss': [1.2298085935974121], 'train_accuracy': [0.55236], 'train_f1': [0.10255232467002487], 'train_mae': [1.90996], 'val_loss': [4.2664164320755], 'val_accuracy': [0.10634], 'val_f1': [0.022807303255386706], 'val_mae': [3.19016], 'jsd': [(0.2936425705538694, 0.4935852839807081, 0.2940136349225214, 0.3693265291715486, 0.40864177133236823, 0.5326281551095584, 0.2870329988937773, 0.6012172353153512, 0.3140667317313645, 0.35013990432373965)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': False, 'params': {}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True}, 'client_registry': {'enabled': True, 'params': {}}}
+client 1, predicted wo:0.0625 vs w:0.0883
+client 2, predicted wo:0.0625 vs w:0.0657
+client 3, predicted wo:0.0625 vs w:0.0883
+client 4, predicted wo:0.0625 vs w:0.0883
+client 5, predicted wo:0.0625 vs w:0.0889
+client 6, predicted wo:0.0625 vs w:0.0848
+client 7, predicted wo:0.0625 vs w:0.0883
+client 8, predicted wo:0.0366 vs w:0.0848
+client 9, predicted wo:0.0625 vs w:0.0883
+client 10, predicted wo:0.0625 vs w:0.0883
+heterogeneous_data_handler activated ✅ for clients: ['Client 1', 'Client 2', 'Client 3', 'Client 4', 'Client 5', 'Client 6', 'Client 7', 'Client 8', 'Client 9', 'Client 10']
+Results Aggregated in 84.05 seconds.
+{'CNN 16k': {'train_loss': [1.2298085935974121, 1.402918471164677], 'train_accuracy': [0.55236, 0.4696060815480304], 'train_f1': [0.10255232467002487, 0.1971005777798563], 'train_mae': [1.90996, 1.9306703524533517], 'val_loss': [4.2664164320755, 3.7891634266791616], 'val_accuracy': [0.10634, 0.15728568901174844], 'val_f1': [0.022807303255386706, 0.07860782381477845], 'val_mae': [3.19016, 3.1312345044920527], 'jsd': [(0.2936425705538694, 0.4935852839807081, 0.2940136349225214, 0.3693265291715486, 0.40864177133236823, 0.5326281551095584, 0.2870329988937773, 0.6012172353153512, 0.3140667317313645, 0.35013990432373965), (0.1405267975927473, 0.16299588172366572, 0.0666004656766428, 0.10663652374634792, 0.08388655603416442, 0.18382596507650578, 0.15707361038750944, 0.1571261747572389, 0.12596913182295982, 0.09086574069973008)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': False, 'params': {}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 1', 'Client 2', 'Client 3', 'Client 4', 'Client 5', 'Client 6', 'Client 7', 'Client 8', 'Client 9', 'Client 10']}}, 'client_registry': {'enabled': True, 'params': {}}}
+client 1, predicted wo:0.1165 vs w:0.1165
+client 2, predicted wo:0.1256 vs w:0.1256
+client 3, predicted wo:0.1190 vs w:0.0973
+client 4, predicted wo:0.1190 vs w:0.1237
+client 5, predicted wo:0.1190 vs w:0.0973
+client 6, predicted wo:0.1256 vs w:0.1256
+client 7, predicted wo:0.1256 vs w:0.1256
+client 8, predicted wo:0.1256 vs w:0.1256
+client 9, predicted wo:0.1190 vs w:0.1237
+client 10, predicted wo:0.1190 vs w:0.1237
+heterogeneous_data_handler activated ✅ for clients: ['Client 4', 'Client 9', 'Client 10']
+Results Aggregated in 90.46 seconds.
+{'CNN 16k': {'train_loss': [1.2298085935974121, 1.402918471164677, 1.4235642325371136], 'train_accuracy': [0.55236, 0.4696060815480304, 0.4815510234333502], 'train_f1': [0.10255232467002487, 0.1971005777798563, 0.22066971694062124], 'train_mae': [1.90996, 1.9306703524533517, 1.8988672439563699], 'val_loss': [4.2664164320755, 3.7891634266791616, 3.071356038917061], 'val_accuracy': [0.10634, 0.15728568901174844, 0.19846347139698345], 'val_f1': [0.022807303255386706, 0.07860782381477845, 0.11903486714465024], 'val_mae': [3.19016, 3.1312345044920527, 2.812346939582227], 'jsd': [(0.2936425705538694, 0.4935852839807081, 0.2940136349225214, 0.3693265291715486, 0.40864177133236823, 0.5326281551095584, 0.2870329988937773, 0.6012172353153512, 0.3140667317313645, 0.35013990432373965), (0.1405267975927473, 0.16299588172366572, 0.0666004656766428, 0.10663652374634792, 0.08388655603416442, 0.18382596507650578, 0.15707361038750944, 0.1571261747572389, 0.12596913182295982, 0.09086574069973008), (0.1655548263719474, 0.07502923237990715, 0.23714235061118677, 0.2453159764786843, 0.06501435313627962, 0.2904010533095488, 0.3075946621038961, 0.2523334366178604, 0.21273553170138657, 0.08293997814542409)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': False, 'params': {}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 4', 'Client 9', 'Client 10']}}, 'client_registry': {'enabled': True, 'params': {}}}
+client 1, predicted wo:0.1607 vs w:0.1407
+client 2, predicted wo:0.1607 vs w:0.1407
+client 3, predicted wo:0.1607 vs w:0.1407
+client 4, predicted wo:0.1607 vs w:0.1407
+client 5, predicted wo:0.1607 vs w:0.1407
+client 6, predicted wo:0.1607 vs w:0.1407
+client 7, predicted wo:0.1607 vs w:0.1407
+client 8, predicted wo:0.1607 vs w:0.1407
+client 9, predicted wo:0.1607 vs w:0.1407
+client 10, predicted wo:0.1607 vs w:0.1407
+heterogeneous_data_handler de-activated ❌
