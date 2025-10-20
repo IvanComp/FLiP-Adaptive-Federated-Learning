@@ -239,7 +239,7 @@ def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
     # ax.set_ylim([-100, 100])
     ax.set_xlim([2, len(data[0])])
     # ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-    ax.grid(True, linestyle='-', which='major', color='lightgrey',
+    ax.grid(True, axis='y', linestyle='-', which='major', color='lightgrey',
             alpha=0.7, zorder=0)
     ax.legend(loc='best', fontsize=10)
     fig.savefig('plots/rq1/{}/{}-{}-{}-round.pdf'.format(persistence, pattern, filter[1], iid_percentage), dpi=300)
