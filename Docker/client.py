@@ -1,17 +1,20 @@
+import base64
 import json
 import logging
 import os
 import pickle
 import platform
+import random
 import sys
 import time
 import zlib
+
 import numpy as np
 import psutil
 import torch
+
 import taskA
-import base64
-import random
+
 logging.getLogger("onnx2keras").setLevel(logging.ERROR)
 logging.getLogger("ray").setLevel(logging.WARNING)
 import onnx
@@ -172,7 +175,7 @@ class FlowerClient(NumPyClient):
         self.net = NetA().to(DEVICE)
         self.DEVICE = DEVICE
 
-    def fit(self, parameters, config):    
+    def fit(self, parameters, config):
         global GLOBAL_ROUND_COUNTER
         hdh_ms = 0.0
         proc = psutil.Process(os.getpid())
@@ -255,7 +258,6 @@ class FlowerClient(NumPyClient):
             parameters = numpy_arrays
         else:
             parameters = parameters
-
 
         set_weights_A(self.net, parameters)
 
@@ -434,6 +436,7 @@ class FlowerClient(NumPyClient):
             "client_id": self.cid,
             "model_type": self.model_type,
         }
+
 
 if __name__ == "__main__":
     details = load_client_details()

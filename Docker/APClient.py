@@ -1,6 +1,8 @@
 import platform
-import psutil
 from datetime import datetime
+
+import psutil
+
 
 class ClientRegistry:
     def __init__(self):

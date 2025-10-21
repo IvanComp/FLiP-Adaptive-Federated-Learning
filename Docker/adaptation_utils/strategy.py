@@ -1,12 +1,10 @@
 import random
+from logging import INFO
 from pickle import load
 
 import joblib
-import numpy as np
-from skopt import gp_minimize
-
-from logging import INFO
 from logger import log
+from skopt import gp_minimize
 
 
 def get_patterns(json_config):
@@ -63,6 +61,7 @@ def get_high_low_clients(clients_config):
     high_clients = sum([client["cpu"] >= 2 for client in clients_config['client_details']])
     low_clients = sum([client["cpu"] < 2 for client in clients_config['client_details']])
     return high_clients, low_clients
+
 
 def compare_w_threshold(metric, value, metric_type):
     # if metric is supposed to increase, activate pattern if below a threshold
@@ -141,10 +140,10 @@ class FixedGlobalThresholdActivationCriterion(ActivationCriterion):
         if self.metric != 'time':
             decreasing_metric = second_last_metric is None or last_metric < second_last_metric
             # selector can be activated to save resources if metric is not decreasing and not below a threshold
-            activate_pattern = not decreasing_metric and not critical_metric 
+            activate_pattern = not decreasing_metric and not critical_metric
         else:
             # compressor activated if time is above a threshold
-            activate_pattern = critical_metric  
+            activate_pattern = critical_metric
 
         if activate_pattern:
             return True, None, f"{self.metric}={last_metric}, {self.pattern} activated ✅"
@@ -254,9 +253,9 @@ class PredictorBasedLocalActivationCriterion(ActivationCriterion):
 
             # TODO should be parametric w.r.t. predictor input
             prediction_w_pattern = \
-            self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1 / last_round_time]])[0]
+                self.model.predict([[performed_rounds + 1, True, last_jsd, last_val_f1 / last_round_time]])[0]
             prediction_wo_pattern = \
-            self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
+                self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
 
             expl = f"client {client_i + 1}, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
             log(INFO, expl)

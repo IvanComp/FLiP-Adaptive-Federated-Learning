@@ -23,7 +23,7 @@ PATTERNS = [
 
 
 def get_model_type(default_config):
-    # FIXME: also works only if all clients have the same model type
+    # FIXME: works only if all clients have the same model type
     return default_config['client_details'][0]['model']
 
 
@@ -88,12 +88,6 @@ class AdaptationManager:
             log(INFO, self.cached_config["patterns"])
         else:
             return self.default_config["patterns"]
-
-        # if self.cached_aggregated_metrics is None:
-        #    log(INFO, f"{self.name}: Less than 2 rounds completed. Keeping default config.")
-
-        #    self.update_metrics(new_aggregated_metrics)
-        #    return self.default_config["patterns"]
 
         new_config = self.cached_config.copy()
 

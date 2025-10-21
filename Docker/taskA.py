@@ -2,17 +2,17 @@ import json
 import os
 import random
 import time
-from pathlib import Path
 from collections import Counter
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from logging import INFO
+from pathlib import Path
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 import torchvision.utils as vutils
-from torchvision.datasets import ImageFolder
 from flwr.common.logger import log
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
@@ -21,7 +21,9 @@ from torchgan.losses import MinimaxGeneratorLoss, MinimaxDiscriminatorLoss
 from torchgan.models import DCGANGenerator, DCGANDiscriminator
 from torchgan.trainer import Trainer
 from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST, OxfordIIITPet
+from torchvision.datasets import ImageFolder
 from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
+
 
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
@@ -443,7 +445,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         "ImageNet100": 256, "OXFORDIIITPET": 256
     }[DATASET_NAME]
     model_name = client_config.get("model", "resnet18").lower()
-    target_size = 256 if model_name in ["alexnet","vgg11","vgg13","vgg16","vgg19"] else base_size
+    target_size = 256 if model_name in ["alexnet", "vgg11", "vgg13", "vgg16", "vgg19"] else base_size
 
     # Trasformazioni
     transforms_list = []
@@ -461,29 +463,29 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     if DATASET_NAME == "ImageNet100":
         DATA_ROOT = Path(__file__).resolve().parent / "data"
         train_path = DATA_ROOT / "imagenet100-preprocessed" / "train"
-        test_path  = DATA_ROOT / "imagenet100-preprocessed" / "test"
+        test_path = DATA_ROOT / "imagenet100-preprocessed" / "test"
         if not os.path.isdir(train_path) or not os.path.isdir(test_path):
             raise FileNotFoundError(
                 f"Dataset ImageNet100 non trovato in {train_path} e {test_path}"
             )
         trainset = ImageFolder(train_path, transform=trf)
-        testset  = ImageFolder(test_path,  transform=trf)
+        testset = ImageFolder(test_path, transform=trf)
     else:
         cls = config["class"]
         if DATASET_NAME == "OXFORDIIITPET":
             trainset = cls("./data", split="trainval", download=True, transform=trf)
-            testset  = cls("./data", split="test",     download=True, transform=trf)
+            testset = cls("./data", split="test", download=True, transform=trf)
         else:
-            trainset = cls("./data", train=True,  download=True, transform=trf)
-            testset  = cls("./data", train=False, download=True, transform=trf)
+            trainset = cls("./data", train=True, download=True, transform=trf)
+            testset = cls("./data", train=False, download=True, transform=trf)
 
     if DATASET_TYPE == "non-iid":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
-        remove_frac = random.uniform(1/n_cls, (n_cls-1)/n_cls)
-        add_frac    = random.uniform(0,     (n_cls-1)/n_cls)
-        low_r, high_r = sorted((random.uniform(0.5,1.0), random.uniform(0.5,1.0)))
-        low_a, high_a = sorted((random.uniform(0.5,1.0), random.uniform(0.5,1.0)))
+        remove_frac = random.uniform(1 / n_cls, (n_cls - 1) / n_cls)
+        add_frac = random.uniform(0, (n_cls - 1) / n_cls)
+        low_r, high_r = sorted((random.uniform(0.5, 1.0), random.uniform(0.5, 1.0)))
+        low_a, high_a = sorted((random.uniform(0.5, 1.0), random.uniform(0.5, 1.0)))
 
         idxs = get_non_iid_indices(
             trainset,
@@ -505,7 +507,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         pass
     else:
         from collections import defaultdict
-        import numpy as np 
+        import numpy as np
         class_to_indices = defaultdict(list)
         for idx in range(len(trainset)):
             _, label = trainset[idx]
@@ -514,28 +516,28 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         selected_indices = []
 
         NON_IID_ROUNDS = True
-        NON_IID_ALPHA  = 0.30
-        NON_IID_SEED   = 1234
+        NON_IID_ALPHA = 0.30
+        NON_IID_SEED = 1234
 
-        cid_raw   = int(os.environ.get("CLIENT_ID", "1"))
-        cid0      = max(0, cid_raw - 1) 
+        cid_raw = int(os.environ.get("CLIENT_ID", "1"))
+        cid0 = max(0, cid_raw - 1)
 
-        n_cls     = len(class_to_indices)
-        R         = int(total_rounds)
-        round_idx = max(1, min(GLOBAL_ROUND_COUNTER, R))  
+        n_cls = len(class_to_indices)
+        R = int(total_rounds)
+        round_idx = max(1, min(GLOBAL_ROUND_COUNTER, R))
 
-        shape_now = None  
+        shape_now = None
         if NON_IID_ROUNDS and DATASET_PERSISTENCE in {"New Data", "Remove Data"}:
             rng = np.random.default_rng(NON_IID_SEED + cid0)
-            inc = rng.dirichlet([NON_IID_ALPHA] * R, size=n_cls)  
+            inc = rng.dirichlet([NON_IID_ALPHA] * R, size=n_cls)
 
             if DATASET_PERSISTENCE == "New Data":
                 shape_now = np.cumsum(inc, axis=1)[:, round_idx - 1]
-                target_frac_total = round_idx / R 
-            else: 
+                target_frac_total = round_idx / R
+            else:
                 m = R - round_idx + 1
-                shape_now = inc[:, :m].sum(axis=1)    
-                target_frac_total = m / R            
+                shape_now = inc[:, :m].sum(axis=1)
+                target_frac_total = m / R
         else:
             if DATASET_PERSISTENCE == "New Data":
                 target_frac_total = round_idx / R
@@ -546,7 +548,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
 
         labels_sorted = sorted(class_to_indices)
         pools = {}
-        caps  = []
+        caps = []
         for lab in labels_sorted:
             idxs_all = np.array(class_to_indices[lab])
             r = np.random.default_rng(NON_IID_SEED + int(lab) + 1000 * cid0)
@@ -555,13 +557,13 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             pools[lab] = pool
             caps.append(len(pool))
         caps = np.array(caps, dtype=np.int64)
-        pool_total = int(caps.sum())  
+        pool_total = int(caps.sum())
         T_target = int(np.clip(np.floor(pool_total * float(target_frac_total)), 0, pool_total))
 
         if shape_now is None:
-            raw = caps.astype(np.float64)             
+            raw = caps.astype(np.float64)
         else:
-            raw = np.clip(shape_now, 0.0, 1.0) * caps    
+            raw = np.clip(shape_now, 0.0, 1.0) * caps
 
         def sum_at_scale(s: float) -> int:
             return int(np.floor(np.minimum(s * raw, caps)).sum())
@@ -583,11 +585,11 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             scaled = np.minimum(hi * raw, caps)
 
         base = np.floor(scaled).astype(np.int64)
-        rem  = T_target - int(base.sum())
+        rem = T_target - int(base.sum())
 
         if rem > 0:
             frac = (scaled - base) if raw.sum() > 0 else np.ones_like(base, dtype=float)
-            order = np.argsort(-frac) 
+            order = np.argsort(-frac)
             i, L = 0, len(base)
             while rem > 0 and L > 0:
                 idx = order[i % L]
@@ -597,7 +599,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                 i += 1
         elif rem < 0:
             frac = (scaled - base) if raw.sum() > 0 else np.zeros_like(base, dtype=float)
-            order = np.argsort(frac)  
+            order = np.argsort(frac)
             i, L = 0, len(base)
             while rem < 0 and L > 0:
                 idx = order[i % L]
@@ -614,10 +616,12 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         trainset = Subset(trainset, selected_indices)
 
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
-    testloader  = DataLoader(testset, batch_size=batch_size, shuffle=False)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
 
+
 from collections import defaultdict
+
 
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)
@@ -749,10 +753,10 @@ def rebalance_trainloader_with_gan(trainloader):
     # Truncate the dataset
     trainset = truncate_dataset(trainset, max_limit)
     hdh_ms = (time.time() - _t0_hdh)
-    #Temporal workaround
+    # Temporal workaround
     if hdh_ms < 10:
         hdh_ms = 0.0
-    log(INFO,f"HDH Data Handler (GAN) Total Processing time: {hdh_ms:.2f} seconds")
+    log(INFO, f"HDH Data Handler (GAN) Total Processing time: {hdh_ms:.2f} seconds")
     return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True), hdh_ms
 
 

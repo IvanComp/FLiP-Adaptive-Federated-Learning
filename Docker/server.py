@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import base64
 import csv
 import json
 import os
@@ -6,13 +7,11 @@ import pickle
 import shutil
 import time
 import zlib
-import base64
-from io import BytesIO
 from logging import INFO
 from typing import List, Tuple, Dict, Optional
+
 import docker
 import matplotlib
-import numpy as np
 from flwr.common import (
     ndarrays_to_parameters,
     parameters_to_ndarrays,
@@ -139,7 +138,7 @@ if os.path.exists(csv_file):
 with open(csv_file, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow([
-        'Client ID', 'FL Round', 'Training Time', 'JSD', 'HDH Time','Communication Time', 'Total Time of FL Round',
+        'Client ID', 'FL Round', 'Training Time', 'JSD', 'HDH Time', 'Communication Time', 'Total Time of FL Round',
         '# of CPU', 'CPU Usage (%)', 'RAM Usage (%)',
         'Model Type', 'Data Distr. Type', 'Dataset',
         'Train Loss', 'Train Accuracy', 'Train F1', 'Train MAE',
@@ -453,12 +452,12 @@ class MultiModelStrategy(Strategy):
         return None
 
     def configure_fit(
-        self,
-        server_round: int,
-        parameters: Parameters,
-        client_manager: ClientManager,
+            self,
+            server_round: int,
+            parameters: Parameters,
+            client_manager: ClientManager,
     ) -> List[Tuple[ClientProxy, FitIns]]:
-        client_manager.wait_for(client_count) 
+        client_manager.wait_for(client_count)
         self.round_start_time = time.time()
         available = client_manager.num_available()
         if available < 1:
@@ -547,7 +546,6 @@ class MultiModelStrategy(Strategy):
                     metrics["communication_time"] = server_comm_time
                 else:
                     metrics["server_comm_time"] = server_comm_time
-
 
             if MESSAGE_COMPRESSOR and compressed_parameters_b64:
                 compressed = base64.b64decode(compressed_parameters_b64)
