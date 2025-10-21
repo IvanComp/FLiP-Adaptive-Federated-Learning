@@ -1,0 +1,55 @@
+{
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "f1overtime",
+                "metric": "time",
+                "pattern": "message_compressor",
+                "threshold": {
+                    "type": "increasing",
+                    "calculation_method": "bayesian_optimization",
+                    "predictor": {
+                        "model_path": "predictors/bo_model_compressor.pkl"
+                    }
+                }
+            }
+        ]
+    },
+    "simulation_type": "Docker",
+    "rounds": 20,
+    "clients": **CLIENTS_COUNT**,
+    "patterns": {
+        "client_registry": {
+            "enabled": true,
+            "params": {}
+        },
+        "client_selector": {
+            "enabled": false,
+            "params": {}
+        },
+        "client_cluster": {
+            "enabled": false,
+            "params": {}
+        },
+        "message_compressor": {
+            "enabled": true,
+            "params": {}
+        },
+        "model_co-versioning_registry": {
+            "enabled": false,
+            "params": {}
+        },
+        "multi-task_model_trainer": {
+            "enabled": false,
+            "params": {}
+        },
+        "heterogeneous_data_handler": {
+            "enabled": false,
+            "params": {}
+        }
+    },
+    "client_details": [
+        **CLIENTS**
+    ]
+}
