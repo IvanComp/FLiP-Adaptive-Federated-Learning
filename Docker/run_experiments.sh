@@ -5,6 +5,7 @@ iid=""
 high=""
 low=""
 threshold=""
+delay=""
 
 # Parse named arguments
 while [[ $# -gt 0 ]]; do
@@ -39,6 +40,10 @@ while [[ $# -gt 0 ]]; do
 	    threshold="$2"
 	    shift 2
 	    ;;
+    --delay)
+	    delay="$2"
+	    shift 2
+	    ;;  
       *)
       echo "Unknown option: $1"
       exit 1
@@ -52,9 +57,9 @@ if ! [[ "$repl" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-for i in $(seq 6 $((repl)))
+for i in $(seq 1 $((repl)))
 do
-	python3 setup.py $config_name $iid $high $low $data $threshold
+	python3 setup.py $config_name $iid $high $low $data $delay $threshold
 	docker system prune -f
 	docker compose -f docker-compose.dynamic.yml up --build --force-recreate
 	mkdir results/vm/${data}/${high}high-${low}low/${iid}iid/${config_name}_$i

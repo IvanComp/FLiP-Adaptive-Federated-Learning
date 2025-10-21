@@ -6,7 +6,8 @@ N_iid = int(sys.argv[2])
 N_high = int(sys.argv[3])
 N_low = int(sys.argv[4])
 persistence = sys.argv[5]
-data_persistente_types = {'new': 'New Data', 'same': 'Same Data', 'remove': 'Remove Data'}
+delay = sys.argv[6].lower()=='yes'
+data_persistence_types = {'new': 'New Data', 'same': 'Same Data', 'remove': 'Remove Data'}
 
 json_tplt = """{{
             \"client_id\": {},
@@ -15,6 +16,7 @@ json_tplt = """{{
             \"dataset\": \"CIFAR-10\",
             \"data_distribution_type\": \"{}\",
             \"data_persistence_type\": \"{}\",
+            \"delay_combobox\": \"{}\",
             \"model\": \"CNN 16k\",
             \"epochs\": 1
         }}"""
@@ -24,30 +26,33 @@ with open("configuration/config.json", "w") as config_file:
         to_copy = default_config_file.read()
 
         to_copy = to_copy.replace("**CLIENTS_COUNT**", str(N_high + N_low))
+        
+        delay_str = 'Yes' if delay else 'No'
 
         clients_config = []
         for i in range(N_high):
             if i < N_high * N_iid / 100:
-                clients_config.append(json_tplt.format(i + 1, 2, "IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i + 1, 2, "IID", data_persistence_types[persistence], delay_str))
             else:
-                clients_config.append(json_tplt.format(i + 1, 2, "non-IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i + 1, 2, "non-IID", data_persistence_types[persistence], delay_str))
         for i in range(N_low):
             if i < N_low * N_iid / 100:
-                clients_config.append(json_tplt.format(i + 1 + N_high, 1, "IID", data_persistente_types[persistence]))
+                clients_config.append(json_tplt.format(i + 1 + N_high, 1, "IID", data_persistence_types[persistence], delay_str))
             else:
                 clients_config.append(
-                    json_tplt.format(i + 1 + N_high, 1, "non-IID", data_persistente_types[persistence]))
+                    json_tplt.format(i + 1 + N_high, 1, "non-IID", data_persistence_types[persistence], delay_str))
         to_copy = to_copy.replace("**CLIENTS**", ",\n".join(clients_config))
 
-        if len(sys.argv) > 6:
-            to_copy = to_copy.replace("**TH**", sys.argv[6])
+        if len(sys.argv) > 7:
+            to_copy = to_copy.replace("**TH**", sys.argv[7])
 
         config_file.writelines(to_copy)
 
 print("Configuration file created with {} high-spec, {} low-spec clients, {} IID, {} data persistence.".format(N_high,
                                                                                                                N_low,
                                                                                                                N_iid,
-                                                                                                               persistence))
+                                                                                                               persistence,
+                                                                                                               delay_str))
 
 docker_client_tplt = """  {}:
     build:
@@ -61,6 +66,7 @@ docker_client_tplt = """  {}:
       - server
     environment:
       CLIENT_ID: '{}'
+      DELAY_FLAG: '{}'
       NUM_CPUS: '{}'
       NUM_RAM: '4'
       NUM_ROUNDS: '20'
@@ -88,6 +94,7 @@ with open("docker-compose.dynamic.yml", "w") as docker_file:
                 2,
                 ",".join(str(cpu) for cpu in cpu_set[i * 2:i * 2 + 2]),
                 i + 1,
+                '1' if delay else '0',
                 2
             ))
         for i in range(N_low):
@@ -97,6 +104,7 @@ with open("docker-compose.dynamic.yml", "w") as docker_file:
                 1,
                 str(cpu_set[i + 2 * N_high]),
                 i + 1 + N_high,
+                '1' if delay else '0',
                 1
             ))
         docker_file.write(docker_tplt.replace("**CLIENTS**", "\n".join(docker_clients)))
