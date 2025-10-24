@@ -196,8 +196,6 @@ def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
             exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
 
     colors = ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600'][:len(selected_confs)]
-    d = [chr(104), chr(100), chr(104)]
-    e = "random" + "-{}"
     labels = label_dict[(pattern, persistence)][:len(selected_confs)]
     fig, ax = plt.subplots(figsize=(5, 3))
 
@@ -205,28 +203,21 @@ def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
                 exp.split('/')[-1].split('_')[0] == 'always-{}'.format(pattern)]
     means_baseline = [np.mean([exp[round] for exp in baseline]) for round in range(len(baseline[0]))]
 
-    compared_confs = ['fixed-{}', 'tree-{}', 'bo-{}', 'random-{}']
+    compared_confs = ['fixed-{}', 'tree-{}', 'bo-{}']
     for conf_i, conf in enumerate(compared_confs):
         data = [model_data[metric_per_round[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
                 exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
         a, b, c = pattern, conf, persistence
 
         try:
-            means = [np.mean([(exp[round] - means_baseline[round]) / means_baseline[round] * 100 for exp in data]) for
-                     round in range(1, len(data[0]))]
+            means = [np.mean([(exp[round] - means_baseline[round]) / means_baseline[round] * 100 for exp in data])
+                     for round in range(1, len(data[0]))]
 
             stds = [np.std([(exp[round] - means_baseline[round]) / means_baseline[round] * 100 for exp in data]) for
                     round in range(1, len(data[0]))]
 
-            if a == "".join(d) and b == e and c == "new":
-                means[0], means[1] = (1.5 - 16), (2.3 - 15)
             means = np.array(means)
             stds = np.array(stds)
-            # ax.fill_between(range(1, len(data[0]) + 1),
-            #                means - stds,  # Lower bound
-            #                means + stds,  # Upper bound
-            #                color=colors[selected_confs.index(conf)],
-            #                alpha=0.2)
             ax.plot(range(2, len(data[0]) + 1), means, label=labels[selected_confs.index(conf)],
                     marker='o', markersize=2, color=colors[selected_confs.index(conf)])
         except:
@@ -234,15 +225,12 @@ def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
     ax.plot(range(1, len(data[0]) + 1), [0] * len(data[0]), linestyle='--', color='black', linewidth=0.5)
     ax.set_xticks(range(1, len(data[0]) + 1))
     ax.set_xticklabels(range(1, len(data[0]) + 1))
-    ax.set_xlabel('Round')
-    ax.set_ylabel('Percentage Change')
-    # ax.set_ylim([-100, 100])
     ax.set_xlim([2, len(data[0])])
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     ax.grid(True, axis='y', linestyle='-', which='major', color='lightgrey',
             alpha=0.7, zorder=0)
-    ax.legend(loc='best', fontsize=10)
-    fig.savefig('plots/rq1/{}/{}-{}-{}-round.pdf'.format(persistence, pattern, filter[1], iid_percentage), dpi=300)
+    ax.legend(loc='best', fontsize=12)
+    fig.savefig('plots/rq1/{}/{}-{}-{}-round.pdf'.format(persistence, pattern, filter[1], iid_percentage),
+                dpi=300, bbox_inches='tight')
 
 
 def plot_by_filter(pattern, persistence, iid_percentage, filter):
@@ -320,10 +308,11 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
                   alpha=0.7, zorder=0)
     offset_text = ax.yaxis.get_offset_text()
-    offset_text.set_verticalalignment('bottom')  # Align text top to bottom position
-    offset_text.set_position((-0.12, -1.0))  # (x, y) in axis coordinates; tweak x as needed
+    offset_text.set_verticalalignment('bottom')
+    offset_text.set_position((-0.12, -1.0))
     fig.tight_layout()
-    fig.savefig('plots/rq1/{}/{}-{}-{}.pdf'.format(persistence, pattern, filter[1], iid_percentage), dpi=300)
+    fig.savefig('plots/rq1/{}/{}-{}-{}.pdf'.format(persistence, pattern, filter[1], iid_percentage),
+                dpi=300, bbox_inches='tight')
 
 
 # GENERATES BOX PLOTS

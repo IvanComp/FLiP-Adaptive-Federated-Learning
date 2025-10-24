@@ -1,2 +1,0 @@
-./run_experiments.sh --repl $1 --config_name fixed-selector --iid 100 --high 2 --low 2 --data same --delay no --threshold 0.4
-./run_experiments.sh --repl $1 --config_name fixed-hdh --iid 0 --high 2 --low 2 --data same --delay no --threshold 0.1

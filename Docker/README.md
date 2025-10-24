@@ -165,7 +165,7 @@ At minimum, [configuration/config.json](./configuration/config.json) contains:
 
 ```bash
 # Make scripts executable (once)
-chmod +x run_experiments.sh replication_script.sh
+chmod +x run_experiments.sh replication_script_full.sh
 
 # Syntax
 ./run_experiments.sh \
@@ -189,7 +189,7 @@ chmod +x run_experiments.sh replication_script.sh
 
 ```bash
 # Pass the maximum replication index (>= 6)
-./replication_script.sh 6
+./replication_script_full.sh 6
 ```
 - This invokes run_experiments.sh multiple times with the combinations shown inside [replication_script.sh](./replication_script.sh) (e.g., configs: no-hdh, random-hdh, always-hdh, fixed-hdh, tree-hdh, bo-hdh; various high/low mixes; data persistence modes; optional --threshold).
 
