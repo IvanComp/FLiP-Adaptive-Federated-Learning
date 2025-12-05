@@ -505,6 +505,7 @@ class MultiModelStrategy(Strategy):
         results_a = []
         training_times = []
         currentRnd += 1
+        model_type = None  # Initialize to handle case when all clients fail
 
         for client_proxy, fit_res in results:
             if fit_res.num_examples == 0:
@@ -561,6 +562,17 @@ class MultiModelStrategy(Strategy):
         max_train = max(training_times) if training_times else 0.0
         agg_end = time.time()
         aggregation_time = agg_end - agg_start
+
+        # Check if all clients failed
+        if not results_a or all(num_ex == 0 for _, num_ex, _ in results_a):
+            raise RuntimeError(
+                f"All {len(failures)} clients failed in round {server_round}. "
+                "Check client logs for details (likely data loading or model errors)."
+            )
+
+        # Use fallback model type if not set
+        if model_type is None:
+            model_type = GLOBAL_CLIENT_DETAILS[0].get("model", "unknown")
 
         self.parameters_a = self.aggregate_parameters(
             results_a,

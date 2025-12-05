@@ -1166,7 +1166,8 @@ class ClientConfigurationPage(QWidget):
         dataset_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         dataset_label.setAlignment(Qt.AlignLeft)
         dataset_combobox = QComboBox()
-        dataset_combobox.addItems(["FashionMNIST", "CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "OXFORDIIITPET","ImageNet100"])
+        dataset_combobox.addItems(["IMDB"])
+        #dataset_combobox.addItems(["FashionMNIST", "CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "OXFORDIIITPET","ImageNet100"])
         dataset_combobox.setFixedWidth(160)
         dataset_layout = QHBoxLayout()
         dataset_layout.setSpacing(12)
@@ -1257,7 +1258,7 @@ class ClientConfigurationPage(QWidget):
 
         def update_model_options():
             models_list = [
-                "CNN 16k", "CNN 64k","CNN 256k","alexnet", "convnext_tiny", "convnext_small", "convnext_base", "convnext_large",
+                "TextMLP","CNN 16k", "CNN 64k","CNN 256k","alexnet", "convnext_tiny", "convnext_small", "convnext_base", "convnext_large",
                 "densenet121", "densenet161", "densenet169", "densenet201",
                 "efficientnet_b0", "efficientnet_b1", "efficientnet_b2", "efficientnet_b3", "efficientnet_b4",
                 "efficientnet_b5", "efficientnet_b6", "efficientnet_b7",

@@ -6,7 +6,7 @@ from collections import Counter
 from collections import OrderedDict
 from logging import INFO
 from pathlib import Path
-
+from collections import defaultdict
 import numpy as np
 import torch
 import torch.nn as nn
@@ -23,7 +23,9 @@ from torchgan.trainer import Trainer
 from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST, OxfordIIITPet
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
-
+from torchtext.datasets import IMDB as TorchTextIMDB
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
 
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
@@ -94,6 +96,12 @@ AVAILABLE_DATASETS = {
         "normalize": ((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
         "channels": 3,
         "num_classes": 37
+    },
+    "IMDB": {
+    "class": TorchTextIMDB,
+    "normalize": ((0.0,), (1.0,)), 
+    "channels": 1,
+    "num_classes": 2
     }
 }
 
@@ -137,6 +145,8 @@ def normalize_dataset_name(name: str) -> str:
         return "KMNIST"
     elif name_clean == "OXFORDIIITPET":
         return "OXFORDIIITPET"
+    elif name_clean == "IMDB":
+        return "IMDB"
     else:
         return name
 
@@ -189,6 +199,18 @@ class CNN_Dynamic(nn.Module):
         x = F.relu(self.fc2(x))
         return self.fc3(x)
 
+class TextMLP(nn.Module):
+    def __init__(self, vocab_size: int, embed_dim: int, num_classes: int) -> None:
+        super(TextMLP, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.fc1 = nn.Linear(embed_dim, 64)
+        self.fc2 = nn.Linear(64, num_classes)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        emb = self.embedding(x)       
+        h = emb.mean(dim=1)            
+        h = F.relu(self.fc1(h))        
+        return self.fc2(h)             
 
 def get_weight_class_dynamic(model_name: str):
     weight_mapping = {
@@ -318,6 +340,13 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             conv1_out=12, conv2_out=32,
             fc1_out=240, fc2_out=168
         )
+    
+    if name in ("textmlp", "text_mlp"):
+        return TextMLP(
+            vocab_size=20000,
+            embed_dim=64,
+            num_classes=num_classes,
+        )
 
     if not hasattr(models, name):
         raise ValueError(f"Modello '{model_name}' non in torchvision.models")
@@ -438,47 +467,198 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     config = AVAILABLE_DATASETS[DATASET_NAME]
     normalize_params = config["normalize"]
 
-    # Dimensioni e batch
-    base_size = {
-        "CIFAR10": 32, "CIFAR100": 32, "MNIST": 28,
-        "FashionMNIST": 28, "KMNIST": 28,
-        "ImageNet100": 256, "OXFORDIIITPET": 256
-    }[DATASET_NAME]
-    model_name = client_config.get("model", "resnet18").lower()
-    target_size = 256 if model_name in ["alexnet", "vgg11", "vgg13", "vgg16", "vgg19"] else base_size
+    # ===== RAMO SPECIALE PER TESTO: IMDB (torchtext) =====
+        # ===== RAMO SPECIALE PER TESTO: IMDB (torchtext) =====
+    if DATASET_NAME == "IMDB":
+        tokenizer = get_tokenizer("basic_english")
 
-    # Trasformazioni
-    transforms_list = []
-    if DATASET_NAME == "ImageNet100":
-        transforms_list = [Resize(224), CenterCrop(224)]
-        batch_size = 64
-    else:
-        if target_size != base_size:
-            transforms_list.append(Resize((target_size, target_size)))
-        batch_size = 64
-    transforms_list += [ToTensor(), Normalize(*normalize_params)]
-    trf = Compose(transforms_list)
+        def _yield_tokens(data_iter):
+            for label, text in data_iter:
+                # ignoriamo la label, ci interessa solo il testo per costruire il vocab
+                yield tokenizer(text)
 
-    # Caricamento trainset / testset
-    if DATASET_NAME == "ImageNet100":
-        DATA_ROOT = Path(__file__).resolve().parent / "data"
-        train_path = DATA_ROOT / "imagenet100-preprocessed" / "train"
-        test_path = DATA_ROOT / "imagenet100-preprocessed" / "test"
-        if not os.path.isdir(train_path) or not os.path.isdir(test_path):
-            raise FileNotFoundError(
-                f"Dataset ImageNet100 non trovato in {train_path} e {test_path}"
-            )
-        trainset = ImageFolder(train_path, transform=trf)
-        testset = ImageFolder(test_path, transform=trf)
-    else:
-        cls = config["class"]
-        if DATASET_NAME == "OXFORDIIITPET":
-            trainset = cls("./data", split="trainval", download=True, transform=trf)
-            testset = cls("./data", split="test", download=True, transform=trf)
+        # Helper function to load IMDB data from different sources
+        def _load_imdb_iterator(split: str):
+            """Load IMDB dataset, trying different methods for compatibility."""
+            # Method 1: Try new torchdata-style API (torchtext >= 0.14)
+            try:
+                from torchtext.datasets import IMDB
+                # Check if it supports the new API
+                import inspect
+                sig = inspect.signature(IMDB)
+                if 'root' in sig.parameters or 'split' in sig.parameters:
+                    data_iter = IMDB(root="./data", split=split)
+                    return list(data_iter)
+            except (TypeError, ImportError):
+                pass
+
+            # Method 2: Try loading from local aclImdb folder (manual download)
+            import tarfile
+            import urllib.request
+            import fcntl
+            data_dir = Path("./data/aclImdb")
+            lock_file = Path("./data/.imdb_download.lock")
+            
+            # Use file lock to prevent race condition between clients
+            lock_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(lock_file, 'w') as lf:
+                fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
+                try:
+                    if not data_dir.exists():
+                        log(INFO, "Downloading IMDB dataset manually...")
+                        url = "https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
+                        tar_path = Path("./data/aclImdb_v1.tar.gz")
+                        tar_path.parent.mkdir(parents=True, exist_ok=True)
+                        urllib.request.urlretrieve(url, tar_path)
+                        with tarfile.open(tar_path, "r:gz") as tar:
+                            tar.extractall("./data")
+                        if tar_path.exists():
+                            tar_path.unlink()
+                        log(INFO, "IMDB dataset downloaded and extracted.")
+                    else:
+                        log(INFO, "IMDB dataset already exists, skipping download.")
+                finally:
+                    fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
+
+            # Read from local files
+            data = []
+            for sentiment in ["pos", "neg"]:
+                folder = data_dir / split / sentiment
+                label = 1 if sentiment == "pos" else 0
+                if folder.exists():
+                    for txt_file in folder.glob("*.txt"):
+                        text = txt_file.read_text(encoding="utf-8")
+                        data.append((label, text))
+            return data
+
+        # Costruisci il vocab dal train
+        train_data_raw = _load_imdb_iterator("train")
+        
+        # Build vocab - handle old torchtext API that doesn't support 'specials' parameter
+        use_new_vocab_api = True
+        try:
+            vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
+        except TypeError:
+            # Old torchtext version - build vocab without specials, then add manually
+            use_new_vocab_api = False
+            from collections import Counter
+            token_counter = Counter()
+            for tokens in _yield_tokens(train_data_raw):
+                token_counter.update(tokens)
+            # Create vocab from counter (old API)
+            from torchtext.vocab import Vocab
+            vocab = Vocab(token_counter, specials=["<unk>"])
+        
+        # Set default index for unknown tokens - handle API differences
+        if hasattr(vocab, 'set_default_index'):
+            vocab.set_default_index(vocab["<unk>"])
+            unk_idx = vocab["<unk>"]
         else:
-            trainset = cls("./data", train=True, download=True, transform=trf)
-            testset = cls("./data", train=False, download=True, transform=trf)
+            # Old torchtext uses stoi dict
+            unk_idx = vocab.stoi.get("<unk>", 0)
 
+        max_len = 200      # <- numero scritto fisso
+        max_vocab = 20000  # <- numero scritto fisso (deve combaciare con TextMLP)
+
+        def _get_token_idx(tok):
+            """Get token index, handling old/new torchtext API."""
+            if hasattr(vocab, '__getitem__') and use_new_vocab_api:
+                try:
+                    return vocab[tok]
+                except KeyError:
+                    return unk_idx
+            else:
+                # Old API uses stoi dict
+                return vocab.stoi.get(tok, unk_idx)
+
+        def _encode_text(text: str) -> torch.Tensor:
+            tokens = tokenizer(text)
+            ids = []
+            for tok in tokens[:max_len]:
+                idx = _get_token_idx(tok)
+                # se l'indice è >= 20000, lo mappiamo a <unk> per stare nel range dell'Embedding
+                if idx >= max_vocab:
+                    idx = unk_idx
+                ids.append(idx)
+            if len(ids) < max_len:
+                ids += [0] * (max_len - len(ids))
+            return torch.tensor(ids, dtype=torch.long)
+
+        # Funzione per convertire la label di IMDB in intero 0/1
+        def _label_to_int(lbl):
+            if isinstance(lbl, int):
+                return lbl
+            s = str(lbl).lower()
+            if s in ("pos", "positive", "1", "2"):
+                return 1
+            else:
+                return 0
+
+        # Load test data
+        test_data_raw = _load_imdb_iterator("test")
+
+        train_data = []
+        for raw_label, text in train_data_raw:
+            x = _encode_text(text)
+            y = _label_to_int(raw_label)
+            train_data.append((x, y))
+
+        test_data = []
+        for raw_label, text in test_data_raw:
+            x = _encode_text(text)
+            y = _label_to_int(raw_label)
+            test_data.append((x, y))
+
+        # Usiamo liste di (tensor, label int) come dataset
+        trainset = train_data
+        testset = test_data
+
+        batch_size = int(client_config.get("batch_size", 64))
+
+    # ===== RAMO STANDARD PER IMMAGINI (CODICE CHE AVEVI GIÀ) =====
+    else:
+        # Dimensioni e batch
+        base_size = {
+            "CIFAR10": 32, "CIFAR100": 32, "MNIST": 28,
+            "FashionMNIST": 28, "KMNIST": 28,
+            "ImageNet100": 256, "OXFORDIIITPET": 256
+        }[DATASET_NAME]
+        model_name = client_config.get("model", "resnet18").lower()
+        target_size = 256 if model_name in ["alexnet", "vgg11", "vgg13", "vgg16", "vgg19"] else base_size
+
+        # Trasformazioni
+        transforms_list = []
+        if DATASET_NAME == "ImageNet100":
+            transforms_list = [Resize(224), CenterCrop(224)]
+            batch_size = 64
+        else:
+            if target_size != base_size:
+                transforms_list.append(Resize((target_size, target_size)))
+            batch_size = 64
+        transforms_list += [ToTensor(), Normalize(*normalize_params)]
+        trf = Compose(transforms_list)
+
+        # Caricamento trainset / testset
+        if DATASET_NAME == "ImageNet100":
+            DATA_ROOT = Path(__file__).resolve().parent / "data"
+            train_path = DATA_ROOT / "imagenet100-preprocessed" / "train"
+            test_path = DATA_ROOT / "imagenet100-preprocessed" / "test"
+            if not os.path.isdir(train_path) or not os.path.isdir(test_path):
+                raise FileNotFoundError(
+                    f"Dataset ImageNet100 non trovato in {train_path} e {test_path}"
+                )
+            trainset = ImageFolder(train_path, transform=trf)
+            testset = ImageFolder(test_path, transform=trf)
+        else:
+            cls = config["class"]
+            if DATASET_NAME == "OXFORDIIITPET":
+                trainset = cls("./data", split="trainval", download=True, transform=trf)
+                testset = cls("./data", split="test", download=True, transform=trf)
+            else:
+                trainset = cls("./data", train=True, download=True, transform=trf)
+                testset = cls("./data", train=False, download=True, transform=trf)
+
+    # ===== DA QUI IN GIÙ RESTA TUTTO UGUALE (non-iid + persistence) =====
     if DATASET_TYPE == "non-iid":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
@@ -618,10 +798,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
-
-
-from collections import defaultdict
-
 
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)

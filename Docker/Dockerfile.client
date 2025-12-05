@@ -9,7 +9,8 @@ RUN apt-get update \
 
 
 # Installation of the libraries
-RUN pip install flwr[simulations] flwr-datasets[vision] torch==2.2.1 torchvision==0.17.1 ray==2.36.0 grpcio==1.66.1 numpy==1.26.2 psutil prometheus-client matplotlib torchgan onnx onnx2keras scikit-learn scikit-optimize==0.10.2 tcconfig
+RUN pip install flwr[simulations] flwr-datasets[vision] torch==2.2.1 torchvision==0.17.1 ray==2.36.0 grpcio==1.66.1 numpy==1.26.2 psutil prometheus-client matplotlib torchgan onnx onnx2keras scikit-learn scikit-optimize==0.10.2 tcconfig torchtext
+
 
 # Create the working directory
 WORKDIR /app
