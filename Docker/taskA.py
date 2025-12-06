@@ -212,6 +212,58 @@ class TextMLP(nn.Module):
         h = F.relu(self.fc1(h))        
         return self.fc2(h)             
 
+
+class TextLSTM(nn.Module):
+    """LSTM-based model for text classification."""
+    def __init__(
+        self, 
+        vocab_size: int, 
+        embed_dim: int, 
+        hidden_dim: int, 
+        num_classes: int,
+        num_layers: int = 2,
+        bidirectional: bool = True,
+        dropout: float = 0.3
+    ) -> None:
+        super(TextLSTM, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
+        self.lstm = nn.LSTM(
+            input_size=embed_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            bidirectional=bidirectional,
+            dropout=dropout if num_layers > 1 else 0.0
+        )
+        # Output size depends on bidirectional
+        lstm_output_dim = hidden_dim * 2 if bidirectional else hidden_dim
+        self.fc = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(lstm_output_dim, 64),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(64, num_classes)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: (batch_size, seq_len)
+        emb = self.embedding(x)  # (batch_size, seq_len, embed_dim)
+        
+        # Pack padded sequence for efficiency (optional, here we use masking)
+        lstm_out, (hidden, cell) = self.lstm(emb)  # lstm_out: (batch, seq, hidden*2)
+        
+        # Use the last hidden states from both directions
+        if self.lstm.bidirectional:
+            # Concatenate the last hidden state from forward and backward
+            hidden_forward = hidden[-2, :, :]  # (batch, hidden)
+            hidden_backward = hidden[-1, :, :]  # (batch, hidden)
+            hidden_combined = torch.cat((hidden_forward, hidden_backward), dim=1)
+        else:
+            hidden_combined = hidden[-1, :, :]
+        
+        return self.fc(hidden_combined)
+
+
 def get_weight_class_dynamic(model_name: str):
     weight_mapping = {
         "cnn": None,
@@ -341,11 +393,24 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             fc1_out=240, fc2_out=168
         )
     
+    # TextMLP: ~16k params (vocab=500, embed=32)
     if name in ("textmlp", "text_mlp"):
         return TextMLP(
-            vocab_size=20000,
-            embed_dim=64,
+            vocab_size=500,
+            embed_dim=32,
             num_classes=num_classes,
+        )
+
+    # TextLSTM: bidirectional for better context, dropout for stability
+    if name in ("textlstm", "text_lstm", "lstm"):
+        return TextLSTM(
+            vocab_size=250,
+            embed_dim=16,
+            hidden_dim=16,
+            num_classes=num_classes,
+            num_layers=1,
+            bidirectional=True,  # Better context understanding
+            dropout=0.2,  # Regularization for stability
         )
 
     if not hasattr(models, name):
@@ -468,7 +533,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     normalize_params = config["normalize"]
 
     # ===== RAMO SPECIALE PER TESTO: IMDB (torchtext) =====
-        # ===== RAMO SPECIALE PER TESTO: IMDB (torchtext) =====
     if DATASET_NAME == "IMDB":
         tokenizer = get_tokenizer("basic_english")
 
@@ -515,8 +579,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                         if tar_path.exists():
                             tar_path.unlink()
                         log(INFO, "IMDB dataset downloaded and extracted.")
-                    else:
-                        log(INFO, "IMDB dataset already exists, skipping download.")
+                    # else: dataset already exists, skip silently
                 finally:
                     fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
 
@@ -557,8 +620,15 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             # Old torchtext uses stoi dict
             unk_idx = vocab.stoi.get("<unk>", 0)
 
-        max_len = 200      # <- numero scritto fisso
-        max_vocab = 20000  # <- numero scritto fisso (deve combaciare con TextMLP)
+        max_len = 128  # Reduced for faster tokenization and training
+        # Determine max_vocab based on model (must match Embedding vocab_size)
+        model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
+        if model_name in ("textmlp", "text_mlp"):
+            max_vocab = 500
+        elif model_name in ("textlstm", "text_lstm", "lstm"):
+            max_vocab = 250
+        else:
+            max_vocab = 20000
 
         def _get_token_idx(tok):
             """Get token index, handling old/new torchtext API."""
@@ -830,69 +900,187 @@ def balance_dataset_with_gan(
 
     idxs = [i for i, (_, lbl) in enumerate(trainset) if lbl in under_cls]
 
-    C, H, W = trainset[0][0].shape
-    target_size = get_valid_downscale_size(min(H, W))
-    if H != target_size or W != target_size:
-        resize_for_gan = Compose([
-            ToPILImage(),
-            Resize((target_size, target_size)),
-            ToTensor(),
-        ])
-        train_for_gan = [(resize_for_gan(img), lbl) for img, lbl in trainset]
+    # Detect data type: images have 3D shape (C, H, W), text has 1D shape (seq_len,)
+    sample_data = trainset[0][0]
+    is_text_data = len(sample_data.shape) == 1
+    
+    if is_text_data:
+        # ===== TEXT GAN (LSTM-based) =====
+        seq_len = sample_data.shape[0]
+        # Infer vocab_size from max token index in dataset
+        vocab_size = max(int(x.max().item()) for x, _ in trainset) + 1
+        embed_dim = 32
+        hidden_dim = 64
+        
+        log(INFO, f"[HDH TextGAN] Applying TextGAN to rebalance classes: {under_cls}")
+        log(INFO, f"[HDH TextGAN] Detected text data: seq_len={seq_len}, vocab_size={vocab_size}")
+        
+        # Simple LSTM Generator for text
+        class TextGenerator(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc_latent = nn.Linear(latent_dim, hidden_dim)
+                self.lstm = nn.LSTM(hidden_dim, hidden_dim, batch_first=True)
+                self.fc_out = nn.Linear(hidden_dim, vocab_size)
+            
+            def forward(self, z):
+                # z: (batch, latent_dim)
+                h = F.relu(self.fc_latent(z))  # (batch, hidden)
+                h = h.unsqueeze(1).repeat(1, seq_len, 1)  # (batch, seq_len, hidden)
+                out, _ = self.lstm(h)  # (batch, seq_len, hidden)
+                logits = self.fc_out(out)  # (batch, seq_len, vocab_size)
+                # Use Gumbel-Softmax for differentiable sampling
+                tokens = F.gumbel_softmax(logits, tau=1.0, hard=True, dim=-1)
+                return tokens.argmax(dim=-1)  # (batch, seq_len)
+        
+        # Simple LSTM Discriminator for text
+        class TextDiscriminator(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.embedding = nn.Embedding(vocab_size, embed_dim)
+                self.lstm = nn.LSTM(embed_dim, hidden_dim, batch_first=True)
+                self.fc = nn.Linear(hidden_dim, 1)
+            
+            def forward(self, x):
+                # x: (batch, seq_len) - token indices
+                emb = self.embedding(x)  # (batch, seq_len, embed_dim)
+                _, (h, _) = self.lstm(emb)  # h: (1, batch, hidden)
+                out = self.fc(h.squeeze(0))  # (batch, 1)
+                return torch.sigmoid(out)
+        
+        generator = TextGenerator().to(device)
+        discriminator = TextDiscriminator().to(device)
+        
+        g_optimizer = torch.optim.Adam(generator.parameters(), lr=2e-4, betas=(0.5, 0.999))
+        d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=2e-4, betas=(0.5, 0.999))
+        criterion = nn.BCELoss()
+        
+        # Prepare data for underrepresented classes
+        subset_data = [trainset[i] for i in idxs]
+        loader = DataLoader(subset_data, batch_size=batch_size, shuffle=True, drop_last=True)
+        
+        log(INFO, "[HDH TextGAN] Starting TextGAN training...")
+        for epoch in range(epochs):
+            for real_x, _ in loader:
+                real_x = real_x.to(device)
+                bs = real_x.size(0)
+                
+                # Train Discriminator
+                d_optimizer.zero_grad()
+                real_labels = torch.ones(bs, 1, device=device)
+                fake_labels = torch.zeros(bs, 1, device=device)
+                
+                d_real = discriminator(real_x)
+                d_loss_real = criterion(d_real, real_labels)
+                
+                z = torch.randn(bs, latent_dim, device=device)
+                fake_x = generator(z).detach()
+                d_fake = discriminator(fake_x)
+                d_loss_fake = criterion(d_fake, fake_labels)
+                
+                d_loss = d_loss_real + d_loss_fake
+                d_loss.backward()
+                d_optimizer.step()
+                
+                # Train Generator
+                g_optimizer.zero_grad()
+                z = torch.randn(bs, latent_dim, device=device)
+                fake_x = generator(z)
+                d_fake = discriminator(fake_x)
+                g_loss = criterion(d_fake, real_labels)
+                g_loss.backward()
+                g_optimizer.step()
+        
+        # Generate synthetic samples
+        synth_texts, synth_lbls = [], []
+        generator.eval()
+        for c in under_cls:
+            cnt = counts[c]
+            to_gen = target_per_class - cnt
+            if to_gen <= 0:
+                continue
+            z = torch.randn(to_gen, latent_dim, device=device)
+            with torch.no_grad():
+                gen = generator(z).cpu()
+            synth_texts.append(gen)
+            synth_lbls += [c] * to_gen
+        
+        if synth_texts:
+            all_texts = torch.cat(synth_texts, dim=0)
+            all_lbls = torch.tensor(synth_lbls, dtype=torch.long)
+            synth_ds = TensorDataset(all_texts, all_lbls)
+            result = ConcatDataset([trainset, synth_ds])
+            log(INFO, f"[HDH TextGAN] TextGAN Training Completed.")
+            log(INFO, f"[HDH TextGAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
+            return result
+        
+        return trainset
+    
     else:
-        train_for_gan = list(trainset)
+        # ===== IMAGE GAN (DCGAN) =====
+        C, H, W = sample_data.shape
+        target_size = get_valid_downscale_size(min(H, W))
+        if H != target_size or W != target_size:
+            resize_for_gan = Compose([
+                ToPILImage(),
+                Resize((target_size, target_size)),
+                ToTensor(),
+            ])
+            train_for_gan = [(resize_for_gan(img), lbl) for img, lbl in trainset]
+        else:
+            train_for_gan = list(trainset)
 
-    log(INFO, f"[HDH GAN] Applying GAN to rebalance classes: {under_cls}")
-    subset = Subset(train_for_gan, idxs)
-    loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
+        log(INFO, f"[HDH GAN] Applying GAN to rebalance classes: {under_cls}")
+        subset = Subset(train_for_gan, idxs)
+        loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
 
-    import torchvision
-    _orig_make_grid = torchvision.utils.make_grid
+        import torchvision
+        _orig_make_grid = torchvision.utils.make_grid
 
-    def _make_grid_wrapper(*args, **kwargs):
-        if 'range' in kwargs:
-            kwargs['value_range'] = kwargs.pop('range')
-        return _orig_make_grid(*args, **kwargs)
+        def _make_grid_wrapper(*args, **kwargs):
+            if 'range' in kwargs:
+                kwargs['value_range'] = kwargs.pop('range')
+            return _orig_make_grid(*args, **kwargs)
 
-    torchvision.utils.make_grid = _make_grid_wrapper
+        torchvision.utils.make_grid = _make_grid_wrapper
 
-    models_cfg = {
-        'generator': {'name': DCGANGenerator,
-                      'args': {'encoding_dims': latent_dim, 'out_size': target_size, 'out_channels': C},
-                      'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
-        'discriminator': {'name': DCGANDiscriminator, 'args': {'in_size': target_size, 'in_channels': C},
+        models_cfg = {
+            'generator': {'name': DCGANGenerator,
+                          'args': {'encoding_dims': latent_dim, 'out_size': target_size, 'out_channels': C},
                           'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
-    }
-    losses = [MinimaxGeneratorLoss(), MinimaxDiscriminatorLoss()]
+            'discriminator': {'name': DCGANDiscriminator, 'args': {'in_size': target_size, 'in_channels': C},
+                              'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
+        }
+        losses = [MinimaxGeneratorLoss(), MinimaxDiscriminatorLoss()]
 
-    log(INFO, "[HDH GAN] Starting GAN training...")
-    trainer = Trainer(models=models_cfg, losses_list=losses, device=device, sample_size=batch_size, epochs=epochs)
-    trainer.train(loader)
+        log(INFO, "[HDH GAN] Starting GAN training...")
+        trainer = Trainer(models=models_cfg, losses_list=losses, device=device, sample_size=batch_size, epochs=epochs)
+        trainer.train(loader)
 
-    synth_imgs, synth_lbls = [], []
-    for c in under_cls:
-        cnt = counts[c]
-        to_gen = target_per_class - cnt
-        if to_gen <= 0:
-            continue
-        z = torch.randn(to_gen, latent_dim, device=device)
-        with torch.no_grad():
-            gen = trainer.generator(z).cpu()
-        synth_imgs.append(gen)
-        synth_lbls += [c] * to_gen
+        synth_imgs, synth_lbls = [], []
+        for c in under_cls:
+            cnt = counts[c]
+            to_gen = target_per_class - cnt
+            if to_gen <= 0:
+                continue
+            z = torch.randn(to_gen, latent_dim, device=device)
+            with torch.no_grad():
+                gen = trainer.generator(z).cpu()
+            synth_imgs.append(gen)
+            synth_lbls += [c] * to_gen
 
-    if synth_imgs:
-        all_imgs_gan = torch.cat(synth_imgs, dim=0)
-        downsample = Compose([ToPILImage(), Resize((H, W)), ToTensor()])
-        resized = torch.stack([downsample(img) for img in all_imgs_gan])
-        all_lbls = torch.tensor(synth_lbls, dtype=torch.long)
-        synth_ds = TensorDataset(resized, all_lbls)
-        result = ConcatDataset([trainset, synth_ds])
-        log(INFO, f"[HDH GAN] GAN Training Completed.")
-        log(INFO, f"[HDH GAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
-        return result
+        if synth_imgs:
+            all_imgs_gan = torch.cat(synth_imgs, dim=0)
+            downsample = Compose([ToPILImage(), Resize((H, W)), ToTensor()])
+            resized = torch.stack([downsample(img) for img in all_imgs_gan])
+            all_lbls = torch.tensor(synth_lbls, dtype=torch.long)
+            synth_ds = TensorDataset(resized, all_lbls)
+            result = ConcatDataset([trainset, synth_ds])
+            log(INFO, f"[HDH GAN] GAN Training Completed.")
+            log(INFO, f"[HDH GAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
+            return result
 
-    return trainset
+        return trainset
 
 
 def rebalance_trainloader_with_gan(trainloader):
@@ -977,6 +1165,8 @@ def train(net, trainloader, valloader, epochs, DEVICE):
             optimizer.zero_grad()
             loss = criterion(net(images), labels)
             loss.backward()
+            # Gradient clipping for LSTM stability
+            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
             optimizer.step()
     training_time = time.time() - start_time
     log(INFO, f"Training completed in {training_time:.2f} seconds")
