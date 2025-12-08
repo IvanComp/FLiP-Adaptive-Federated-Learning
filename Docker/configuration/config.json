@@ -1,15 +1,16 @@
 {
+    "adaptation": false,
+    "activation_criteria": {},
     "simulation_type": "Docker",
-    "rounds": 10,
-    "clients": 2,
+    "rounds": 20,
+    "clients": 4,
     "patterns": {
         "client_registry": {
             "enabled": true,
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {}
+            "enabled": false
         },
         "client_cluster": {
             "enabled": false,
@@ -35,8 +36,8 @@
     "client_details": [
         {
             "client_id": 1,
-            "cpu": 5,
-            "ram": 2,
+            "cpu": 2,
+            "ram": 4,
             "dataset": "IMDB",
             "data_distribution_type": "IID",
             "data_persistence_type": "Same Data",
@@ -44,10 +45,32 @@
             "model": "TextLSTM",
             "epochs": 1
         },
-        {
+{
             "client_id": 2,
-            "cpu": 5,
-            "ram": 2,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+{
+            "client_id": 3,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+{
+            "client_id": 4,
+            "cpu": 1,
+            "ram": 4,
             "dataset": "IMDB",
             "data_distribution_type": "IID",
             "data_persistence_type": "Same Data",
