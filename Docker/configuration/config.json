@@ -1,16 +1,38 @@
 {
-    "adaptation": false,
-    "activation_criteria": {},
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "f1overtime",
+                "pattern": "client_selector",
+                "metric": "val_f1",
+                "threshold": {
+                    "type": "increasing",
+                    "calculation_method": "random"
+                }
+            }
+        ]
+    },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 4,
+    "clients": 12,
     "patterns": {
         "client_registry": {
             "enabled": true,
             "params": {}
         },
         "client_selector": {
-            "enabled": false
+            "enabled": true,
+            "params": {
+                "enabled_clients": [
+                    "Client 3",
+                    "Client 4",
+                    "Client 5",
+                    "Client 6",
+                    "Client 7",
+                    "Client 8"
+                ]
+            }
         },
         "client_cluster": {
             "enabled": false,
@@ -45,7 +67,7 @@
             "model": "TextLSTM",
             "epochs": 1
         },
-{
+        {
             "client_id": 2,
             "cpu": 2,
             "ram": 4,
@@ -56,8 +78,74 @@
             "model": "TextLSTM",
             "epochs": 1
         },
-{
+        {
             "client_id": 3,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 4,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 5,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 6,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 7,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 8,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 9,
             "cpu": 1,
             "ram": 4,
             "dataset": "IMDB",
@@ -67,8 +155,30 @@
             "model": "TextLSTM",
             "epochs": 1
         },
-{
-            "client_id": 4,
+        {
+            "client_id": 10,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 11,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "IMDB",
+            "data_distribution_type": "IID",
+            "data_persistence_type": "Same Data",
+            "delay_combobox": "No",
+            "model": "TextLSTM",
+            "epochs": 1
+        },
+        {
+            "client_id": 12,
             "cpu": 1,
             "ram": 4,
             "dataset": "IMDB",
