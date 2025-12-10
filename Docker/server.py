@@ -11,6 +11,7 @@ from logging import INFO
 from typing import List, Tuple, Dict, Optional
 
 import docker
+import logging
 import matplotlib
 from flwr.common import (
     ndarrays_to_parameters,
