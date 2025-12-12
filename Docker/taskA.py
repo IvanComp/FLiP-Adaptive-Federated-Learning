@@ -24,23 +24,20 @@ from torchvision.datasets import CIFAR10, CIFAR100, MNIST, FashionMNIST, KMNIST,
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import Resize, CenterCrop, ToTensor, Normalize, Compose, ToPILImage
 from torchtext.datasets import IMDB as TorchTextIMDB
+from torchtext.datasets import YahooAnswers as TorchTextYahooAnswers
+from torchtext.datasets import AG_NEWS as TorchTextAGNews
 from torchtext.data.utils import get_tokenizer
 from torchtext.vocab import build_vocab_from_iterator
-
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
-
     def __len__(self):
         return len(self.dataset)
-
     def __getitem__(self, idx):
         x, y = self.dataset[idx]
         if not torch.is_tensor(y):
             y = torch.tensor(y)
         return x, y
-
-
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 GLOBAL_ROUND_COUNTER = 1
 HGAN_DONE = False
@@ -53,7 +50,6 @@ HETEROGENEOUS_DATA_HANDLER = False
 global DATASET_TYPE, DATASET_NAME
 DATASET_TYPE = ""
 DATASET_NAME = ""
-
 AVAILABLE_DATASETS = {
     "CIFAR10": {
         "class": CIFAR10,
@@ -98,35 +94,49 @@ AVAILABLE_DATASETS = {
         "num_classes": 37
     },
     "IMDB": {
-    "class": TorchTextIMDB,
-    "normalize": ((0.0,), (1.0,)), 
-    "channels": 1,
-    "num_classes": 2
+        "class": TorchTextIMDB,
+        "normalize": ((0.0,), (1.0,)), 
+        "channels": 1,
+        "num_classes": 2
+    },
+    "YAHOOANSWERS": {
+        "class": TorchTextYahooAnswers,
+        "normalize": ((0.0,), (1.0,)), 
+        "channels": 1,
+        "num_classes": 10
+    },
+    "AG_NEWS": {
+        "class": TorchTextAGNews,
+        "normalize": ((0.0,), (1.0,)), 
+        "channels": 1,
+        "num_classes": 4
+    },
+    "SST2": {
+        "class": None,
+        "normalize": ((0.0,), (1.0,)), 
+        "channels": 1,
+        "num_classes": 2
+    },
+    "DBPEDIA": {
+        "class": None,
+        "normalize": ((0.0,), (1.0,)), 
+        "channels": 1,
+        "num_classes": 14
     }
 }
-
 _orig_make_grid = vutils.make_grid
-
-
 def make_grid_no_range(*args, **kwargs):
     kwargs.pop("range", None)
     return _orig_make_grid(*args, **kwargs)
-
-
 vutils.make_grid = make_grid_no_range
-
 current_dir = os.path.abspath(os.path.dirname(__file__))
 config_dir = os.path.join(current_dir, 'configuration')
 config_file = os.path.join(config_dir, 'config.json')
-
-
 def get_valid_downscale_size(size: int) -> int:
     power = 32
     while power * 2 <= size and power * 2 <= 128:
         power *= 2
     return power
-
-
 def normalize_dataset_name(name: str) -> str:
     name_clean = name.replace("-", "").upper()
     if name_clean == "CIFAR10":
@@ -147,10 +157,12 @@ def normalize_dataset_name(name: str) -> str:
         return "OXFORDIIITPET"
     elif name_clean == "IMDB":
         return "IMDB"
+    elif name_clean in ("YAHOOANSWERS", "YAHOO_ANSWERS", "YAHOO"):
+        return "YAHOOANSWERS"
+    elif name_clean in ("AG_NEWS", "AGNEWS"):
+        return "AG_NEWS"
     else:
         return name
-
-
 if os.path.exists(config_file):
     with open(config_file, 'r') as f:
         configJSON = json.load(f)
@@ -172,8 +184,6 @@ if os.path.exists(config_file):
             "Il file di configurazione non specifica il dataset né tramite la chiave 'dataset' né in 'client_details'.")
     DATASET_NAME = normalize_dataset_name(ds)
     DATASET_TYPE = configJSON["client_details"][0].get("data_distribution_type", "")
-
-
 class CNN_Dynamic(nn.Module):
     def __init__(
             self, num_classes: int, input_size: int, in_ch: int,
@@ -190,7 +200,6 @@ class CNN_Dynamic(nn.Module):
         self.fc1 = nn.Linear(flat_size, fc1_out)
         self.fc2 = nn.Linear(fc1_out, fc2_out)
         self.fc3 = nn.Linear(fc2_out, num_classes)
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
@@ -198,21 +207,17 @@ class CNN_Dynamic(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         return self.fc3(x)
-
 class TextMLP(nn.Module):
     def __init__(self, vocab_size: int, embed_dim: int, num_classes: int) -> None:
         super(TextMLP, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.fc1 = nn.Linear(embed_dim, 64)
         self.fc2 = nn.Linear(64, num_classes)
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         emb = self.embedding(x)       
         h = emb.mean(dim=1)            
         h = F.relu(self.fc1(h))        
         return self.fc2(h)             
-
-
 class TextLSTM(nn.Module):
     """LSTM-based model for text classification."""
     def __init__(
@@ -235,7 +240,6 @@ class TextLSTM(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout if num_layers > 1 else 0.0
         )
-        # Output size depends on bidirectional
         lstm_output_dim = hidden_dim * 2 if bidirectional else hidden_dim
         self.fc = nn.Sequential(
             nn.Dropout(dropout),
@@ -244,26 +248,16 @@ class TextLSTM(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(64, num_classes)
         )
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: (batch_size, seq_len)
-        emb = self.embedding(x)  # (batch_size, seq_len, embed_dim)
-        
-        # Pack padded sequence for efficiency (optional, here we use masking)
-        lstm_out, (hidden, cell) = self.lstm(emb)  # lstm_out: (batch, seq, hidden*2)
-        
-        # Use the last hidden states from both directions
+        emb = self.embedding(x)  
+        lstm_out, (hidden, cell) = self.lstm(emb)  
         if self.lstm.bidirectional:
-            # Concatenate the last hidden state from forward and backward
-            hidden_forward = hidden[-2, :, :]  # (batch, hidden)
-            hidden_backward = hidden[-1, :, :]  # (batch, hidden)
+            hidden_forward = hidden[-2, :, :]  
+            hidden_backward = hidden[-1, :, :]  
             hidden_combined = torch.cat((hidden_forward, hidden_backward), dim=1)
         else:
             hidden_combined = hidden[-1, :, :]
-        
         return self.fc(hidden_combined)
-
-
 def get_weight_class_dynamic(model_name: str):
     weight_mapping = {
         "cnn": None,
@@ -344,16 +338,12 @@ def get_weight_class_dynamic(model_name: str):
     if weight_class_name is not None:
         return getattr(models, weight_class_name, None)
     return None
-
-
 def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool = True) -> nn.Module:
     if model_name is None:
         with open(config_file, 'r') as f:
             configJSON = json.load(f)
         model_name = configJSON["client_details"][0].get("model")
     name = model_name.strip().lower().replace("-", "_").replace(" ", "_")
-
-    # cnn 16k
     if name in ("cnn_16k", "cnn16k"):
         input_size = {
             "CIFAR10": 32, "CIFAR100": 32,
@@ -366,7 +356,6 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             conv1_out=3, conv2_out=8,
             fc1_out=60, fc2_out=42
         )
-    # cnn 64k
     if name in ("cnn_64k", "cnn64k"):
         input_size = {
             "CIFAR10": 32, "CIFAR100": 32,
@@ -379,7 +368,6 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             conv1_out=6, conv2_out=16,
             fc1_out=120, fc2_out=84
         )
-    # cnn 256k
     if name in ("cnn_256k", "cnn256k"):
         input_size = {
             "CIFAR10": 32, "CIFAR100": 32,
@@ -392,16 +380,12 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             conv1_out=12, conv2_out=32,
             fc1_out=240, fc2_out=168
         )
-    
-    # TextMLP: ~16k params (vocab=500, embed=32)
     if name in ("textmlp", "text_mlp"):
         return TextMLP(
             vocab_size=500,
             embed_dim=32,
             num_classes=num_classes,
         )
-
-    # TextLSTM: bidirectional for better context, dropout for stability
     if name in ("textlstm", "text_lstm", "lstm"):
         return TextLSTM(
             vocab_size=250,
@@ -409,20 +393,17 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             hidden_dim=16,
             num_classes=num_classes,
             num_layers=1,
-            bidirectional=True,  # Better context understanding
-            dropout=0.2,  # Regularization for stability
+            bidirectional=True,  
+            dropout=0.2,  
         )
-
     if not hasattr(models, name):
         raise ValueError(f"Modello '{model_name}' non in torchvision.models")
     constructor = getattr(models, name)
-
     weight_cls = get_weight_class_dynamic(name)
     if pretrained and weight_cls and hasattr(weight_cls, "DEFAULT"):
         model = constructor(weights=weight_cls.DEFAULT, progress=False)
     else:
         model = constructor(weights=None, progress=False)
-
     if hasattr(model, "fc"):
         in_f = model.fc.in_features
         model.fc = nn.Linear(in_f, num_classes)
@@ -451,10 +432,7 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             model.classifier = nn.Linear(in_f, num_classes)
     else:
         raise NotImplementedError(f"{name} not Supported!")
-
     return model
-
-
 def Net():
     with open(config_file, 'r') as f:
         configJSON = json.load(f)
@@ -465,8 +443,6 @@ def Net():
     model_name = configJSON["client_details"][0].get("model", None)
     num_classes = AVAILABLE_DATASETS[dataset_name]["num_classes"]
     return get_dynamic_model(num_classes, model_name)
-
-
 def get_non_iid_indices(dataset,
                         remove_class_frac,
                         add_class_frac,
@@ -475,21 +451,16 @@ def get_non_iid_indices(dataset,
     cls2idx = {}
     for i, (_, lbl) in enumerate(dataset):
         cls2idx.setdefault(lbl, []).append(i)
-
     classes = list(cls2idx.keys())
     n_cls = len(classes)
-
     n_remove = max(1, int(remove_class_frac * n_cls))
     remove_cls = random.sample(classes, n_remove)
-
     avail = [c for c in classes if c not in remove_cls]
     raw_add = max(1, int(add_class_frac * n_cls))
     n_add = min(raw_add, len(avail))
     add_cls = random.sample(avail, n_add)
-
     pct_remove = {c: random.uniform(*remove_pct_range) for c in remove_cls}
     pct_add = {c: random.uniform(*add_pct_range) for c in add_cls}
-
     selected = []
     for c, idxs in cls2idx.items():
         n = len(idxs)
@@ -501,69 +472,80 @@ def get_non_iid_indices(dataset,
             selected += idxs + random.choices(idxs, k=add_n)
         else:
             selected += idxs
-
     total = len(dataset)
     if len(selected) > total:
         selected = random.sample(selected, total)
     elif len(selected) < total:
         selected += random.choices(selected, k=total - len(selected))
-
     zero_cls = random.choice(classes)
     selected = [i for i in selected if dataset[i][1] != zero_cls]
-
     if len(selected) > total:
         selected = random.sample(selected, total)
     elif len(selected) < total:
         selected += random.choices(selected, k=total - len(selected))
-
     return selected
-
-
+    return selected
+def load_balanced_data(iterator, max_total, num_classes, label_extractor, item_processor):
+    """
+    Loads a balanced subset of data from a generator/iterator.
+    Ensures each class gets approximately max_total // num_classes samples.
+    """
+    counts = defaultdict(int)
+    target = max_total // num_classes
+    data = []
+    filled_classes = 0
+    for raw_item in iterator:
+        lbl = label_extractor(raw_item)
+        if counts[lbl] < target:
+            processed_item = item_processor(raw_item)
+            data.append(processed_item)
+            counts[lbl] += 1
+            if counts[lbl] == target:
+                filled_classes += 1
+        if filled_classes == num_classes:
+            break
+    random.seed(42) 
+    random.shuffle(data)
+    return data
 def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     global DATASET_NAME, DATASET_TYPE, DATASET_PERSISTENCE
-
     DATASET_TYPE = client_config.get("data_distribution_type", "").lower()
     DATASET_PERSISTENCE = client_config.get("data_persistence_type", "")
     dataset_name = dataset_name_override or client_config.get("dataset", "")
     DATASET_NAME = normalize_dataset_name(dataset_name)
-
+    if DATASET_NAME == "IMDB":
+        MAX_SAMPLES = 25000 
+    elif DATASET_NAME == "AG_NEWS":
+        MAX_SAMPLES = 120000 
+        MAX_SAMPLES = 120000
+    else:
+        MAX_SAMPLES = 120000
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
     config = AVAILABLE_DATASETS[DATASET_NAME]
     normalize_params = config["normalize"]
-
-    # ===== RAMO SPECIALE PER TESTO: IMDB (torchtext) =====
     if DATASET_NAME == "IMDB":
         tokenizer = get_tokenizer("basic_english")
-
         def _yield_tokens(data_iter):
             for label, text in data_iter:
-                # ignoriamo la label, ci interessa solo il testo per costruire il vocab
                 yield tokenizer(text)
-
-        # Helper function to load IMDB data from different sources
         def _load_imdb_iterator(split: str):
             """Load IMDB dataset, trying different methods for compatibility."""
-            # Method 1: Try new torchdata-style API (torchtext >= 0.14)
             try:
                 from torchtext.datasets import IMDB
-                # Check if it supports the new API
                 import inspect
                 sig = inspect.signature(IMDB)
                 if 'root' in sig.parameters or 'split' in sig.parameters:
                     data_iter = IMDB(root="./data", split=split)
-                    return list(data_iter)
+                    for item in data_iter:
+                        yield item
             except (TypeError, ImportError):
                 pass
-
-            # Method 2: Try loading from local aclImdb folder (manual download)
             import tarfile
             import urllib.request
             import fcntl
             data_dir = Path("./data/aclImdb")
             lock_file = Path("./data/.imdb_download.lock")
-            
-            # Use file lock to prevent race condition between clients
             lock_file.parent.mkdir(parents=True, exist_ok=True)
             with open(lock_file, 'w') as lf:
                 fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
@@ -579,49 +561,33 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                         if tar_path.exists():
                             tar_path.unlink()
                         log(INFO, "IMDB dataset downloaded and extracted.")
-                    # else: dataset already exists, skip silently
                 finally:
                     fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
-
-            # Read from local files
-            data = []
             for sentiment in ["pos", "neg"]:
                 folder = data_dir / split / sentiment
                 label = 1 if sentiment == "pos" else 0
                 if folder.exists():
-                    for txt_file in folder.glob("*.txt"):
+                    for txt_file in sorted(folder.glob("*.txt")):
                         text = txt_file.read_text(encoding="utf-8")
-                        data.append((label, text))
-            return data
-
-        # Costruisci il vocab dal train
+                        yield (label, text)
         train_data_raw = _load_imdb_iterator("train")
-        
-        # Build vocab - handle old torchtext API that doesn't support 'specials' parameter
         use_new_vocab_api = True
         try:
             vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
         except TypeError:
-            # Old torchtext version - build vocab without specials, then add manually
             use_new_vocab_api = False
             from collections import Counter
             token_counter = Counter()
             for tokens in _yield_tokens(train_data_raw):
                 token_counter.update(tokens)
-            # Create vocab from counter (old API)
             from torchtext.vocab import Vocab
             vocab = Vocab(token_counter, specials=["<unk>"])
-        
-        # Set default index for unknown tokens - handle API differences
         if hasattr(vocab, 'set_default_index'):
             vocab.set_default_index(vocab["<unk>"])
             unk_idx = vocab["<unk>"]
         else:
-            # Old torchtext uses stoi dict
             unk_idx = vocab.stoi.get("<unk>", 0)
-
-        max_len = 128  # Reduced for faster tokenization and training
-        # Determine max_vocab based on model (must match Embedding vocab_size)
+        max_len = 128  
         model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
         if model_name in ("textmlp", "text_mlp"):
             max_vocab = 500
@@ -629,7 +595,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             max_vocab = 250
         else:
             max_vocab = 20000
-
         def _get_token_idx(tok):
             """Get token index, handling old/new torchtext API."""
             if hasattr(vocab, '__getitem__') and use_new_vocab_api:
@@ -638,23 +603,18 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                 except KeyError:
                     return unk_idx
             else:
-                # Old API uses stoi dict
                 return vocab.stoi.get(tok, unk_idx)
-
         def _encode_text(text: str) -> torch.Tensor:
             tokens = tokenizer(text)
             ids = []
             for tok in tokens[:max_len]:
                 idx = _get_token_idx(tok)
-                # se l'indice è >= 20000, lo mappiamo a <unk> per stare nel range dell'Embedding
                 if idx >= max_vocab:
                     idx = unk_idx
                 ids.append(idx)
             if len(ids) < max_len:
                 ids += [0] * (max_len - len(ids))
             return torch.tensor(ids, dtype=torch.long)
-
-        # Funzione per convertire la label di IMDB in intero 0/1
         def _label_to_int(lbl):
             if isinstance(lbl, int):
                 return lbl
@@ -663,31 +623,509 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                 return 1
             else:
                 return 0
-
-        # Load test data
         test_data_raw = _load_imdb_iterator("test")
-
-        train_data = []
-        for raw_label, text in train_data_raw:
-            x = _encode_text(text)
-            y = _label_to_int(raw_label)
-            train_data.append((x, y))
-
-        test_data = []
-        for raw_label, text in test_data_raw:
-            x = _encode_text(text)
-            y = _label_to_int(raw_label)
-            test_data.append((x, y))
-
-        # Usiamo liste di (tensor, label int) come dataset
-        trainset = train_data
-        testset = test_data
-
+        trainset = load_balanced_data(
+            _load_imdb_iterator("train"), 
+            MAX_SAMPLES, 
+            2, 
+            lambda x: _label_to_int(x[0]), 
+            lambda x: (_encode_text(x[1]), _label_to_int(x[0]))
+        )
+        test_iter_raw = _load_imdb_iterator("test")
+        testset = []
+        for raw_label, text in test_iter_raw:
+             x = _encode_text(text)
+             y = _label_to_int(raw_label)
+             testset.append((x, y))
         batch_size = int(client_config.get("batch_size", 64))
-
-    # ===== RAMO STANDARD PER IMMAGINI (CODICE CHE AVEVI GIÀ) =====
+    elif DATASET_NAME == "YAHOOANSWERS":
+        tokenizer = get_tokenizer("basic_english")
+        def _yield_tokens(data_iter):
+            for label, text in data_iter:
+                yield tokenizer(text)
+        def _load_yahoo_iterator(split: str):
+            """Load Yahoo Answers dataset, trying different methods for compatibility."""
+            import csv
+            import fcntl
+            try:
+                from torchtext.datasets import YahooAnswers
+                import inspect
+                sig = inspect.signature(YahooAnswers)
+                if 'root' in sig.parameters or 'split' in sig.parameters:
+                    data_iter = YahooAnswers(root="./data", split=split)
+                    for item in data_iter:
+                        yield item
+                    return 
+            except (TypeError, ImportError):
+                pass
+            data_dir = Path("./data/yahoo_answers_csv")
+            lock_file = Path("./data/.yahoo_download.lock")
+            lock_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(lock_file, 'w') as lf:
+                fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
+                try:
+                    if not data_dir.exists():
+                        log(INFO, "Downloading Yahoo Answers dataset manually...")
+                        import tarfile
+                        import urllib.request
+                        url = "https://s3.amazonaws.com/fast-ai-nlp/yahoo_answers_csv.tgz"
+                        tar_path = Path("./data/yahoo_answers_csv.tgz")
+                        tar_path.parent.mkdir(parents=True, exist_ok=True)
+                        urllib.request.urlretrieve(url, tar_path)
+                        with tarfile.open(tar_path, "r:gz") as tar:
+                            tar.extractall("./data")
+                        if tar_path.exists():
+                            tar_path.unlink()
+                        log(INFO, "Yahoo Answers dataset downloaded and extracted.")
+                finally:
+                    fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
+            csv_file = data_dir / f"{split}.csv"
+            if csv_file.exists():
+                with open(csv_file, 'r', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        if len(row) >= 4:
+                            label = int(row[0])
+                            text = " ".join(row[1:])
+                            yield (label, text)
+        train_data_raw = _load_yahoo_iterator("train")
+        use_new_vocab_api = True
+        try:
+            vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
+        except TypeError:
+            use_new_vocab_api = False
+            from collections import Counter
+            token_counter = Counter()
+            for tokens in _yield_tokens(train_data_raw):
+                token_counter.update(tokens)
+            from torchtext.vocab import Vocab
+            vocab = Vocab(token_counter, specials=["<unk>"])
+        if hasattr(vocab, 'set_default_index'):
+            vocab.set_default_index(vocab["<unk>"])
+            unk_idx = vocab["<unk>"]
+        else:
+            unk_idx = vocab.stoi.get("<unk>", 0)
+        max_len = 256  
+        model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
+        if model_name in ("textmlp", "text_mlp"):
+            max_vocab = 500
+        elif model_name in ("textlstm", "text_lstm", "lstm"):
+            max_vocab = 250
+        else:
+            max_vocab = 20000
+        def _get_token_idx(tok):
+            """Get token index, handling old/new torchtext API."""
+            if hasattr(vocab, '__getitem__') and use_new_vocab_api:
+                try:
+                    return vocab[tok]
+                except KeyError:
+                    return unk_idx
+            else:
+                return vocab.stoi.get(tok, unk_idx)
+        def _encode_text(text: str) -> torch.Tensor:
+            tokens = tokenizer(text)
+            ids = []
+            for tok in tokens[:max_len]:
+                idx = _get_token_idx(tok)
+                if idx >= max_vocab:
+                    idx = unk_idx
+                ids.append(idx)
+            if len(ids) < max_len:
+                ids += [0] * (max_len - len(ids))
+            return torch.tensor(ids, dtype=torch.long)
+        def _label_to_int(lbl):
+            if isinstance(lbl, int):
+                return lbl - 1  
+            return int(lbl) - 1
+        test_data_raw = _load_yahoo_iterator("test")
+        trainset = load_balanced_data(
+            _load_yahoo_iterator("train"), 
+            MAX_SAMPLES, 
+            10, 
+            lambda x: _label_to_int(x[0]), 
+            lambda x: (_encode_text(x[1]), _label_to_int(x[0]))
+        )
+        test_iter_raw = _load_yahoo_iterator("test")
+        testset = []
+        test_limit = 5000
+        for i, (raw_label, text) in enumerate(test_iter_raw):
+            if i >= test_limit: break
+            x = _encode_text(text)
+            y = _label_to_int(raw_label)
+            testset.append((x, y))
+        batch_size = int(client_config.get("batch_size", 64))
+    elif DATASET_NAME == "AG_NEWS":
+        tokenizer = get_tokenizer("basic_english")
+        def _yield_tokens(data_iter):
+            for label, text in data_iter:
+                yield tokenizer(text)
+        def _load_agnews_iterator(split: str):
+            """Load AG_NEWS dataset."""
+            try:
+                from torchtext.datasets import AG_NEWS
+                import inspect
+                sig = inspect.signature(AG_NEWS)
+                if 'root' in sig.parameters or 'split' in sig.parameters:
+                    data_iter = AG_NEWS(root="./data", split=split)
+                if 'root' in sig.parameters or 'split' in sig.parameters:
+                    data_iter = AG_NEWS(root="./data", split=split)
+                    for item in data_iter:
+                        yield item
+                    return 
+            except (TypeError, ImportError):
+                pass
+            import csv
+            import fcntl
+            import tarfile
+            import urllib.request
+            data_dir = Path("./data/ag_news_csv")
+            lock_file = Path("./data/.agnews_download.lock")
+            lock_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(lock_file, 'w') as lf:
+                fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
+                try:
+                    if not data_dir.exists():
+                        log(INFO, "Downloading AG_NEWS dataset manually (Fallback strategy like IMDB)...")
+                        url = "https://s3.amazonaws.com/fast-ai-nlp/ag_news_csv.tgz"
+                        tar_path = Path("./data/ag_news_csv.tgz")
+                        tar_path.parent.mkdir(parents=True, exist_ok=True)
+                        urllib.request.urlretrieve(url, tar_path)
+                        with tarfile.open(tar_path, "r:gz") as tar:
+                            tar.extractall("./data")
+                        if tar_path.exists():
+                            tar_path.unlink()
+                        log(INFO, "AG_NEWS dataset downloaded and extracted.")
+                finally:
+                    fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
+            csv_file = data_dir / f"{split}.csv"
+            if csv_file.exists():
+                with open(csv_file, 'r', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        if len(row) >= 3:
+                            label = int(row[0])
+                            text = " ".join(row[1:])
+                            yield (label, text)
+                    return
+            raise RuntimeError("Could not load AG_NEWS via torchtext or manual fallback")
+        try:
+             iter_ = _load_agnews_iterator("train")
+             train_data_raw = list(iter_)
+        except Exception as e:
+             log(INFO, f"FATAL ERROR loading AG_NEWS: {e}")
+             raise e
+        use_new_vocab_api = True
+        try:
+            vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
+        except TypeError:
+            use_new_vocab_api = False
+            from collections import Counter
+            token_counter = Counter()
+            for tokens in _yield_tokens(train_data_raw):
+                token_counter.update(tokens)
+            from torchtext.vocab import Vocab
+            vocab = Vocab(token_counter, specials=["<unk>"])
+        if hasattr(vocab, 'set_default_index'):
+            vocab.set_default_index(vocab["<unk>"])
+            unk_idx = vocab["<unk>"]
+        else:
+            unk_idx = vocab.stoi.get("<unk>", 0)
+        max_len = 128  
+        model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
+        if model_name in ("textmlp", "text_mlp"):
+            max_vocab = 500
+        elif model_name in ("textlstm", "text_lstm", "lstm"):
+            max_vocab = 250
+        else:
+            max_vocab = 20000
+        def _get_token_idx(tok):
+            if hasattr(vocab, '__getitem__') and use_new_vocab_api:
+                try:
+                    return vocab[tok]
+                except KeyError:
+                    return unk_idx
+            else:
+                return vocab.stoi.get(tok, unk_idx)
+        def _encode_text(text: str) -> torch.Tensor:
+            tokens = tokenizer(text)
+            ids = []
+            for tok in tokens[:max_len]:
+                idx = _get_token_idx(tok)
+                if idx >= max_vocab:
+                    idx = unk_idx
+                ids.append(idx)
+            if len(ids) < max_len:
+                ids += [0] * (max_len - len(ids))
+            return torch.tensor(ids, dtype=torch.long)
+        def _label_to_int(lbl):
+            if isinstance(lbl, int):
+                return lbl - 1
+            return int(lbl) - 1
+        test_data_raw = _load_agnews_iterator("test")
+        trainset = load_balanced_data(
+            _load_agnews_iterator("train"), 
+            MAX_SAMPLES, 
+            4, 
+            lambda x: int(x[0]) - 1, 
+            lambda x: (_encode_text(x[1]), int(x[0]) - 1)
+        )
+        try:
+             test_iter_raw = _load_agnews_iterator("test")
+        except:
+             from torchtext.datasets import AG_NEWS
+             test_iter_raw = AG_NEWS(root="./data", split="test")
+        testset = []
+        for raw_label, text in test_iter_raw:
+            x = _encode_text(text)
+            y = int(raw_label) - 1
+            testset.append((x, y))
+        batch_size = int(client_config.get("batch_size", 64))
+    elif DATASET_NAME == "SST2":
+        tokenizer = get_tokenizer("basic_english")
+        def _yield_tokens(data_iter):
+            for label, text in data_iter:
+                yield tokenizer(text)
+        def _load_sst2_iterator(split: str):
+            """Load SST2 dataset with fallback strategy."""
+            try:
+                from torchtext.datasets import SST2
+                import inspect
+                sig = inspect.signature(SST2)
+                if 'root' in sig.parameters or 'split' in sig.parameters:
+                    data_iter = SST2(root="./data", split=split)
+                    for item in data_iter:
+                        if isinstance(item, tuple):
+                             if isinstance(item[0], int): yield item 
+                             else: yield (item[1], item[0])
+                    return
+                datasets = SST2(root="./data")
+                if isinstance(datasets, tuple):
+                    if split == "train": target = datasets[0]
+                    elif split == "test": target = datasets[2] 
+                    else: target = datasets[1] 
+                    for item in target:
+                         if isinstance(item, tuple):
+                             if isinstance(item[0], int): yield item
+                             else: yield (item[1], item[0])
+                    return
+            except Exception:
+                pass
+            import csv
+            import fcntl
+            import zipfile
+            import urllib.request
+            data_dir = Path("./data/SST-2")
+            lock_file = Path("./data/.sst2_download.lock")
+            lock_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(lock_file, 'w') as lf:
+                fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
+                try:
+                    if not data_dir.exists():
+                        log(INFO, "Downloading SST2 dataset manually...")
+                        url = "https://dl.fbaipublicfiles.com/glue/data/SST-2.zip"
+                        zip_path = Path("./data/SST-2.zip")
+                        urllib.request.urlretrieve(url, zip_path)
+                        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                            zip_ref.extractall("./data")
+                        if zip_path.exists():
+                            zip_path.unlink()
+                        log(INFO, "SST2 dataset downloaded and extracted.")
+                finally:
+                    fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
+            filename = "train.tsv" if split == "train" else "dev.tsv"
+            tsv_path = data_dir / filename
+            if tsv_path.exists():
+                with open(tsv_path, 'r', encoding='utf-8') as f:
+                    reader = csv.reader(f, delimiter='\t')
+                    next(reader) 
+                    for row in reader:
+                        if len(row) >= 2:
+                            text = row[0]
+                            label = int(row[1])
+                            yield (label, text)
+                    return
+            raise RuntimeError("Could not load SST2 via torchtext or manual fallback")
+        MAX_SAMPLES = 70000 
+        try:
+             iter_ = _load_sst2_iterator("train")
+             train_data_raw = list(iter_)
+        except Exception as e:
+             raise e
+        use_new_vocab_api = True
+        try:
+            vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
+        except TypeError:
+            use_new_vocab_api = False
+            from collections import Counter
+            token_counter = Counter()
+            for tokens in _yield_tokens(train_data_raw):
+                token_counter.update(tokens)
+            from torchtext.vocab import Vocab
+            vocab = Vocab(token_counter, specials=["<unk>"])
+        if hasattr(vocab, 'set_default_index'):
+            vocab.set_default_index(vocab["<unk>"])
+            unk_idx = vocab["<unk>"]
+        else:
+            unk_idx = vocab.stoi.get("<unk>", 0)
+        max_len = 64
+        model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
+        if model_name in ("textmlp", "text_mlp"):
+            max_vocab = 500
+        elif model_name in ("textlstm", "text_lstm", "lstm"):
+            max_vocab = 250
+        else:
+            max_vocab = 20000
+        def _get_token_idx(tok):
+            if hasattr(vocab, '__getitem__') and use_new_vocab_api:
+                try: return vocab[tok]
+                except KeyError: return unk_idx
+            else: return vocab.stoi.get(tok, unk_idx)
+        def _encode_text(text: str) -> torch.Tensor:
+            tokens = tokenizer(text)
+            ids = []
+            for tok in tokens[:max_len]:
+                idx = _get_token_idx(tok)
+                if idx >= max_vocab: idx = unk_idx
+                ids.append(idx)
+            if len(ids) < max_len:
+                ids += [0] * (max_len - len(ids))
+            return torch.tensor(ids, dtype=torch.long)
+        trainset = load_balanced_data(
+            _load_sst2_iterator("train"), 
+            MAX_SAMPLES, 
+            2, 
+            lambda x: int(x[0]), 
+            lambda x: (_encode_text(x[1]), int(x[0]))
+        )
+        test_iter_raw = _load_sst2_iterator("test")
+        testset = []
+        for raw_label, text in test_iter_raw:
+             x = _encode_text(text)
+             y = int(raw_label)
+             testset.append((x, y))
+        batch_size = int(client_config.get("batch_size", 64))
+    elif DATASET_NAME == "DBPEDIA":
+        tokenizer = get_tokenizer("basic_english")
+        def _yield_tokens(data_iter):
+            for label, text in data_iter:
+                yield tokenizer(text)
+        def _load_dbpedia_iterator(split: str):
+            """Load DBpedia dataset with fallback strategy."""
+            try:
+                from torchtext.datasets import DBpedia
+                import inspect
+                sig = inspect.signature(DBpedia)
+                if 'root' in sig.parameters or 'split' in sig.parameters:
+                    data_iter = DBpedia(root="./data", split=split)
+                    for item in data_iter:
+                        if isinstance(item, tuple):
+                             if isinstance(item[0], int): yield item 
+                             else: yield (item[1], item[0])
+                    return
+                datasets = DBpedia(root="./data")
+                if isinstance(datasets, tuple):
+                    target_iter = datasets[0] if split == "train" else datasets[1]
+                    for item in target_iter:
+                        yield item
+                    return
+            except Exception:
+                pass
+            import csv
+            import fcntl
+            import tarfile
+            import urllib.request
+            data_dir = Path("./data/dbpedia_csv")
+            lock_file = Path("./data/.dbpedia_download.lock")
+            lock_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(lock_file, 'w') as lf:
+                fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
+                try:
+                    if not data_dir.exists():
+                        log(INFO, "Downloading DBpedia dataset manually...")
+                        url = "https://s3.amazonaws.com/fast-ai-nlp/dbpedia_csv.tgz"
+                        tar_path = Path("./data/dbpedia_csv.tgz")
+                        tar_path.parent.mkdir(parents=True, exist_ok=True)
+                        urllib.request.urlretrieve(url, tar_path)
+                        with tarfile.open(tar_path, "r:gz") as tar:
+                            tar.extractall("./data")
+                        if tar_path.exists():
+                            tar_path.unlink()
+                        log(INFO, "DBpedia dataset downloaded and extracted.")
+                finally:
+                    fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
+            csv_file = data_dir / f"{split}.csv"
+            if csv_file.exists():
+                with open(csv_file, 'r', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        if len(row) >= 3:
+                            label = int(row[0])
+                            text = " ".join(row[1:])
+                            yield (label, text)
+                    return
+            raise RuntimeError("Could not load DBpedia via torchtext or manual fallback")
+        MAX_SAMPLES = 140000 
+        try:
+             iter_ = _load_dbpedia_iterator("train")
+             train_data_raw = list(iter_)
+        except Exception as e:
+             raise e
+        use_new_vocab_api = True
+        try:
+            vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
+        except TypeError:
+            use_new_vocab_api = False
+            from collections import Counter
+            token_counter = Counter()
+            for tokens in _yield_tokens(train_data_raw):
+                token_counter.update(tokens)
+            from torchtext.vocab import Vocab
+            vocab = Vocab(token_counter, specials=["<unk>"])
+        if hasattr(vocab, 'set_default_index'):
+            vocab.set_default_index(vocab["<unk>"])
+            unk_idx = vocab["<unk>"]
+        else:
+            unk_idx = vocab.stoi.get("<unk>", 0)
+        max_len = 128
+        model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
+        if model_name in ("textmlp", "text_mlp"):
+            max_vocab = 500
+        elif model_name in ("textlstm", "text_lstm", "lstm"):
+            max_vocab = 250
+        else:
+            max_vocab = 20000
+        def _get_token_idx(tok):
+            if hasattr(vocab, '__getitem__') and use_new_vocab_api:
+                try: return vocab[tok]
+                except KeyError: return unk_idx
+            else: return vocab.stoi.get(tok, unk_idx)
+        def _encode_text(text: str) -> torch.Tensor:
+            tokens = tokenizer(text)
+            ids = []
+            for tok in tokens[:max_len]:
+                idx = _get_token_idx(tok)
+                if idx >= max_vocab: idx = unk_idx
+                ids.append(idx)
+            if len(ids) < max_len:
+                ids += [0] * (max_len - len(ids))
+            return torch.tensor(ids, dtype=torch.long)
+        trainset = load_balanced_data(
+            _load_dbpedia_iterator("train"), 
+            MAX_SAMPLES, 
+            14, 
+            lambda x: int(x[0]) - 1, 
+            lambda x: (_encode_text(x[1]), int(x[0]) - 1)
+        )
+        test_iter_raw = _load_dbpedia_iterator("test")
+        testset = []
+        test_limit = 5000
+        for i, (raw_label, text) in enumerate(test_iter_raw):
+             if i >= test_limit: break
+             x = _encode_text(text)
+             y = int(raw_label) - 1
+             testset.append((x, y))
+        batch_size = int(client_config.get("batch_size", 64))
     else:
-        # Dimensioni e batch
         base_size = {
             "CIFAR10": 32, "CIFAR100": 32, "MNIST": 28,
             "FashionMNIST": 28, "KMNIST": 28,
@@ -695,8 +1133,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         }[DATASET_NAME]
         model_name = client_config.get("model", "resnet18").lower()
         target_size = 256 if model_name in ["alexnet", "vgg11", "vgg13", "vgg16", "vgg19"] else base_size
-
-        # Trasformazioni
         transforms_list = []
         if DATASET_NAME == "ImageNet100":
             transforms_list = [Resize(224), CenterCrop(224)]
@@ -707,8 +1143,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             batch_size = 64
         transforms_list += [ToTensor(), Normalize(*normalize_params)]
         trf = Compose(transforms_list)
-
-        # Caricamento trainset / testset
         if DATASET_NAME == "ImageNet100":
             DATA_ROOT = Path(__file__).resolve().parent / "data"
             train_path = DATA_ROOT / "imagenet100-preprocessed" / "train"
@@ -727,8 +1161,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             else:
                 trainset = cls("./data", train=True, download=True, transform=trf)
                 testset = cls("./data", train=False, download=True, transform=trf)
-
-    # ===== DA QUI IN GIÙ RESTA TUTTO UGUALE (non-iid + persistence) =====
     if DATASET_TYPE == "non-iid":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
@@ -736,7 +1168,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         add_frac = random.uniform(0, (n_cls - 1) / n_cls)
         low_r, high_r = sorted((random.uniform(0.5, 1.0), random.uniform(0.5, 1.0)))
         low_a, high_a = sorted((random.uniform(0.5, 1.0), random.uniform(0.5, 1.0)))
-
         idxs = get_non_iid_indices(
             trainset,
             remove_frac,
@@ -745,42 +1176,32 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             (low_a, high_a),
         )
         base = Subset(trainset, idxs)
-
         trainset = base
-
     config_path = os.path.join(os.path.dirname(__file__), 'configuration', 'config.json')
     with open(config_path, 'r') as f:
         total_rounds = json.load(f).get("rounds")
-
-    # carica tutto (default)
     if DATASET_PERSISTENCE == "Same Data":
+        #log(INFO, f"Persistence: Same Data. Keeping full dataset ({len(trainset)} samples).")
         pass
     else:
-        from collections import defaultdict
-        import numpy as np
+        #log(INFO, f"Persistence: {DATASET_PERSISTENCE}. Round {GLOBAL_ROUND_COUNTER}/{total_rounds}. Initial Size: {len(trainset)}")
         class_to_indices = defaultdict(list)
         for idx in range(len(trainset)):
             _, label = trainset[idx]
             class_to_indices[int(label)].append(idx)
-
         selected_indices = []
-
         NON_IID_ROUNDS = True
         NON_IID_ALPHA = 0.30
         NON_IID_SEED = 1234
-
         cid_raw = int(os.environ.get("CLIENT_ID", "1"))
         cid0 = max(0, cid_raw - 1)
-
         n_cls = len(class_to_indices)
         R = int(total_rounds)
         round_idx = max(1, min(GLOBAL_ROUND_COUNTER, R))
-
         shape_now = None
         if NON_IID_ROUNDS and DATASET_PERSISTENCE in {"New Data", "Remove Data"}:
             rng = np.random.default_rng(NON_IID_SEED + cid0)
             inc = rng.dirichlet([NON_IID_ALPHA] * R, size=n_cls)
-
             if DATASET_PERSISTENCE == "New Data":
                 shape_now = np.cumsum(inc, axis=1)[:, round_idx - 1]
                 target_frac_total = round_idx / R
@@ -795,7 +1216,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                 target_frac_total = (R - round_idx + 1) / R
             else:
                 target_frac_total = 1.0
-
         labels_sorted = sorted(class_to_indices)
         pools = {}
         caps = []
@@ -809,15 +1229,12 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         caps = np.array(caps, dtype=np.int64)
         pool_total = int(caps.sum())
         T_target = int(np.clip(np.floor(pool_total * float(target_frac_total)), 0, pool_total))
-
         if shape_now is None:
             raw = caps.astype(np.float64)
         else:
             raw = np.clip(shape_now, 0.0, 1.0) * caps
-
         def sum_at_scale(s: float) -> int:
             return int(np.floor(np.minimum(s * raw, caps)).sum())
-
         if raw.sum() == 0:
             scaled = np.zeros_like(raw, dtype=np.float64)
         else:
@@ -833,10 +1250,8 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                 else:
                     lo = mid
             scaled = np.minimum(hi * raw, caps)
-
         base = np.floor(scaled).astype(np.int64)
         rem = T_target - int(base.sum())
-
         if rem > 0:
             frac = (scaled - base) if raw.sum() > 0 else np.ones_like(base, dtype=float)
             order = np.argsort(-frac)
@@ -857,18 +1272,14 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     base[idx] -= 1
                     rem += 1
                 i += 1
-
         for k, lab in enumerate(labels_sorted):
             n_take = int(base[k])
             if n_take > 0:
                 selected_indices.extend(pools[lab][:n_take].tolist())
-
         trainset = Subset(trainset, selected_indices)
-
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
-
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)
     kept_indices = []
@@ -878,8 +1289,6 @@ def truncate_dataset(dataset, max_per_class: int):
             kept_indices.append(idx)
             counts[lbl] += 1
     return Subset(dataset, kept_indices)
-
-
 def balance_dataset_with_gan(
         trainset,
         num_classes,
@@ -893,96 +1302,80 @@ def balance_dataset_with_gan(
     total = len(trainset)
     if target_per_class is None:
         target_per_class = total // num_classes
-
     under_cls = [c for c, cnt in counts.items() if 0 < cnt < target_per_class]
     if not under_cls:
         return trainset
-
     idxs = [i for i, (_, lbl) in enumerate(trainset) if lbl in under_cls]
-
-    # Detect data type: images have 3D shape (C, H, W), text has 1D shape (seq_len,)
     sample_data = trainset[0][0]
     is_text_data = len(sample_data.shape) == 1
-    
     if is_text_data:
-        # ===== TEXT GAN (LSTM-based) =====
         seq_len = sample_data.shape[0]
-        # Infer vocab_size from max token index in dataset
         vocab_size = max(int(x.max().item()) for x, _ in trainset) + 1
         embed_dim = 32
         hidden_dim = 64
-        
         log(INFO, f"[HDH TextGAN] Applying TextGAN to rebalance classes: {under_cls}")
         log(INFO, f"[HDH TextGAN] Detected text data: seq_len={seq_len}, vocab_size={vocab_size}")
-        
-        # Simple LSTM Generator for text
         class TextGenerator(nn.Module):
             def __init__(self):
                 super().__init__()
                 self.fc_latent = nn.Linear(latent_dim, hidden_dim)
                 self.lstm = nn.LSTM(hidden_dim, hidden_dim, batch_first=True)
                 self.fc_out = nn.Linear(hidden_dim, vocab_size)
-            
             def forward(self, z):
-                # z: (batch, latent_dim)
-                h = F.relu(self.fc_latent(z))  # (batch, hidden)
-                h = h.unsqueeze(1).repeat(1, seq_len, 1)  # (batch, seq_len, hidden)
-                out, _ = self.lstm(h)  # (batch, seq_len, hidden)
-                logits = self.fc_out(out)  # (batch, seq_len, vocab_size)
-                # Use Gumbel-Softmax for differentiable sampling
+                h = F.relu(self.fc_latent(z))  
+                h = h.unsqueeze(1).repeat(1, seq_len, 1)  
+                out, _ = self.lstm(h)  
+                logits = self.fc_out(out)  
+                # Return one-hot (approx) for gradient flow. Gumbel-Softmax with hard=True ensures discrete output in forward,
+                # but valid gradients in backward.
                 tokens = F.gumbel_softmax(logits, tau=1.0, hard=True, dim=-1)
-                return tokens.argmax(dim=-1)  # (batch, seq_len)
-        
-        # Simple LSTM Discriminator for text
+                return tokens # Shape: (batch, seq_len, vocab_size)  
         class TextDiscriminator(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.embedding = nn.Embedding(vocab_size, embed_dim)
+                # Use Linear instead of Embedding to handle soft/one-hot inputs from Generator
+                # Mathematically, x @ W is equivalent to Embedding lookup if x is one-hot.
+                self.fc_emb = nn.Linear(vocab_size, embed_dim, bias=False)
                 self.lstm = nn.LSTM(embed_dim, hidden_dim, batch_first=True)
                 self.fc = nn.Linear(hidden_dim, 1)
-            
             def forward(self, x):
-                # x: (batch, seq_len) - token indices
-                emb = self.embedding(x)  # (batch, seq_len, embed_dim)
-                _, (h, _) = self.lstm(emb)  # h: (1, batch, hidden)
-                out = self.fc(h.squeeze(0))  # (batch, 1)
+                # x shape: (batch, seq_len, vocab_size)
+                emb = self.fc_emb(x)  
+                _, (h, _) = self.lstm(emb)  
+                out = self.fc(h.squeeze(0))  
                 return torch.sigmoid(out)
-        
         generator = TextGenerator().to(device)
         discriminator = TextDiscriminator().to(device)
-        
         g_optimizer = torch.optim.Adam(generator.parameters(), lr=2e-4, betas=(0.5, 0.999))
         d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=2e-4, betas=(0.5, 0.999))
         criterion = nn.BCELoss()
-        
-        # Prepare data for underrepresented classes
         subset_data = [trainset[i] for i in idxs]
         loader = DataLoader(subset_data, batch_size=batch_size, shuffle=True, drop_last=True)
-        
         log(INFO, "[HDH TextGAN] Starting TextGAN training...")
         for epoch in range(epochs):
-            for real_x, _ in loader:
+            for batch_idx, (real_x, _) in enumerate(loader):
+                if batch_idx >= 20: # Cap training to 20 batches to prevent CPU starvation/hangs
+                    break
+                
+                if batch_idx % 5 == 0:
+                     log(INFO, f"[HDH TextGAN] Epoch {epoch+1}, Batch {batch_idx}...")
                 real_x = real_x.to(device)
                 bs = real_x.size(0)
-                
-                # Train Discriminator
                 d_optimizer.zero_grad()
                 real_labels = torch.ones(bs, 1, device=device)
                 fake_labels = torch.zeros(bs, 1, device=device)
                 
-                d_real = discriminator(real_x)
+                # Convert real indices to one-hot for the new Discriminator
+                real_x_onehot = F.one_hot(real_x, num_classes=vocab_size).float()
+                d_real = discriminator(real_x_onehot)
                 d_loss_real = criterion(d_real, real_labels)
-                
                 z = torch.randn(bs, latent_dim, device=device)
                 fake_x = generator(z).detach()
                 d_fake = discriminator(fake_x)
                 d_loss_fake = criterion(d_fake, fake_labels)
-                
                 d_loss = d_loss_real + d_loss_fake
                 d_loss.backward()
                 d_optimizer.step()
-                
-                # Train Generator
                 g_optimizer.zero_grad()
                 z = torch.randn(bs, latent_dim, device=device)
                 fake_x = generator(z)
@@ -990,8 +1383,7 @@ def balance_dataset_with_gan(
                 g_loss = criterion(d_fake, real_labels)
                 g_loss.backward()
                 g_optimizer.step()
-        
-        # Generate synthetic samples
+            log(INFO, f"[HDH TextGAN] Epoch {epoch+1}/{epochs} completed.")
         synth_texts, synth_lbls = [], []
         generator.eval()
         for c in under_cls:
@@ -999,12 +1391,18 @@ def balance_dataset_with_gan(
             to_gen = target_per_class - cnt
             if to_gen <= 0:
                 continue
-            z = torch.randn(to_gen, latent_dim, device=device)
-            with torch.no_grad():
-                gen = generator(z).cpu()
-            synth_texts.append(gen)
+            
+            gen_batch_size = 32
+            num_batches = (to_gen + gen_batch_size - 1) // gen_batch_size
+            for i in range(num_batches):
+                current_batch_size = min(gen_batch_size, to_gen - i * gen_batch_size)
+                z = torch.randn(current_batch_size, latent_dim, device=device)
+                with torch.no_grad():
+                    gen_soft = generator(z).cpu()
+                    gen_indices = gen_soft.argmax(dim=-1) # Convert back to indices for the dataset
+                synth_texts.append(gen_indices)
+                
             synth_lbls += [c] * to_gen
-        
         if synth_texts:
             all_texts = torch.cat(synth_texts, dim=0)
             all_lbls = torch.tensor(synth_lbls, dtype=torch.long)
@@ -1013,11 +1411,8 @@ def balance_dataset_with_gan(
             log(INFO, f"[HDH TextGAN] TextGAN Training Completed.")
             log(INFO, f"[HDH TextGAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
             return result
-        
         return trainset
-    
     else:
-        # ===== IMAGE GAN (DCGAN) =====
         C, H, W = sample_data.shape
         target_size = get_valid_downscale_size(min(H, W))
         if H != target_size or W != target_size:
@@ -1029,21 +1424,16 @@ def balance_dataset_with_gan(
             train_for_gan = [(resize_for_gan(img), lbl) for img, lbl in trainset]
         else:
             train_for_gan = list(trainset)
-
         log(INFO, f"[HDH GAN] Applying GAN to rebalance classes: {under_cls}")
         subset = Subset(train_for_gan, idxs)
         loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
-
         import torchvision
         _orig_make_grid = torchvision.utils.make_grid
-
         def _make_grid_wrapper(*args, **kwargs):
             if 'range' in kwargs:
                 kwargs['value_range'] = kwargs.pop('range')
             return _orig_make_grid(*args, **kwargs)
-
         torchvision.utils.make_grid = _make_grid_wrapper
-
         models_cfg = {
             'generator': {'name': DCGANGenerator,
                           'args': {'encoding_dims': latent_dim, 'out_size': target_size, 'out_channels': C},
@@ -1052,23 +1442,38 @@ def balance_dataset_with_gan(
                               'optimizer': {'name': torch.optim.Adam, 'args': {'lr': 2e-4, 'betas': (0.5, 0.999)}}},
         }
         losses = [MinimaxGeneratorLoss(), MinimaxDiscriminatorLoss()]
-
         log(INFO, "[HDH GAN] Starting GAN training...")
         trainer = Trainer(models=models_cfg, losses_list=losses, device=device, sample_size=batch_size, epochs=epochs)
+        
+        # Manually train with limits to prevent hangs
+        # Trainer.train() loops over the whole loader. We need to override or just use a short loader.
+        # Simpler: Subset the loader or just trust Image GAN is faster (usually is).
+        # But for safety, let's limit the loader size itself before passing to trainer?
+        # TorchGAN trainer doesn't support easy step limiting.
+        # Let's reduce the dataset size passed to it if it's too large.
+        
+        if len(subset) > batch_size * 20:
+             subset = Subset(train_for_gan, idxs[:batch_size*20])
+             loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
+             
         trainer.train(loader)
-
         synth_imgs, synth_lbls = [], []
         for c in under_cls:
             cnt = counts[c]
             to_gen = target_per_class - cnt
             if to_gen <= 0:
                 continue
-            z = torch.randn(to_gen, latent_dim, device=device)
-            with torch.no_grad():
-                gen = trainer.generator(z).cpu()
-            synth_imgs.append(gen)
+            
+            gen_batch_size = 32
+            num_batches = (to_gen + gen_batch_size - 1) // gen_batch_size
+            for i in range(num_batches):
+                current_batch_size = min(gen_batch_size, to_gen - i * gen_batch_size)
+                z = torch.randn(current_batch_size, latent_dim, device=device)
+                with torch.no_grad():
+                    gen = trainer.generator(z).cpu()
+                synth_imgs.append(gen)
+            
             synth_lbls += [c] * to_gen
-
         if synth_imgs:
             all_imgs_gan = torch.cat(synth_imgs, dim=0)
             downsample = Compose([ToPILImage(), Resize((H, W)), ToTensor()])
@@ -1079,33 +1484,23 @@ def balance_dataset_with_gan(
             log(INFO, f"[HDH GAN] GAN Training Completed.")
             log(INFO, f"[HDH GAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
             return result
-
         return trainset
-
-
 def rebalance_trainloader_with_gan(trainloader):
     _t0_hdh = time.time()
     global DATASET_NAME
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
     dataset_config = AVAILABLE_DATASETS[DATASET_NAME]
-
     batch_size = 32
-
-    # Extract (data, label) pairs from the existing DataLoader
     base = []
     for x, y in trainloader:
         for xi, yi in zip(x, y):
             base.append((xi, yi))
-
-    # Apply GAN-based balancing
     trainset = balance_dataset_with_gan(
         base,
         num_classes=dataset_config["num_classes"],
         target_per_class=len(base) // dataset_config["num_classes"],
     )
-
-    # Determine max_limit based on dataset name
     ds_name = DATASET_NAME.lower()
     if "cifar" in ds_name:
         max_limit = 5000
@@ -1113,46 +1508,31 @@ def rebalance_trainloader_with_gan(trainloader):
         max_limit = 1300
     else:
         max_limit = len(base) // dataset_config["num_classes"]
-
-    # Truncate the dataset
     trainset = truncate_dataset(trainset, max_limit)
     hdh_ms = (time.time() - _t0_hdh)
-    # Temporal workaround
     if hdh_ms < 10:
         hdh_ms = 0.0
     log(INFO, f"HDH Data Handler (GAN) Total Processing time: {hdh_ms:.2f} seconds")
     return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True), hdh_ms
-
-
 def get_jsd(trainloader):
     log(INFO, "Calculating Jensen-Shannon Divergence (JSD) for dataset distribution...")
-
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
     dist = dict(Counter(labels))
-
     num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
     total_samples = sum(dist.values())
     P = np.array([dist.get(i, 0) / total_samples for i in range(num_classes)])
     Q = np.array([1.0 / num_classes] * num_classes)
     M = 0.5 * (P + Q)
-
     def kl_div(p, q):
         return np.sum([pi * np.log2(pi / qi) if pi > 0 else 0.0 for pi, qi in zip(p, q)])
-
     JSD = 0.5 * kl_div(P, M) + 0.5 * kl_div(Q, M)
-
     log(INFO, f"Jensen-Shannon Divergence (client vs perfect IID): {JSD:.2f}")
-
     return JSD
-
-
 def train(net, trainloader, valloader, epochs, DEVICE):
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
     dist = dict(Counter(labels))
     log(INFO, f"Training dataset distribution ({DATASET_NAME}): {dist}")
-
     num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
-
     log(INFO, "Starting training...")
     start_time = time.time()
     net.to(DEVICE)
@@ -1165,7 +1545,6 @@ def train(net, trainloader, valloader, epochs, DEVICE):
             optimizer.zero_grad()
             loss = criterion(net(images), labels)
             loss.backward()
-            # Gradient clipping for LSTM stability
             torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
             optimizer.step()
     training_time = time.time() - start_time
@@ -1174,7 +1553,6 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     TRAIN_COMPLETED_TS = start_time + training_time
     train_loss, train_acc, train_f1, train_mae = test(net, trainloader)
     val_loss, val_acc, val_f1, val_mae = test(net, valloader)
-
     results = {
         "train_loss": train_loss,
         "train_accuracy": train_acc,
@@ -1186,8 +1564,6 @@ def train(net, trainloader, valloader, epochs, DEVICE):
         "val_mae": val_mae,
     }
     return results, training_time
-
-
 def test(net, loader):
     net.to(DEVICE)
     criterion = nn.CrossEntropyLoss()
@@ -1213,12 +1589,8 @@ def test(net, loader):
     except:
         mae = None
     return avg_loss, accuracy, f1, mae
-
-
 def get_weights(net):
     return [val.cpu().numpy() for _, val in net.state_dict().items()]
-
-
 def set_weights(net, parameters):
     params_dict = zip(net.state_dict().keys(), parameters)
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
