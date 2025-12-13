@@ -13,11 +13,11 @@ json_tplt = """{{
             \"client_id\": {},
             \"cpu\": {},
             \"ram\": 4,
-            \"dataset\": \"IMDB\",
+            \"dataset\": \"YAHOOANSWERS\",
             \"data_distribution_type\": \"{}\",
             \"data_persistence_type\": \"{}\",
             \"delay_combobox\": \"{}\",
-            \"model\": \"TextLSTM\",
+            \"model\": \"TextMLP\",
             \"epochs\": 1
         }}"""
 
