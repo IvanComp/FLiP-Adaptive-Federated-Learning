@@ -672,7 +672,7 @@ if __name__ == "__main__":
     )
 
     start_server(
-        server_address="[::]:8080",
+        server_address="[::]:8081",
         config=ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
     )
