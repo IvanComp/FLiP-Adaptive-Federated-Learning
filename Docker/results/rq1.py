@@ -59,38 +59,66 @@ def VD_A(treatment: List[float], control: List[float]):
     return estimate, magnitude
 
 
-metric = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
-          ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-          ('hdh', 'same'): 'Cumulative F1',
-          ('hdh', 'new'): 'Cumulative F1',
-          ('compressor', 'same'): 'Cumulative Communication Time',
-          ('compressor-delay', 'same'): 'Cumulative Communication Time'}
+metric = {('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
+          ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
+          # ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
+          # ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+          # ('hdh', 'same'): 'Cumulative F1',
+          # ('hdh', 'new'): 'Cumulative F1',
+          ('hdh-text', 'same'): 'Cumulative F1',
+          ('hdh-text', 'new'): 'Cumulative F1',
+          # ('compressor', 'same'): 'Cumulative Communication Time',
+          # ('compressor-delay', 'same'): 'Cumulative Communication Time',
+          ('compressor-text', 'same'): 'Cumulative Communication Time',
+          ('compressor-text-delay', 'same'): 'Cumulative Communication Time',
+          }
 
-metric_per_round = {('selector', 'same'): 'F1 Score Over Total Time for FL Round',
-                    ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-                    ('hdh', 'same'): 'Cumulative F1',
-                    ('hdh', 'new'): 'Cumulative F1',
-                    ('compressor', 'same'): 'Cumulative Communication Time',
-                    ('compressor-delay', 'same'): 'Cumulative Communication Time'}
+metric_per_round = {('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
+                    ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
+                    # ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
+                    # ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+                    # ('hdh', 'same'): 'Cumulative F1',
+                    # ('hdh', 'new'): 'Cumulative F1',
+                    ('hdh-text', 'same'): 'Cumulative F1',
+                    ('hdh-text', 'new'): 'Cumulative F1',
+                    # ('compressor', 'same'): 'Cumulative Communication Time',
+                    ('compressor-text', 'same'): 'Cumulative Communication Time',
+                    ('compressor-text-delay', 'same'): 'Cumulative Communication Time'
+                    }
+# ('compressor-delay', 'same'): 'Cumulative Communication Time'}
 
 should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1', 'Cumulative F1']
 should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 'Cumulative Time With HDH',
                    'Total Time With HDH', 'Cumulative Total Time', 'Cumulative Communication Bottleneck']
 
-label_dict = {('selector', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+label_dict = {('selector-text', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                          r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('selector-text', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                         r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              # ('selector', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+              #                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              # ('selector', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+              #                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              # ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
+              #                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              # ('hdh', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+              #                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('hdh-text', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              ('selector', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+              ('hdh-text', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
-                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              ('hdh', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-                               r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              ('compressor', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-                                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              ('compressor-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-                                             r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$']}
+              # ('compressor', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+              #                         r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              # ('compressor-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+              #                               r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('compressor-text', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                            r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('compressor-text-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              }
 
-patterns = ['selector', 'hdh', 'compressor', 'compressor-delay']
+patterns = ['selector-text', 'hdh-text', 'compressor-text',
+            'compressor-text-delay']  # 'selector', 'hdh', 'compressor', 'compressor-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -103,10 +131,14 @@ filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow', '$\mathsf{N_{high}}<\m
 filter_4 = (lambda tup: tup[0] > 0 and tup[1] > 0, 'any-Nhigh-Nlow', '$\\text{any}\\nhigh,\\nlow$')
 
 filters = {
+    'selector-text': [filter_4],
     'selector': [filter_4],
     'hdh': [filter_4],
+    'hdh-text': [filter_4],
     'compressor': [filter_4],
-    'compressor-delay': [filter_4]
+    'compressor-text': [filter_4],
+    'compressor-delay': [filter_4],
+    'compressor-text-delay': [filter_4]
 }
 
 setups = []
@@ -246,12 +278,12 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
         d.append([])
         data = [model_data[metric[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
                 exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
-        if 'compressor' in pattern and len(data) == 0:
-            d[-1] = [1 * 10 ** 3]
+        # if 'compressor' in pattern and len(data) == 0:
+        #    d[-1] = [1 * 10 ** 3]
         for i in range(len(data)):
             d[-1].append(data[i][-1])
-    if 'compressor' in pattern:
-        d = filter_outliers_iqr(d)
+    # if 'compressor' in pattern:
+    #    d = filter_outliers_iqr(d)
     plt.rcParams.update({'font.size': 12})
     plt.rcParams['text.usetex'] = True
     plt.rcParams['font.family'] = 'sans-serif'  # Often looks good with LaTeX
@@ -260,51 +292,15 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     ax = fig.add_subplot(111)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     meanprops = dict(marker='^', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    if 'compressorx' in pattern:
-        parts = ax.violinplot(
-            d,
-            showmeans=True,  # show the mean line
-            showextrema=True,  # show min/max lines
-            showmedians=False  # disable median line (you can enable if you want)
-        )
-        ax.set_xticks(range(1, len(d) + 1))
-        ax.set_xticklabels(labels)
-        # fill with colors
-        for pc, color in zip(parts['bodies'], colors):
-            pc.set_facecolor(color)
-            pc.set_edgecolor('black')
-            pc.set_linewidth(0.5)
-            pc.set_alpha(1.0)
-            pc.set_zorder(2)
-
-        # style other elements (means/extrema) to match your boxplot look
-        for key in ['cmeans', 'cbars', 'cmins', 'cmaxes']:
-            if key in parts:
-                parts[key].set_color('black')
-                parts[key].set_linewidth(0.5)
-                parts[key].set_zorder(3)  # lines above the violin bodies
-
-        # Add custom mean markers (replicates meanprops behavior)
-        means = [np.mean(vals) for vals in d]
-        ax.scatter(
-            range(1, len(d) + 1),
-            means,
-            marker=meanprops['marker'],
-            facecolors=meanprops['markerfacecolor'],
-            edgecolors=meanprops['markeredgecolor'],
-            s=meanprops['markersize'] ** 2,
-            zorder=4
-        )
-    else:
-        bp = ax.boxplot(d, labels=labels, patch_artist=True, showmeans=True, meanprops=meanprops)
-        # fill with colors
-        for box in bp['boxes']:
-            box.set(linewidth=0.5)
-        for patch, color in zip(bp['boxes'], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(1.0)
-        for median in bp['medians']:
-            median.set_color('black')
+    bp = ax.boxplot(d, labels=labels, patch_artist=True, showmeans=True, meanprops=meanprops)
+    # fill with colors
+    for box in bp['boxes']:
+        box.set(linewidth=0.5)
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(1.0)
+    for median in bp['medians']:
+        median.set_color('black')
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
                   alpha=0.7, zorder=0)
     offset_text = ax.yaxis.get_offset_text()
@@ -318,13 +314,13 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
 # GENERATES BOX PLOTS
 for setup in setups:
     exclude = ((setup[0] == 'hdh' and setup[2] == 100) or
-               (setup[0] in ['compressor', 'compressor-delay', 'compressor-2'] and setup[1] == 'new'))
+               ('compressor' in setup[0] and setup[1] == 'new'))
     if exclude:
         continue
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
+    # plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
 
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):
@@ -387,7 +383,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 # PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE
 for setup in setups:
     exclude = ((setup[0] == 'hdh' and setup[2] == 100) or
-               (setup[0] in ['compressor', 'compressor-delay', 'compressor-2'] and setup[1] == 'new'))
+               ('compressor' in setup[0] and setup[1] == 'new'))
     if exclude:
         continue
 
