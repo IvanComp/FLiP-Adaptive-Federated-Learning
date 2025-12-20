@@ -4,7 +4,7 @@
         "metrics": [
             {
                 "name": "f1overtime",
-                "pattern": "client_selector",
+                "pattern": "message_compressor",
                 "metric": "val_f1",
                 "threshold": {
                     "type": "increasing",
@@ -15,36 +15,28 @@
     },
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 12,
+    "clients": 10,
     "patterns": {
         "client_registry": {
             "enabled": true,
             "params": {}
         },
         "client_selector": {
-            "enabled": true,
-            "params": {
-                "enabled_clients": [
-                    "Client 24",
-                    "Client 25",
-                    "Client 26",
-                    "Client 27",
-                    "Client 28",
-                    "Client 29",
-                    "Client 30",
-                    "Client 32",
-                    "Client 33",
-                    "Client 34"
-                ]
-            }
+            "enabled": false,
+            "params": {}
         },
         "client_cluster": {
             "enabled": false,
             "params": {}
         },
         "message_compressor": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "enabled_clients": [
+                    "Client 24",
+                    "Client 30"
+                ]
+            }
         },
         "model_co-versioning_registry": {
             "enabled": false,
@@ -67,7 +59,7 @@
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
@@ -78,73 +70,73 @@
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
         {
             "client_id": 25,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 4,
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
         {
             "client_id": 26,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 4,
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
         {
             "client_id": 27,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 4,
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
         {
             "client_id": 28,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 4,
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
         {
             "client_id": 29,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 4,
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
         {
             "client_id": 30,
-            "cpu": 2,
+            "cpu": 1,
             "ram": 4,
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
@@ -155,7 +147,7 @@
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         },
@@ -166,29 +158,7 @@
             "dataset": "AGNEWS",
             "data_distribution_type": "non-IID",
             "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
-            "model": "TextMLP",
-            "epochs": 1
-        },
-        {
-            "client_id": 33,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "AGNEWS",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
-            "model": "TextMLP",
-            "epochs": 1
-        },
-        {
-            "client_id": 34,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "AGNEWS",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "Same Data",
-            "delay_combobox": "No",
+            "delay_combobox": "Yes",
             "model": "TextMLP",
             "epochs": 1
         }
