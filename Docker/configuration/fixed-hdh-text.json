@@ -1,0 +1,55 @@
+{
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "fixed",
+                "pattern": "heterogeneous_data_handler",
+                "metric": "jsd",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "fixed-local",
+                    "value": **TH**
+                }
+            }
+        ]
+    },
+    "simulation_type": "Docker",
+    "rounds": 20,
+    "clients": **CLIENTS_COUNT**,
+    "patterns": {
+        "client_registry": {
+            "enabled": true,
+            "params": {}
+        },
+        "client_selector": {
+            "enabled": false,
+            "params": {}
+        },
+        "client_cluster": {
+            "enabled": false,
+            "params": {}
+        },
+        "message_compressor": {
+            "enabled": false,
+            "params": {}
+        },
+        "model_co-versioning_registry": {
+            "enabled": false,
+            "params": {}
+        },
+        "multi-task_model_trainer": {
+            "enabled": false,
+            "params": {}
+        },
+        "heterogeneous_data_handler": {
+            "enabled": true,
+            "params": {
+                "enabled_clients": []
+            }
+        }
+    },
+    "client_details": [
+        **CLIENTS**
+    ]
+}
