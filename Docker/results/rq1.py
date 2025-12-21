@@ -278,12 +278,10 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
         d.append([])
         data = [model_data[metric[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
                 exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
-        # if 'compressor' in pattern and len(data) == 0:
-        #    d[-1] = [1 * 10 ** 3]
         for i in range(len(data)):
             d[-1].append(data[i][-1])
-    # if 'compressor' in pattern:
-    #    d = filter_outliers_iqr(d)
+    if 'hdh-text' in pattern and iid_percentage == 0:
+        d = filter_outliers_iqr(d)
     plt.rcParams.update({'font.size': 12})
     plt.rcParams['text.usetex'] = True
     plt.rcParams['font.family'] = 'sans-serif'  # Often looks good with LaTeX
