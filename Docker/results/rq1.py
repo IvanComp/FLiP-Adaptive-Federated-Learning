@@ -280,8 +280,6 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
                 exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
         for i in range(len(data)):
             d[-1].append(data[i][-1])
-    if 'hdh-text' in pattern and iid_percentage == 0:
-        d = filter_outliers_iqr(d)
     plt.rcParams.update({'font.size': 12})
     plt.rcParams['text.usetex'] = True
     plt.rcParams['font.family'] = 'sans-serif'  # Often looks good with LaTeX
@@ -299,8 +297,9 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
         patch.set_alpha(1.0)
     for median in bp['medians']:
         median.set_color('black')
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
-                  alpha=0.7, zorder=0)
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.7, zorder=0)
+    if pattern == 'hdh-text' and iid_percentage == 0 and persistence == 'new':
+        ax.set_ylim([8.0, 10.0])
     offset_text = ax.yaxis.get_offset_text()
     offset_text.set_verticalalignment('bottom')
     offset_text.set_position((-0.12, -1.0))
@@ -311,7 +310,7 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
 
 # GENERATES BOX PLOTS
 for setup in setups:
-    exclude = ((setup[0] == 'hdh' and setup[2] == 100) or
+    exclude = (('hdh' in setup[0] and setup[2] == 100) or
                ('compressor' in setup[0] and setup[1] == 'new'))
     if exclude:
         continue
@@ -380,7 +379,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 
 # PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE
 for setup in setups:
-    exclude = ((setup[0] == 'hdh' and setup[2] == 100) or
+    exclude = (('hdh' in setup[0] and setup[2] == 100) or
                ('compressor' in setup[0] and setup[1] == 'new'))
     if exclude:
         continue
