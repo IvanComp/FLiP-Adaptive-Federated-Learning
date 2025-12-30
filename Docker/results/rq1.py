@@ -61,31 +61,31 @@ def VD_A(treatment: List[float], control: List[float]):
 
 metric = {('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
-          # ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
-          # ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-          # ('hdh', 'same'): 'Cumulative F1',
-          # ('hdh', 'new'): 'Cumulative F1',
+          ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
+          ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+          ('hdh', 'same'): 'Cumulative F1',
+          ('hdh', 'new'): 'Cumulative F1',
           ('hdh-text', 'same'): 'Cumulative F1',
           ('hdh-text', 'new'): 'Cumulative F1',
-          # ('compressor', 'same'): 'Cumulative Communication Time',
-          # ('compressor-delay', 'same'): 'Cumulative Communication Time',
+          ('compressor', 'same'): 'Cumulative Communication Time',
+          ('compressor-delay', 'same'): 'Cumulative Communication Time',
           ('compressor-text', 'same'): 'Cumulative Communication Time',
           ('compressor-text-delay', 'same'): 'Cumulative Communication Time',
           }
 
 metric_per_round = {('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
                     ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
-                    # ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
-                    # ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
-                    # ('hdh', 'same'): 'Cumulative F1',
-                    # ('hdh', 'new'): 'Cumulative F1',
+                    ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
+                    ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+                    ('hdh', 'same'): 'Cumulative F1',
+                    ('hdh', 'new'): 'Cumulative F1',
                     ('hdh-text', 'same'): 'Cumulative F1',
                     ('hdh-text', 'new'): 'Cumulative F1',
-                    # ('compressor', 'same'): 'Cumulative Communication Time',
+                    ('compressor', 'same'): 'Cumulative Communication Time',
+                    ('compressor-delay', 'same'): 'Cumulative Communication Time',
                     ('compressor-text', 'same'): 'Cumulative Communication Time',
                     ('compressor-text-delay', 'same'): 'Cumulative Communication Time'
                     }
-# ('compressor-delay', 'same'): 'Cumulative Communication Time'}
 
 should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1', 'Cumulative F1']
 should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 'Cumulative Time With HDH',
@@ -95,22 +95,22 @@ label_dict = {('selector-text', 'same'): ['never', 'random', 'all-high', r'$\mat
                                           r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               ('selector-text', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                                          r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              # ('selector', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
-              #                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              # ('selector', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
-              #                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              # ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
-              #                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              # ('hdh', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-              #                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('selector', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('selector', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                    r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
+                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('hdh', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                               r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               ('hdh-text', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               ('hdh-text', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              # ('compressor', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-              #                         r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
-              # ('compressor-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-              #                               r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('compressor', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
+              ('compressor-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                             r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               ('compressor-text', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                             r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$'],
               ('compressor-text-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
@@ -118,7 +118,7 @@ label_dict = {('selector-text', 'same'): ['never', 'random', 'all-high', r'$\mat
               }
 
 patterns = ['selector-text', 'hdh-text', 'compressor-text',
-            'compressor-text-delay']  # 'selector', 'hdh', 'compressor', 'compressor-delay']
+            'compressor-text-delay', 'selector', 'hdh', 'compressor', 'compressor-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -300,6 +300,8 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.7, zorder=0)
     if pattern == 'hdh-text' and iid_percentage == 0 and persistence == 'new':
         ax.set_ylim([8.0, 10.0])
+    if pattern == 'selector-text' and iid_percentage == 0 and persistence == 'same':
+        ax.set_ylim([1.8 * 10 ** -3, 2.6 * 10 ** -3])
     offset_text = ax.yaxis.get_offset_text()
     offset_text.set_verticalalignment('bottom')
     offset_text.set_position((-0.12, -1.0))
@@ -317,7 +319,7 @@ for setup in setups:
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    # plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
+    plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
 
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):

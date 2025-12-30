@@ -44,8 +44,9 @@ def get_activation_criteria(json_config, default_config):
         model_path = threshold_config['predictor']['model_path']
         model = joblib.load(threshold_config['predictor']['model_path'])
 
-        return [BayesianOptimizationLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
-                                                        default_config)]
+        return [
+            BayesianOptimizationLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                         default_config)]
     elif threshold_config['calculation_method'] == 'fixed-global':
         return [FixedGlobalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
                                                         strategy_name, default_config, metric_type)]
@@ -109,7 +110,7 @@ class RandomActivationCriterion(ActivationCriterion):
             apply_pattern = []
             for client_i in range(len(self.clients_config['client_details'])):
                 if random.choice([True, False]):
-                    apply_pattern.append(f"Client {client_i + 1  }")
+                    apply_pattern.append(f"Client {client_i + 1}")
 
         if not activate:
             return False, None, f"{self.pattern} de-activated ❌"
@@ -174,7 +175,7 @@ class FixedLocalThresholdActivationCriterion(ActivationCriterion):
         apply_pattern = []
         for client_i in range(len(self.clients_config['client_details'])):
             if last_metric[client_i] > self.value:
-                apply_pattern.append(f"Client {client_i + 1  }")
+                apply_pattern.append(f"Client {client_i + 1}")
 
         if len(apply_pattern) == 0:
             return False, None, f"No client has {self.metric} above {self.value}, {self.pattern} de-activated ❌"
@@ -264,11 +265,11 @@ class PredictorBasedLocalActivationCriterion(ActivationCriterion):
             prediction_wo_pattern = \
                 self.model.predict([[performed_rounds + 1, False, last_jsd, last_val_f1 / last_round_time]])[0]
 
-            expl = f"client {client_i + 1  }, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
+            expl = f"client {client_i + 1}, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
             log(INFO, expl)
 
             if prediction_w_pattern > prediction_wo_pattern:
-                apply_pattern.append(f"Client {client_i + 1  }")
+                apply_pattern.append(f"Client {client_i + 1}")
 
         if len(apply_pattern) == 0:
             return False, None, f'{self.pattern} de-activated ❌'
@@ -340,6 +341,7 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
         else:
             return True, None, expl + f'{self.pattern} activated ✅'
 
+
 class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
     def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
         self.model = model
@@ -385,15 +387,15 @@ class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
         for client_i in range(len(self.clients_config['client_details'])):
             # TODO should be parametric w.r.t. metric name
             last_jsd = last_metrics['jsd'][client_i]
-            
+
             def wrapped_objective(pattern_on):
                 return objective(pattern_on, next_round, last_jsd, last_val_f1)
-            
+
             res = gp_minimize(wrapped_objective,  # objective fn
-                    [(0, 1)],  # policy_on ∈ {0,1}
-                    acq_func="EI",  # acquisition function
-                    n_calls=10, random_state=42)
-            
+                              [(0, 1)],  # policy_on ∈ {0,1}
+                              acq_func="EI",  # acquisition function
+                              n_calls=10, random_state=42)
+
             if res.x[0]:
                 apply_pattern.append(f"Client {client_i + 1}")
 
