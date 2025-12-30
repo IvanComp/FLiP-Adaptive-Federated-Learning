@@ -1,3 +1,483 @@
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-selector-text --iid 100 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-hdh-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 0 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name no-compressor-text-delay --iid 100 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 6 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 6 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 10 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 10 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 6 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 6 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 6 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 6 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 12 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 12 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 10 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 10 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 12 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 12 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 20 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 0 --high 20 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 6 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 6 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 10 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 10 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 6 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 6 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 6 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 6 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 12 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 12 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 10 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 10 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 12 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 12 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 20 --low 0 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-selector-text --iid 100 --high 20 --low 0 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-hdh-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 0 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name always-compressor-text-delay --iid 100 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-selector-text --iid 100 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-hdh-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 0 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name random-compressor-text-delay --iid 100 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 2 --low 4 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 2 --low 4 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 2 --low 8 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 2 --low 8 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 3 --low 3 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 3 --low 3 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 4 --low 2 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 4 --low 2 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 4 --low 8 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 4 --low 8 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 5 --low 5 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 5 --low 5 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 8 --low 4 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 8 --low 4 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 10 --low 10 --data same --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 0 --high 10 --low 10 --data new --delay no --threshold 0.3
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 2 --low 4 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 2 --low 4 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 2 --low 8 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 2 --low 8 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 3 --low 3 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 3 --low 3 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 4 --low 2 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 4 --low 2 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 4 --low 8 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 4 --low 8 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 5 --low 5 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 5 --low 5 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 8 --low 4 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 8 --low 4 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 10 --low 10 --data same --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-selector-text --iid 100 --high 10 --low 10 --data new --delay no --threshold 0.4
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 2 --low 4 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 2 --low 4 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 2 --low 8 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 2 --low 8 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 3 --low 3 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 3 --low 3 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 4 --low 2 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 4 --low 2 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 4 --low 8 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 4 --low 8 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 5 --low 5 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 5 --low 5 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 8 --low 4 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 8 --low 4 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 10 --low 10 --data same --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-hdh-text --iid 0 --high 10 --low 10 --data new --delay no --threshold 0.1
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 2 --low 4 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 2 --low 8 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 3 --low 3 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 4 --low 2 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 4 --low 8 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 5 --low 5 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 8 --low 4 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 0 --high 10 --low 10 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 2 --low 4 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 2 --low 8 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 3 --low 3 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 4 --low 2 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 4 --low 8 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 5 --low 5 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 8 --low 4 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text --iid 100 --high 10 --low 10 --data same --delay no --threshold 90
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 2 --low 4 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 2 --low 8 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 3 --low 3 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 4 --low 2 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 4 --low 8 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 5 --low 5 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 8 --low 4 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 0 --high 10 --low 10 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 2 --low 4 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 2 --low 8 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 3 --low 3 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 4 --low 2 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 4 --low 8 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 5 --low 5 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 8 --low 4 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name fixed-compressor-text-delay --iid 100 --high 10 --low 10 --data same --delay yes --threshold 120
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-selector-text --iid 100 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-hdh-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 0 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name tree-compressor-text-delay --iid 100 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-selector-text --iid 100 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 2 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 2 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 3 --low 3 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 4 --low 2 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 4 --low 8 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 5 --low 5 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 8 --low 4 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-hdh-text --iid 0 --high 10 --low 10 --data new --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 0 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 2 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 2 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 3 --low 3 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 4 --low 2 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 4 --low 8 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 5 --low 5 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 8 --low 4 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text --iid 100 --high 10 --low 10 --data same --delay no
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 0 --high 10 --low 10 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 2 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 2 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 3 --low 3 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 4 --low 2 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 4 --low 8 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 5 --low 5 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 8 --low 4 --data same --delay yes
+./run_experiments.sh --repl $1 --config_name bo-compressor-text-delay --iid 100 --high 10 --low 10 --data same --delay yes
 ./run_experiments.sh --repl $1 --config_name no-selector --iid 0 --high 2 --low 4 --data same --delay no
 ./run_experiments.sh --repl $1 --config_name no-selector --iid 0 --high 2 --low 4 --data new --delay no
 ./run_experiments.sh --repl $1 --config_name no-selector --iid 0 --high 2 --low 8 --data same --delay no
