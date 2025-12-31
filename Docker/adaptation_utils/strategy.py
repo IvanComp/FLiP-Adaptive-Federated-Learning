@@ -3,6 +3,7 @@ from logging import INFO
 from pickle import load
 
 import joblib
+import numpy as np
 from logger import log
 from skopt import gp_minimize
 
@@ -54,6 +55,9 @@ def get_activation_criteria(json_config, default_config):
         return [FixedLocalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
                                                        strategy_name,
                                                        default_config)]
+    elif threshold_config['calculation_method'] == "contextual_bandit":
+        return [ContextualBanditActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
+                                                    alpha=threshold_config.get("alpha", 1.0))]
     else:
         return [RandomActivationCriterion(pattern_name, metric_name, strategy_name, default_config)]
 
@@ -403,3 +407,97 @@ class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
             return False, None, f'{self.pattern} de-activated ❌'
         else:
             return True, {"enabled_clients": apply_pattern}, f'{self.pattern} activated ✅ for clients: {apply_pattern}'
+
+
+class ContextualBanditActivationCriterion(ActivationCriterion):
+    """
+    Contextual bandit (LinUCB) activation strategy.
+    Fully online, no offline training cost.
+    """
+
+    def __init__(self, pattern, metric, strategy_name, clients_config, alpha=1.0):
+        self.alpha = alpha
+
+        # two arms: 0 = OFF, 1 = ON
+        self.arms = [0, 1]
+
+        self.d = None  # context dimension
+        self.A = {}
+        self.b = {}
+
+        # stored for update step
+        self._last_context = None
+        self._last_arm = None
+        super().__init__(pattern, metric, strategy_name, clients_config)
+
+    # --------------------------------------------------
+    # REQUIRED INTERFACE
+    # --------------------------------------------------
+    def activate_pattern(self, args):
+        """
+        Decide whether to activate the pattern.
+        Args is the same structure used by all other strategies.
+        """
+
+        context = self._extract_context(args)
+        self._init_if_needed(context.shape[0])
+
+        scores = {}
+        for arm in self.arms:
+            A_inv = np.linalg.inv(self.A[arm])
+            theta = A_inv @ self.b[arm]
+            mean = float(theta.T @ context)
+            uncertainty = self.alpha * np.sqrt(float(context.T @ A_inv @ context))
+            scores[arm] = mean + uncertainty
+
+        chosen_arm = max(scores, key=scores.get)
+
+        # store decision for later update
+        self._last_context = context
+        self._last_arm = chosen_arm
+
+        return chosen_arm == 1
+
+    # --------------------------------------------------
+    # ONLINE UPDATE (called after the round)
+    # --------------------------------------------------
+    def update(self, reward: float):
+        """
+        Update the bandit with the observed reward.
+        """
+        if self._last_context is None or self._last_arm is None:
+            return
+
+        x = self._last_context
+        arm = self._last_arm
+
+        self.A[arm] += x @ x.T
+        self.b[arm] += reward * x
+
+        # reset stored state
+        self._last_context = None
+        self._last_arm = None
+
+    # --------------------------------------------------
+    # INTERNALS
+    # --------------------------------------------------
+    def _init_if_needed(self, context_dim):
+        if self.d is None:
+            self.d = context_dim
+            for arm in self.arms:
+                self.A[arm] = np.identity(self.d)
+                self.b[arm] = np.zeros((self.d, 1))
+
+    def _extract_context(self, args):
+        """
+        Build the context vector from args.
+        This mirrors the information already used by other strategies.
+        """
+
+        # adjust keys if naming differs in your codebase
+        return np.array([
+            args["round"],
+            args["last_val_f1"],
+            args["last_rt"],
+            args.get("last_jsd", 0.0)
+        ], dtype=float).reshape(-1, 1)
