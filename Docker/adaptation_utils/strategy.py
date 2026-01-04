@@ -380,7 +380,7 @@ class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
 
         last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}
 
-        # TODO should be parametric w.r.t. metric name        
+        # TODO should be parametric w.r.t. metric name
         last_val_f1 = last_metrics['val_f1']
 
         next_round = len(new_aggregated_metrics[model_type][metrics[0]]) + 1
@@ -430,14 +430,26 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         self._last_arm = None
         super().__init__(pattern, metric, strategy_name, clients_config)
 
-    # --------------------------------------------------
-    # REQUIRED INTERFACE
-    # --------------------------------------------------
+    def __str__(self):
+        return f'Metric: {self.metric}, online learning with alpha {self.alpha}'
+
     def activate_pattern(self, args):
         """
         Decide whether to activate the pattern.
         Args is the same structure used by all other strategies.
         """
+        model_type = args['model_type']
+        new_aggregated_metrics = args['metrics']
+        performed_rounds = len(new_aggregated_metrics[model_type]['val_f1'])
+
+        # TODO should be parametric w.r.t. metric name
+        if performed_rounds < 1:
+            return True, "Less than 1 round completed, keeping default config."
+
+        if performed_rounds >= 2:
+            delta_metrics = new_aggregated_metrics[model_type]['val_f1'][-1] - new_aggregated_metrics[model_type]['val_f1'][-2] 
+            reward = delta_metrics
+            self.update(reward)
 
         context = self._extract_context(args)
         self._init_if_needed(context.shape[0])
@@ -455,8 +467,10 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         # store decision for later update
         self._last_context = context
         self._last_arm = chosen_arm
+        
+        activate_pattern = chosen_arm == 1 
 
-        return chosen_arm == 1
+        return activate_pattern, None, f"{self.pattern} {'activated ✅' if activate_pattern else 'de-activated ❌'}"
 
     # --------------------------------------------------
     # ONLINE UPDATE (called after the round)
@@ -493,11 +507,17 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         Build the context vector from args.
         This mirrors the information already used by other strategies.
         """
+        model_type = args['model_type']
+        new_aggregated_metrics = args['metrics']
+        metrics = self.metric.split(',')
+        last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}
+        last_round_time = args['time']
+        last_val_f1 = last_metrics['val_f1']
+        next_round = len(new_aggregated_metrics[model_type][metrics[0]]) + 1
 
         # adjust keys if naming differs in your codebase
         return np.array([
-            args["round"],
-            args["last_val_f1"],
-            args["last_rt"],
-            args.get("last_jsd", 0.0)
+            next_round,
+            last_val_f1,
+            last_round_time
         ], dtype=float).reshape(-1, 1)
