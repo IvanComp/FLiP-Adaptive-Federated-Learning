@@ -1,0 +1,46 @@
+{
+    "adaptation": false,
+    "activation_criteria": {},
+    "simulation_type": "Docker",
+    "rounds": 20,
+    "clients": **CLIENTS_COUNT**,
+    "patterns": {
+        "client_registry": {
+            "enabled": true,
+            "params": {}
+        },
+        "client_selector": {
+            "enabled": true,
+            "params": {
+                "selection_strategy": "Resource-Based",
+                "selection_criteria": "CPU",
+                "selection_value": 2
+            }
+        },
+        "client_cluster": {
+            "enabled": false,
+            "params": {}
+        },
+        "message_compressor": {
+            "enabled": false,
+            "params": {}
+        },
+        "model_co-versioning_registry": {
+            "enabled": false,
+            "params": {}
+        },
+        "multi-task_model_trainer": {
+            "enabled": false,
+            "params": {}
+        },
+        "heterogeneous_data_handler": {
+            "enabled": true,
+            "params": {
+                "enabled_clients": []
+            }
+        }
+    },
+    "client_details": [
+        **CLIENTS**
+    ]
+}
