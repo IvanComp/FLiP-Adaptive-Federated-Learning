@@ -450,7 +450,7 @@ class MultiModelStrategy(Strategy):
         log(INFO, "==========================================")
 
     def initialize_parameters(self, client_manager: ClientManager) -> Optional[Parameters]:
-        return None
+        return self.parameters_a
 
     def configure_fit(
             self,
@@ -672,7 +672,7 @@ if __name__ == "__main__":
     )
 
     start_server(
-        server_address="[::]:8081",
+        server_address="[::]:8080",
         config=ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
     )

@@ -10,6 +10,14 @@ import time
 import zlib
 
 import numpy as np
+if not hasattr(np, "object"):
+    np.object = object
+if not hasattr(np, "bool"):
+    np.bool = bool
+if not hasattr(np, "int"):
+    np.int = int
+if not hasattr(np, "float"):
+    np.float = float
 import psutil
 import torch
 
@@ -444,6 +452,6 @@ if __name__ == "__main__":
     config = next((c for c in details if str(c.get("client_id")) == cid_env), details[0])
     model_type = config.get("model")
     start_client(
-        server_address=os.getenv("SERVER_ADDRESS", "server2:8081"),
+        server_address=os.getenv("SERVER_ADDRESS", "server2:8080"),
         client=FlowerClient(client_config=config, model_type=model_type).to_client()
     )

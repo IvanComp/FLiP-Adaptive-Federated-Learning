@@ -12,7 +12,7 @@ services:
       - ./configuration:/app/configuration
       - ./model_weights:/app/model_weights
       - .:/app
-      - /var/run/docker.sock:/var/run/docker.sock 
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DOCKER_HOST_IP: host.docker.internal
       NUM_ROUNDS: ${NUM_ROUNDS}
@@ -21,7 +21,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'   
+          cpus: '0.5'
 
   client:
     image: flwr_client
@@ -49,7 +49,7 @@ services:
         limits:
           cpus: ${NUM_CPUS}
           memory: ${NUM_RAM}
-    command: sh -c "sleep 5 && python client.py"
+    command: sh -c "sleep 15 && python client.py"
 
 networks:
   flwr_network:
