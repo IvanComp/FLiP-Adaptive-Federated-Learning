@@ -1252,10 +1252,10 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         random.seed(42)
         random.shuffle(full_data)
         
-        new_sample_rate = 8000
+        new_sample_rate = 2000
         transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
         processed_data = []
-        target_len = 8000
+        target_len = 2000
         
         for wf, lbl in full_data:
             wf = transform(wf)
