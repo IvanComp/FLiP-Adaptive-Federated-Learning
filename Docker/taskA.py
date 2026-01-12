@@ -289,7 +289,7 @@ class TextLSTM(nn.Module):
         return self.fc(hidden_combined)
 
 class M5(nn.Module):
-    def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
+    def __init__(self, n_input=1, n_output=35, stride=16, n_channel=2):
         super().__init__()
         self.conv1 = nn.Conv1d(n_input, n_channel, kernel_size=80, stride=stride)
         self.bn1 = nn.BatchNorm1d(n_channel)
@@ -297,29 +297,15 @@ class M5(nn.Module):
         self.conv2 = nn.Conv1d(n_channel, n_channel, kernel_size=3)
         self.bn2 = nn.BatchNorm1d(n_channel)
         self.pool2 = nn.MaxPool1d(4)
-        self.conv3 = nn.Conv1d(n_channel, 2 * n_channel, kernel_size=3)
-        self.bn3 = nn.BatchNorm1d(2 * n_channel)
-        self.pool3 = nn.MaxPool1d(4)
-        self.conv4 = nn.Conv1d(2 * n_channel, 2 * n_channel, kernel_size=3)
-        self.bn4 = nn.BatchNorm1d(2 * n_channel)
-        self.pool4 = nn.MaxPool1d(4)
-        self.fc1 = nn.Linear(2 * n_channel, n_output)
+        self.fc1 = nn.Linear(n_channel, n_output)
 
     def forward(self, x):
-        # x shape expected: (Batch, Channel, Length) i.e. (Batch, 1, 8000)
-        # Previous implementation had x.squeeze(2) which is incorrect for (N, C, L) input
         x = self.conv1(x)
         x = F.relu(self.bn1(x))
         x = self.pool1(x)
         x = self.conv2(x)
         x = F.relu(self.bn2(x))
         x = self.pool2(x)
-        x = self.conv3(x)
-        x = F.relu(self.bn3(x))
-        x = self.pool3(x)
-        x = self.conv4(x)
-        x = F.relu(self.bn4(x))
-        x = self.pool4(x)
         x = F.avg_pool1d(x, x.shape[-1])
         x = x.permute(0, 2, 1)
         x = self.fc1(x)
@@ -1268,7 +1254,6 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         
         new_sample_rate = 8000
         transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
-        
         processed_data = []
         target_len = 8000
         

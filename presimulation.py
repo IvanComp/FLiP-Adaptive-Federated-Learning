@@ -1166,7 +1166,7 @@ class ClientConfigurationPage(QWidget):
         dataset_label.setStyleSheet("font-size: 12px; background:#f9f9f9")
         dataset_label.setAlignment(Qt.AlignLeft)
         dataset_combobox = QComboBox()
-        dataset_combobox.addItems(["YESNO","CMUARCTIC","SPEECHCOMMANDS","AG_NEWS","SST2","IMDB","DBPEDIA","YAHOOANSWERS","FashionMNIST","CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "OXFORDIIITPET", "ImageNet100"])
+        dataset_combobox.addItems(["CMUARCTIC","AG_NEWS","SST2","IMDB","DBPEDIA","YAHOOANSWERS","FashionMNIST","CIFAR-10", "CIFAR-100", "MNIST", "KMNIST", "OXFORDIIITPET", "ImageNet100"])
         dataset_combobox.setFixedWidth(160)
         dataset_layout = QHBoxLayout()
         dataset_layout.setSpacing(12)

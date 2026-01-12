@@ -39,6 +39,8 @@ services:
       - ./performance:/app/performance
       - ./configuration:/app/configuration
       - ./model_weights:/app/model_weights
+      - ./taskA.py:/app/taskA.py
+      - ./client.py:/app/client.py
     environment:
       NUM_ROUNDS: ${NUM_ROUNDS}
       NUM_CPUS: ${NUM_CPUS}
