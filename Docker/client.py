@@ -10,6 +10,7 @@ import time
 import zlib
 
 import numpy as np
+
 if not hasattr(np, "object"):
     np.object = object
 if not hasattr(np, "bool"):

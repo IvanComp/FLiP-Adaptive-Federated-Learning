@@ -60,7 +60,7 @@ def get_activation_criteria(json_config, default_config):
                                                     alpha=threshold_config.get("alpha", 1.0))]
     elif threshold_config['calculation_method'] == "contextual_bandit-local":
         return [ContextualBanditLocalActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
-                                                    alpha=threshold_config.get("alpha", 1.0))]
+                                                         alpha=threshold_config.get("alpha", 1.0))]
     else:
         return [RandomActivationCriterion(pattern_name, metric_name, strategy_name, default_config)]
 
@@ -420,7 +420,7 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
 
     def __init__(self, pattern, metric, strategy_name, clients_config, alpha=1.0):
         self.alpha = alpha
-        
+
         self._cached_time = None
         self._cached_communication_time = None
 
@@ -454,14 +454,16 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         # TODO should be parametric w.r.t. metric name
         if performed_rounds < 1:
             return True, "Less than 1 round completed, keeping default config."
-        
+
         if performed_rounds >= 2:
             if self.metric == 'time':
                 delta_metrics = - last_round_time + self._cached_time
             elif self.metric == 'communication_time':
-                delta_metrics = (- last_communication_time + self._cached_communication_time) / max(self._cached_communication_time, 1e-6)
+                delta_metrics = (- last_communication_time + self._cached_communication_time) / max(
+                    self._cached_communication_time, 1e-6)
             else:
-                delta_metrics = new_aggregated_metrics[model_type][self.metric][-1] - new_aggregated_metrics[model_type][self.metric][-2] 
+                delta_metrics = new_aggregated_metrics[model_type][self.metric][-1] - \
+                                new_aggregated_metrics[model_type][self.metric][-2]
             reward = delta_metrics
             log(INFO, reward)
             self.update(reward)
@@ -491,8 +493,8 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         # store decision for later update
         self._last_context = context
         self._last_arm = chosen_arm
-        
-        activate_pattern = chosen_arm == 1 
+
+        activate_pattern = chosen_arm == 1
 
         return activate_pattern, None, f"{self.pattern} {'activated ✅' if activate_pattern else 'de-activated ❌'}"
 
@@ -551,6 +553,7 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
             last_time_metric
         ], dtype=float).reshape(-1, 1)
 
+
 class ContextualBanditLocalActivationCriterion(ActivationCriterion):
     """
     Contextual bandit (LinUCB) activation strategy for HDH.
@@ -589,8 +592,8 @@ class ContextualBanditLocalActivationCriterion(ActivationCriterion):
         # reward from previous round (global signal)
         if performed_rounds >= 2:
             delta_f1 = (
-                new_aggregated_metrics[model_type]['val_f1'][-1]
-                - new_aggregated_metrics[model_type]['val_f1'][-2]
+                    new_aggregated_metrics[model_type]['val_f1'][-1]
+                    - new_aggregated_metrics[model_type]['val_f1'][-2]
             )
             delta_time = last_round_time - self._cached_time
             lambda_cost = 0.0001  # example value
@@ -600,7 +603,6 @@ class ContextualBanditLocalActivationCriterion(ActivationCriterion):
 
         if performed_rounds >= 1:
             self._cached_time = last_round_time
-            
 
         metrics = self.metric.split(',')
         last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}

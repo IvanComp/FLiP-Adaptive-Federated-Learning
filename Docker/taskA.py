@@ -30,16 +30,21 @@ from torchtext.data.utils import get_tokenizer
 
 from torchtext.vocab import build_vocab_from_iterator
 
+
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
+
     def __len__(self):
         return len(self.dataset)
+
     def __getitem__(self, idx):
         x, y = self.dataset[idx]
         if not torch.is_tensor(y):
             y = torch.tensor(y)
         return x, y
+
+
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 GLOBAL_ROUND_COUNTER = 1
 HGAN_DONE = False
@@ -97,32 +102,32 @@ AVAILABLE_DATASETS = {
     },
     "IMDB": {
         "class": TorchTextIMDB,
-        "normalize": ((0.0,), (1.0,)), 
+        "normalize": ((0.0,), (1.0,)),
         "channels": 1,
         "num_classes": 2
     },
     "YAHOOANSWERS": {
         "class": TorchTextYahooAnswers,
-        "normalize": ((0.0,), (1.0,)), 
+        "normalize": ((0.0,), (1.0,)),
         "channels": 1,
         "num_classes": 10
     },
     "AG_NEWS": {
         "class": TorchTextAGNews,
-        "normalize": ((0.0,), (1.0,)), 
+        "normalize": ((0.0,), (1.0,)),
         "channels": 1,
         "num_classes": 4
     },
     "SST2": {
         "class": None,
-        "normalize": ((0.0,), (1.0,)), 
+        "normalize": ((0.0,), (1.0,)),
         "channels": 1,
         "num_classes": 2
     },
 
     "DBPEDIA": {
         "class": None,
-        "normalize": ((0.0,), (1.0,)), 
+        "normalize": ((0.0,), (1.0,)),
         "channels": 1,
         "num_classes": 14
     },
@@ -146,18 +151,26 @@ AVAILABLE_DATASETS = {
     }
 }
 _orig_make_grid = vutils.make_grid
+
+
 def make_grid_no_range(*args, **kwargs):
     kwargs.pop("range", None)
     return _orig_make_grid(*args, **kwargs)
+
+
 vutils.make_grid = make_grid_no_range
 current_dir = os.path.abspath(os.path.dirname(__file__))
 config_dir = os.path.join(current_dir, 'configuration')
 config_file = os.path.join(config_dir, 'config.json')
+
+
 def get_valid_downscale_size(size: int) -> int:
     power = 32
     while power * 2 <= size and power * 2 <= 128:
         power *= 2
     return power
+
+
 def normalize_dataset_name(name: str) -> str:
     name_clean = name.replace("-", "").upper()
     if name_clean == "CIFAR10":
@@ -192,6 +205,8 @@ def normalize_dataset_name(name: str) -> str:
         return "CMUARCTIC"
     else:
         return name
+
+
 if os.path.exists(config_file):
     with open(config_file, 'r') as f:
         configJSON = json.load(f)
@@ -213,6 +228,8 @@ if os.path.exists(config_file):
             "Il file di configurazione non specifica il dataset né tramite la chiave 'dataset' né in 'client_details'.")
     DATASET_NAME = normalize_dataset_name(ds)
     DATASET_TYPE = configJSON["client_details"][0].get("data_distribution_type", "")
+
+
 class CNN_Dynamic(nn.Module):
     def __init__(
             self, num_classes: int, input_size: int, in_ch: int,
@@ -229,6 +246,7 @@ class CNN_Dynamic(nn.Module):
         self.fc1 = nn.Linear(flat_size, fc1_out)
         self.fc2 = nn.Linear(fc1_out, fc2_out)
         self.fc3 = nn.Linear(fc2_out, num_classes)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
@@ -236,28 +254,34 @@ class CNN_Dynamic(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         return self.fc3(x)
+
+
 class TextMLP(nn.Module):
     def __init__(self, vocab_size: int, embed_dim: int, num_classes: int) -> None:
         super(TextMLP, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.fc1 = nn.Linear(embed_dim, 64)
         self.fc2 = nn.Linear(64, num_classes)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        emb = self.embedding(x)       
-        h = emb.mean(dim=1)            
-        h = F.relu(self.fc1(h))        
-        return self.fc2(h)             
+        emb = self.embedding(x)
+        h = emb.mean(dim=1)
+        h = F.relu(self.fc1(h))
+        return self.fc2(h)
+
+
 class TextLSTM(nn.Module):
     """LSTM-based model for text classification."""
+
     def __init__(
-        self, 
-        vocab_size: int, 
-        embed_dim: int, 
-        hidden_dim: int, 
-        num_classes: int,
-        num_layers: int = 2,
-        bidirectional: bool = True,
-        dropout: float = 0.3
+            self,
+            vocab_size: int,
+            embed_dim: int,
+            hidden_dim: int,
+            num_classes: int,
+            num_layers: int = 2,
+            bidirectional: bool = True,
+            dropout: float = 0.3
     ) -> None:
         super(TextLSTM, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
@@ -277,16 +301,18 @@ class TextLSTM(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(64, num_classes)
         )
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        emb = self.embedding(x)  
-        lstm_out, (hidden, cell) = self.lstm(emb)  
+        emb = self.embedding(x)
+        lstm_out, (hidden, cell) = self.lstm(emb)
         if self.lstm.bidirectional:
-            hidden_forward = hidden[-2, :, :]  
-            hidden_backward = hidden[-1, :, :]  
+            hidden_forward = hidden[-2, :, :]
+            hidden_backward = hidden[-1, :, :]
             hidden_combined = torch.cat((hidden_forward, hidden_backward), dim=1)
         else:
             hidden_combined = hidden[-1, :, :]
         return self.fc(hidden_combined)
+
 
 class M5(nn.Module):
     def __init__(self, n_input=1, n_output=35, stride=16, n_channel=2):
@@ -310,6 +336,7 @@ class M5(nn.Module):
         x = x.permute(0, 2, 1)
         x = self.fc1(x)
         return F.log_softmax(x, dim=2).squeeze(1)
+
 
 def get_weight_class_dynamic(model_name: str):
     weight_mapping = {
@@ -391,6 +418,8 @@ def get_weight_class_dynamic(model_name: str):
     if weight_class_name is not None:
         return getattr(models, weight_class_name, None)
     return None
+
+
 def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool = True) -> nn.Module:
     if model_name is None:
         with open(config_file, 'r') as f:
@@ -446,9 +475,9 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             hidden_dim=16,
             num_classes=num_classes,
             num_layers=1,
-            bidirectional=True,  
+            bidirectional=True,
 
-            dropout=0.2,  
+            dropout=0.2,
         )
     if name in ("m5", "m_5"):
         return M5(n_input=1, n_output=num_classes)
@@ -489,6 +518,8 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
     else:
         raise NotImplementedError(f"{name} not Supported!")
     return model
+
+
 def Net():
     with open(config_file, 'r') as f:
         configJSON = json.load(f)
@@ -499,6 +530,8 @@ def Net():
     model_name = configJSON["client_details"][0].get("model", None)
     num_classes = AVAILABLE_DATASETS[dataset_name]["num_classes"]
     return get_dynamic_model(num_classes, model_name)
+
+
 def get_non_iid_indices(dataset,
                         remove_class_frac,
                         add_class_frac,
@@ -541,6 +574,8 @@ def get_non_iid_indices(dataset,
         selected += random.choices(selected, k=total - len(selected))
     return selected
     return selected
+
+
 def load_balanced_data(iterator, max_total, num_classes, label_extractor, item_processor):
     """
     Loads a balanced subset of data from a generator/iterator.
@@ -560,9 +595,11 @@ def load_balanced_data(iterator, max_total, num_classes, label_extractor, item_p
                 filled_classes += 1
         if filled_classes == num_classes:
             break
-    random.seed(42) 
+    random.seed(42)
     random.shuffle(data)
     return data
+
+
 def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     global DATASET_NAME, DATASET_TYPE, DATASET_PERSISTENCE
     DATASET_TYPE = client_config.get("data_distribution_type", "").lower()
@@ -570,9 +607,9 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     dataset_name = dataset_name_override or client_config.get("dataset", "")
     DATASET_NAME = normalize_dataset_name(dataset_name)
     if DATASET_NAME == "IMDB":
-        MAX_SAMPLES = 25000 
+        MAX_SAMPLES = 25000
     elif DATASET_NAME == "AG_NEWS":
-        MAX_SAMPLES = 120000 
+        MAX_SAMPLES = 120000
         MAX_SAMPLES = 120000
     else:
         MAX_SAMPLES = 120000
@@ -582,9 +619,11 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     normalize_params = config["normalize"]
     if DATASET_NAME == "IMDB":
         tokenizer = get_tokenizer("basic_english")
+
         def _yield_tokens(data_iter):
             for label, text in data_iter:
                 yield tokenizer(text)
+
         def _load_imdb_iterator(split: str):
             """Load IMDB dataset, trying different methods for compatibility."""
             try:
@@ -626,6 +665,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     for txt_file in sorted(folder.glob("*.txt")):
                         text = txt_file.read_text(encoding="utf-8")
                         yield (label, text)
+
         train_data_raw = _load_imdb_iterator("train")
         use_new_vocab_api = True
         try:
@@ -643,7 +683,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             unk_idx = vocab["<unk>"]
         else:
             unk_idx = vocab.stoi.get("<unk>", 0)
-        max_len = 128  
+        max_len = 128
         model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
         if model_name in ("textmlp", "text_mlp"):
             max_vocab = 500
@@ -651,6 +691,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             max_vocab = 250
         else:
             max_vocab = 20000
+
         def _get_token_idx(tok):
             """Get token index, handling old/new torchtext API."""
             if hasattr(vocab, '__getitem__') and use_new_vocab_api:
@@ -660,6 +701,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     return unk_idx
             else:
                 return vocab.stoi.get(tok, unk_idx)
+
         def _encode_text(text: str) -> torch.Tensor:
             tokens = tokenizer(text)
             ids = []
@@ -671,6 +713,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             if len(ids) < max_len:
                 ids += [0] * (max_len - len(ids))
             return torch.tensor(ids, dtype=torch.long)
+
         def _label_to_int(lbl):
             if isinstance(lbl, int):
                 return lbl
@@ -679,26 +722,29 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                 return 1
             else:
                 return 0
+
         test_data_raw = _load_imdb_iterator("test")
         trainset = load_balanced_data(
-            _load_imdb_iterator("train"), 
-            MAX_SAMPLES, 
-            2, 
-            lambda x: _label_to_int(x[0]), 
+            _load_imdb_iterator("train"),
+            MAX_SAMPLES,
+            2,
+            lambda x: _label_to_int(x[0]),
             lambda x: (_encode_text(x[1]), _label_to_int(x[0]))
         )
         test_iter_raw = _load_imdb_iterator("test")
         testset = []
         for raw_label, text in test_iter_raw:
-             x = _encode_text(text)
-             y = _label_to_int(raw_label)
-             testset.append((x, y))
+            x = _encode_text(text)
+            y = _label_to_int(raw_label)
+            testset.append((x, y))
         batch_size = int(client_config.get("batch_size", 64))
     elif DATASET_NAME == "YAHOOANSWERS":
         tokenizer = get_tokenizer("basic_english")
+
         def _yield_tokens(data_iter):
             for label, text in data_iter:
                 yield tokenizer(text)
+
         def _load_yahoo_iterator(split: str):
             """Load Yahoo Answers dataset, trying different methods for compatibility."""
             import csv
@@ -711,7 +757,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     data_iter = YahooAnswers(root="./data", split=split)
                     for item in data_iter:
                         yield item
-                    return 
+                    return
             except (TypeError, ImportError):
                 pass
             data_dir = Path("./data/yahoo_answers_csv")
@@ -744,6 +790,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                             label = int(row[0])
                             text = " ".join(row[1:])
                             yield (label, text)
+
         train_data_raw = _load_yahoo_iterator("train")
         use_new_vocab_api = True
         try:
@@ -761,7 +808,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             unk_idx = vocab["<unk>"]
         else:
             unk_idx = vocab.stoi.get("<unk>", 0)
-        max_len = 256  
+        max_len = 256
         model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
         if model_name in ("textmlp", "text_mlp"):
             max_vocab = 500
@@ -769,6 +816,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             max_vocab = 250
         else:
             max_vocab = 20000
+
         def _get_token_idx(tok):
             """Get token index, handling old/new torchtext API."""
             if hasattr(vocab, '__getitem__') and use_new_vocab_api:
@@ -778,6 +826,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     return unk_idx
             else:
                 return vocab.stoi.get(tok, unk_idx)
+
         def _encode_text(text: str) -> torch.Tensor:
             tokens = tokenizer(text)
             ids = []
@@ -789,16 +838,18 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             if len(ids) < max_len:
                 ids += [0] * (max_len - len(ids))
             return torch.tensor(ids, dtype=torch.long)
+
         def _label_to_int(lbl):
             if isinstance(lbl, int):
-                return lbl - 1  
+                return lbl - 1
             return int(lbl) - 1
+
         test_data_raw = _load_yahoo_iterator("test")
         trainset = load_balanced_data(
-            _load_yahoo_iterator("train"), 
-            MAX_SAMPLES, 
-            10, 
-            lambda x: _label_to_int(x[0]), 
+            _load_yahoo_iterator("train"),
+            MAX_SAMPLES,
+            10,
+            lambda x: _label_to_int(x[0]),
             lambda x: (_encode_text(x[1]), _label_to_int(x[0]))
         )
         test_iter_raw = _load_yahoo_iterator("test")
@@ -812,9 +863,11 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         batch_size = int(client_config.get("batch_size", 64))
     elif DATASET_NAME == "AG_NEWS":
         tokenizer = get_tokenizer("basic_english")
+
         def _yield_tokens(data_iter):
             for label, text in data_iter:
                 yield tokenizer(text)
+
         def _load_agnews_iterator(split: str):
             """Load AG_NEWS dataset."""
             try:
@@ -827,7 +880,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     data_iter = AG_NEWS(root="./data", split=split)
                     for item in data_iter:
                         yield item
-                    return 
+                    return
             except (TypeError, ImportError):
                 pass
             import csv
@@ -864,12 +917,13 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                             yield (label, text)
                     return
             raise RuntimeError("Could not load AG_NEWS via torchtext or manual fallback")
+
         try:
-             iter_ = _load_agnews_iterator("train")
-             train_data_raw = list(iter_)
+            iter_ = _load_agnews_iterator("train")
+            train_data_raw = list(iter_)
         except Exception as e:
-             log(INFO, f"FATAL ERROR loading AG_NEWS: {e}")
-             raise e
+            log(INFO, f"FATAL ERROR loading AG_NEWS: {e}")
+            raise e
         use_new_vocab_api = True
         try:
             vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
@@ -886,7 +940,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             unk_idx = vocab["<unk>"]
         else:
             unk_idx = vocab.stoi.get("<unk>", 0)
-        max_len = 128  
+        max_len = 128
         model_name = client_config.get("model", "").strip().lower().replace("-", "_").replace(" ", "_")
         if model_name in ("textmlp", "text_mlp"):
             max_vocab = 500
@@ -894,6 +948,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             max_vocab = 250
         else:
             max_vocab = 20000
+
         def _get_token_idx(tok):
             if hasattr(vocab, '__getitem__') and use_new_vocab_api:
                 try:
@@ -902,6 +957,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     return unk_idx
             else:
                 return vocab.stoi.get(tok, unk_idx)
+
         def _encode_text(text: str) -> torch.Tensor:
             tokens = tokenizer(text)
             ids = []
@@ -913,23 +969,25 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             if len(ids) < max_len:
                 ids += [0] * (max_len - len(ids))
             return torch.tensor(ids, dtype=torch.long)
+
         def _label_to_int(lbl):
             if isinstance(lbl, int):
                 return lbl - 1
             return int(lbl) - 1
+
         test_data_raw = _load_agnews_iterator("test")
         trainset = load_balanced_data(
-            _load_agnews_iterator("train"), 
-            MAX_SAMPLES, 
-            4, 
-            lambda x: int(x[0]) - 1, 
+            _load_agnews_iterator("train"),
+            MAX_SAMPLES,
+            4,
+            lambda x: int(x[0]) - 1,
             lambda x: (_encode_text(x[1]), int(x[0]) - 1)
         )
         try:
-             test_iter_raw = _load_agnews_iterator("test")
+            test_iter_raw = _load_agnews_iterator("test")
         except:
-             from torchtext.datasets import AG_NEWS
-             test_iter_raw = AG_NEWS(root="./data", split="test")
+            from torchtext.datasets import AG_NEWS
+            test_iter_raw = AG_NEWS(root="./data", split="test")
         testset = []
         for raw_label, text in test_iter_raw:
             x = _encode_text(text)
@@ -938,9 +996,11 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         batch_size = int(client_config.get("batch_size", 64))
     elif DATASET_NAME == "SST2":
         tokenizer = get_tokenizer("basic_english")
+
         def _yield_tokens(data_iter):
             for label, text in data_iter:
                 yield tokenizer(text)
+
         def _load_sst2_iterator(split: str):
             """Load SST2 dataset with fallback strategy."""
             try:
@@ -951,18 +1011,25 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     data_iter = SST2(root="./data", split=split)
                     for item in data_iter:
                         if isinstance(item, tuple):
-                             if isinstance(item[0], int): yield item 
-                             else: yield (item[1], item[0])
+                            if isinstance(item[0], int):
+                                yield item
+                            else:
+                                yield (item[1], item[0])
                     return
                 datasets = SST2(root="./data")
                 if isinstance(datasets, tuple):
-                    if split == "train": target = datasets[0]
-                    elif split == "test": target = datasets[2] 
-                    else: target = datasets[1] 
+                    if split == "train":
+                        target = datasets[0]
+                    elif split == "test":
+                        target = datasets[2]
+                    else:
+                        target = datasets[1]
                     for item in target:
-                         if isinstance(item, tuple):
-                             if isinstance(item[0], int): yield item
-                             else: yield (item[1], item[0])
+                        if isinstance(item, tuple):
+                            if isinstance(item[0], int):
+                                yield item
+                            else:
+                                yield (item[1], item[0])
                     return
             except Exception:
                 pass
@@ -993,7 +1060,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             if tsv_path.exists():
                 with open(tsv_path, 'r', encoding='utf-8') as f:
                     reader = csv.reader(f, delimiter='\t')
-                    next(reader) 
+                    next(reader)
                     for row in reader:
                         if len(row) >= 2:
                             text = row[0]
@@ -1001,12 +1068,13 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                             yield (label, text)
                     return
             raise RuntimeError("Could not load SST2 via torchtext or manual fallback")
-        MAX_SAMPLES = 70000 
+
+        MAX_SAMPLES = 70000
         try:
-             iter_ = _load_sst2_iterator("train")
-             train_data_raw = list(iter_)
+            iter_ = _load_sst2_iterator("train")
+            train_data_raw = list(iter_)
         except Exception as e:
-             raise e
+            raise e
         use_new_vocab_api = True
         try:
             vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
@@ -1031,11 +1099,16 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             max_vocab = 250
         else:
             max_vocab = 20000
+
         def _get_token_idx(tok):
             if hasattr(vocab, '__getitem__') and use_new_vocab_api:
-                try: return vocab[tok]
-                except KeyError: return unk_idx
-            else: return vocab.stoi.get(tok, unk_idx)
+                try:
+                    return vocab[tok]
+                except KeyError:
+                    return unk_idx
+            else:
+                return vocab.stoi.get(tok, unk_idx)
+
         def _encode_text(text: str) -> torch.Tensor:
             tokens = tokenizer(text)
             ids = []
@@ -1046,25 +1119,28 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             if len(ids) < max_len:
                 ids += [0] * (max_len - len(ids))
             return torch.tensor(ids, dtype=torch.long)
+
         trainset = load_balanced_data(
-            _load_sst2_iterator("train"), 
-            MAX_SAMPLES, 
-            2, 
-            lambda x: int(x[0]), 
+            _load_sst2_iterator("train"),
+            MAX_SAMPLES,
+            2,
+            lambda x: int(x[0]),
             lambda x: (_encode_text(x[1]), int(x[0]))
         )
         test_iter_raw = _load_sst2_iterator("test")
         testset = []
         for raw_label, text in test_iter_raw:
-             x = _encode_text(text)
-             y = int(raw_label)
-             testset.append((x, y))
+            x = _encode_text(text)
+            y = int(raw_label)
+            testset.append((x, y))
         batch_size = int(client_config.get("batch_size", 64))
     elif DATASET_NAME == "DBPEDIA":
         tokenizer = get_tokenizer("basic_english")
+
         def _yield_tokens(data_iter):
             for label, text in data_iter:
                 yield tokenizer(text)
+
         def _load_dbpedia_iterator(split: str):
             """Load DBpedia dataset with fallback strategy."""
             try:
@@ -1075,8 +1151,10 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     data_iter = DBpedia(root="./data", split=split)
                     for item in data_iter:
                         if isinstance(item, tuple):
-                             if isinstance(item[0], int): yield item 
-                             else: yield (item[1], item[0])
+                            if isinstance(item[0], int):
+                                yield item
+                            else:
+                                yield (item[1], item[0])
                     return
                 datasets = DBpedia(root="./data")
                 if isinstance(datasets, tuple):
@@ -1120,12 +1198,13 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                             yield (label, text)
                     return
             raise RuntimeError("Could not load DBpedia via torchtext or manual fallback")
-        MAX_SAMPLES = 140000 
+
+        MAX_SAMPLES = 140000
         try:
-             iter_ = _load_dbpedia_iterator("train")
-             train_data_raw = list(iter_)
+            iter_ = _load_dbpedia_iterator("train")
+            train_data_raw = list(iter_)
         except Exception as e:
-             raise e
+            raise e
         use_new_vocab_api = True
         try:
             vocab = build_vocab_from_iterator(_yield_tokens(train_data_raw), specials=["<unk>"])
@@ -1150,11 +1229,16 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             max_vocab = 250
         else:
             max_vocab = 20000
+
         def _get_token_idx(tok):
             if hasattr(vocab, '__getitem__') and use_new_vocab_api:
-                try: return vocab[tok]
-                except KeyError: return unk_idx
-            else: return vocab.stoi.get(tok, unk_idx)
+                try:
+                    return vocab[tok]
+                except KeyError:
+                    return unk_idx
+            else:
+                return vocab.stoi.get(tok, unk_idx)
+
         def _encode_text(text: str) -> torch.Tensor:
             tokens = tokenizer(text)
             ids = []
@@ -1165,21 +1249,22 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             if len(ids) < max_len:
                 ids += [0] * (max_len - len(ids))
             return torch.tensor(ids, dtype=torch.long)
+
         trainset = load_balanced_data(
-            _load_dbpedia_iterator("train"), 
-            MAX_SAMPLES, 
-            14, 
-            lambda x: int(x[0]) - 1, 
+            _load_dbpedia_iterator("train"),
+            MAX_SAMPLES,
+            14,
+            lambda x: int(x[0]) - 1,
             lambda x: (_encode_text(x[1]), int(x[0]) - 1)
         )
         test_iter_raw = _load_dbpedia_iterator("test")
         testset = []
         test_limit = 5000
         for i, (raw_label, text) in enumerate(test_iter_raw):
-             if i >= test_limit: break
-             x = _encode_text(text)
-             y = int(raw_label) - 1
-             testset.append((x, y))
+            if i >= test_limit: break
+            x = _encode_text(text)
+            y = int(raw_label) - 1
+            testset.append((x, y))
         batch_size = int(client_config.get("batch_size", 64))
     elif DATASET_NAME == "YESNO":
         import torchaudio
@@ -1187,54 +1272,54 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
 
         data_root = "./data"
         if not os.path.exists(data_root):
-             os.makedirs(data_root)
+            os.makedirs(data_root)
 
         try:
-             full_ds = YESNO(root=data_root, download=True)
+            full_ds = YESNO(root=data_root, download=True)
         except Exception as e:
-             log(INFO, f"Error downloading YESNO: {e}")
-             raise e
+            log(INFO, f"Error downloading YESNO: {e}")
+            raise e
 
         max_len = 0
         for i in range(len(full_ds)):
-             wf, _, _ = full_ds[i]
-             if wf.shape[1] > max_len: max_len = wf.shape[1]
-        
-        target_len = max_len 
-        
+            wf, _, _ = full_ds[i]
+            if wf.shape[1] > max_len: max_len = wf.shape[1]
+
+        target_len = max_len
+
         processed_data = []
         for i in range(len(full_ds)):
-             wf, sr, labels = full_ds[i]
-             if wf.shape[1] < target_len:
-                 wf = F.pad(wf, (0, target_len - wf.shape[1]))
-             else:
-                 wf = wf[:, :target_len]
-             
-             y = labels[0]
-             processed_data.append((wf, y))
-        
+            wf, sr, labels = full_ds[i]
+            if wf.shape[1] < target_len:
+                wf = F.pad(wf, (0, target_len - wf.shape[1]))
+            else:
+                wf = wf[:, :target_len]
+
+            y = labels[0]
+            processed_data.append((wf, y))
+
         random.seed(42)
         random.shuffle(processed_data)
-        
+
         split_idx = int(0.8 * len(processed_data))
         trainset = processed_data[:split_idx]
         testset = processed_data[split_idx:]
-        
-        batch_size = int(client_config.get("batch_size", 4)) 
+
+        batch_size = int(client_config.get("batch_size", 4))
 
         batch_size = int(client_config.get("batch_size", 4))
 
     elif DATASET_NAME == "CMUARCTIC":
         import torchaudio
         from torchaudio.datasets import CMUARCTIC
-        
+
         data_root = "./data/cmu_arctic"
         if not os.path.exists(data_root):
             os.makedirs(data_root)
 
         speakers = ["slt", "bdl", "clb", "rms"]
         speaker_to_idx = {spk: i for i, spk in enumerate(speakers)}
-        
+
         full_data = []
         for spk in speakers:
             try:
@@ -1244,19 +1329,19 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     # Usually: (waveform, sample_rate, transcript, utterance_id) -> 4 items
                     # Safer to just take the first item as waveform
                     item = ds[i]
-                    waveform = item[0] 
+                    waveform = item[0]
                     full_data.append((waveform, speaker_to_idx[spk]))
             except Exception as e:
                 log(INFO, f"Error loading CMUARCTIC speaker {spk}: {e}")
 
         random.seed(42)
         random.shuffle(full_data)
-        
+
         new_sample_rate = 2000
         transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
         processed_data = []
         target_len = 2000
-        
+
         for wf, lbl in full_data:
             wf = transform(wf)
             if wf.shape[1] < target_len:
@@ -1264,48 +1349,48 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             else:
                 wf = wf[:, :target_len]
             processed_data.append((wf, lbl))
-            
+
         split_idx = int(0.8 * len(processed_data))
         trainset = processed_data[:split_idx]
         testset = processed_data[split_idx:]
-        
+
         batch_size = int(client_config.get("batch_size", 4))
 
     elif DATASET_NAME == "SPEECHCOMMANDS":
         # But wait, we need to know the *exact* set of combined labels present.
         # Let's do a dynamic scan on training set to be safe and robust.
-        
+
         train_iter = SubsetFSC("train")
         valid_iter = SubsetFSC("valid")
         test_iter = SubsetFSC("test")
-        
+
         # Scan for labels
         # Dataset item: (waveform, sample_rate, file_name, speaker_id, transcription, action, object, location)
         # index 5, 6, 7 are action, object, location
-        
+
         unique_labels = set()
         # We can scan train_iter. But it might be slow if it opens files.
         # FSC implementation in torchaudio usually reads a CSV. So it should be fast to just iterate the walker?
         # Actually torchaudio datasets use a walker list. We can cheat and access it if we want speed,
         # but let's just iterate a few or assume standard 31.
         # Let's use the standard list above? It might be safer to dynamically build from train Set.
-        
+
         # Optimized scan:
         # subset._walker usually contains the metadata.
         # For FSC: _walker is a list of indices or filenames?
         # Let's just iterate.
         pass
-        
+
         # Re-defining intents list based on common FSC usage
         # unique combinations of action, object, location
-        
+
         known_intents = sorted([
-             "change language-none-none", "activate-music-none", "deactivate-lights-bedroom",
-             "increase-heat-kitchen", "decrease-heat-kitchen", "increase-heat-washroom",
-             "decrease-heat-washroom", "increase-heat-bedroom", "decrease-heat-bedroom", # Wait, bedroom heat?
-             # Let's just collect them dynamically to avoid errors.
+            "change language-none-none", "activate-music-none", "deactivate-lights-bedroom",
+            "increase-heat-kitchen", "decrease-heat-kitchen", "increase-heat-washroom",
+            "decrease-heat-washroom", "increase-heat-bedroom", "decrease-heat-bedroom",  # Wait, bedroom heat?
+            # Let's just collect them dynamically to avoid errors.
         ])
-        
+
         # Dynamic collection
         train_samples = []
         for i in range(len(train_iter)):
@@ -1313,74 +1398,74 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             # (waveform, sample_rate, transcript, speaker_id, action, object, location) -> verify signature
             # Torchaudio 2.2.1 signature: 
             # (waveform, sample_rate, fileid, speaker_id, transcription, action, object, location)
-            
+
             action, obj, loc = item[5], item[6], item[7]
             label_str = f"{action}-{obj}-{loc}"
             unique_labels.add(label_str)
             train_samples.append((item[0], label_str))
-            
+
         labels = sorted(list(unique_labels))
         label_to_index = {l: i for i, l in enumerate(labels)}
-        
+
         new_sample_rate = 8000
         transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
-        
-        MAX_SAMPLES = 20000 
-        
+
+        MAX_SAMPLES = 20000
+
         def _process_waveform(waveform, target_sr=new_sample_rate):
-            if waveform.shape[1] < target_sr: # 1 sec
-                 pass
+            if waveform.shape[1] < target_sr:  # 1 sec
+                pass
             # Resample? FSC is 16k usually.
             # waveform shape (C, T)
-            
+
             # Since we don't know original SR easily without checking item (it's in item[1]),
             # let's assume 16k if standard.
             # Actually item has it.
-            
+
             # Simplified: assume we get waveform resampled if needed.
             # Let's do it in the loop or collation.
             return waveform
 
         # Process train set
         trainset = []
-        for wf, lbl_str in train_samples: # train_samples collected above
-             # Resample/Pad
-             if wf.shape[1] < 16000: # Original length check?
-                 pass 
-             
-             # Resample
-             wf = transform(wf)
-             
-             target_len = new_sample_rate
-             if wf.shape[1] < target_len:
-                 wf = F.pad(wf, (0, target_len - wf.shape[1]))
-             else:
-                 wf = wf[:, :target_len]
-                 
-             if lbl_str in label_to_index:
-                 trainset.append((wf, label_to_index[lbl_str]))
+        for wf, lbl_str in train_samples:  # train_samples collected above
+            # Resample/Pad
+            if wf.shape[1] < 16000:  # Original length check?
+                pass
+
+                # Resample
+            wf = transform(wf)
+
+            target_len = new_sample_rate
+            if wf.shape[1] < target_len:
+                wf = F.pad(wf, (0, target_len - wf.shape[1]))
+            else:
+                wf = wf[:, :target_len]
+
+            if lbl_str in label_to_index:
+                trainset.append((wf, label_to_index[lbl_str]))
 
         # Process test set
         testset = []
         test_limit = 2000
         for i in range(len(test_iter)):
-             if i >= test_limit: break
-             item = test_iter[i]
-             wf = item[0]
-             # sr = item[1]
-             action, obj, loc = item[5], item[6], item[7]
-             lbl_str = f"{action}-{obj}-{loc}"
-             
-             if lbl_str not in label_to_index: continue # Should not happen if classes align
-             
-             wf = transform(wf)
-             target_len = new_sample_rate
-             if wf.shape[1] < target_len:
-                 wf = F.pad(wf, (0, target_len - wf.shape[1]))
-             else:
-                 wf = wf[:, :target_len]
-                 
-             testset.append((wf, label_to_index[lbl_str]))
+            if i >= test_limit: break
+            item = test_iter[i]
+            wf = item[0]
+            # sr = item[1]
+            action, obj, loc = item[5], item[6], item[7]
+            lbl_str = f"{action}-{obj}-{loc}"
+
+            if lbl_str not in label_to_index: continue  # Should not happen if classes align
+
+            wf = transform(wf)
+            target_len = new_sample_rate
+            if wf.shape[1] < target_len:
+                wf = F.pad(wf, (0, target_len - wf.shape[1]))
+            else:
+                wf = wf[:, :target_len]
+
+            testset.append((wf, label_to_index[lbl_str]))
 
         batch_size = int(client_config.get("batch_size", 64))
 
@@ -1391,10 +1476,12 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         class SubsetSC(SPEECHCOMMANDS):
             def __init__(self, subset: str = None):
                 super().__init__("./data", download=True)
+
                 def load_list(filename):
                     filepath = os.path.join(self._path, filename)
                     with open(filepath) as fileobj:
                         return [os.path.normpath(os.path.join(self._path, line.strip())) for line in fileobj]
+
                 if subset == "validation":
                     self._walker = load_list("validation_list.txt")
                 elif subset == "testing":
@@ -1403,32 +1490,33 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
                     excludes = load_list("validation_list.txt") + load_list("testing_list.txt")
                     excludes = set(excludes)
                     self._walker = [w for w in self._walker if w not in excludes]
-        
 
-        labels = ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
+        labels = ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go',
+                  'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven',
+                  'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
         try:
-             temp_train_iter = SubsetSC("training")
-             labels = sorted(list(set(datapoint[2] for datapoint in temp_train_iter)))
+            temp_train_iter = SubsetSC("training")
+            labels = sorted(list(set(datapoint[2] for datapoint in temp_train_iter)))
         except:
-             pass
-        
+            pass
+
         label_to_index = {label: index for index, label in enumerate(labels)}
 
         new_sample_rate = 8000
         transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
-        
-        MAX_SAMPLES = 20000 
+
+        MAX_SAMPLES = 20000
 
         def _process_waveform(waveform):
             # waveform: (Channel, Time)
             if waveform.shape[1] < 16000:
-                 # It might be short, it's fine, resample handles it
-                 pass
+                # It might be short, it's fine, resample handles it
+                pass
 
             # Resample
             if 16000 != new_sample_rate:
                 waveform = transform(waveform)
-            
+
             # Pad/Truncate to 1s (8000 samples)
             target_len = new_sample_rate
             if waveform.shape[1] < target_len:
@@ -1438,15 +1526,15 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             return waveform
 
         def _yield_speech_data(split):
-             ds = SubsetSC(split)
-             for i in range(len(ds)):
-                  yield ds[i]
+            ds = SubsetSC(split)
+            for i in range(len(ds)):
+                yield ds[i]
 
         trainset = load_balanced_data(
             _yield_speech_data("training"),
             MAX_SAMPLES,
             len(labels),
-            lambda x: label_to_index[x[2]], # x: (waveform, sample_rate, label, ...)
+            lambda x: label_to_index[x[2]],  # x: (waveform, sample_rate, label, ...)
             lambda x: (_process_waveform(x[0]), label_to_index[x[2]])
         )
 
@@ -1454,11 +1542,11 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         test_limit = 2000
         ds_test = SubsetSC("testing")
         for i in range(len(ds_test)):
-             if i >= test_limit: break
-             waveform, sample_rate, label, _, _ = ds_test[i]
-             x = _process_waveform(waveform)
-             y = label_to_index[label]
-             testset.append((x, y))
+            if i >= test_limit: break
+            waveform, sample_rate, label, _, _ = ds_test[i]
+            x = _process_waveform(waveform)
+            y = label_to_index[label]
+            testset.append((x, y))
 
         batch_size = int(client_config.get("batch_size", 64))
     else:
@@ -1517,10 +1605,10 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     with open(config_path, 'r') as f:
         total_rounds = json.load(f).get("rounds")
     if DATASET_PERSISTENCE == "Same Data":
-        #log(INFO, f"Persistence: Same Data. Keeping full dataset ({len(trainset)} samples).")
+        # log(INFO, f"Persistence: Same Data. Keeping full dataset ({len(trainset)} samples).")
         pass
     else:
-        #log(INFO, f"Persistence: {DATASET_PERSISTENCE}. Round {GLOBAL_ROUND_COUNTER}/{total_rounds}. Initial Size: {len(trainset)}")
+        # log(INFO, f"Persistence: {DATASET_PERSISTENCE}. Round {GLOBAL_ROUND_COUNTER}/{total_rounds}. Initial Size: {len(trainset)}")
         class_to_indices = defaultdict(list)
         for idx in range(len(trainset)):
             _, label = trainset[idx]
@@ -1569,8 +1657,10 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             raw = caps.astype(np.float64)
         else:
             raw = np.clip(shape_now, 0.0, 1.0) * caps
+
         def sum_at_scale(s: float) -> int:
             return int(np.floor(np.minimum(s * raw, caps)).sum())
+
         if raw.sum() == 0:
             scaled = np.zeros_like(raw, dtype=np.float64)
         else:
@@ -1616,6 +1706,8 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     trainloader = DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader
+
+
 def truncate_dataset(dataset, max_per_class: int):
     counts = defaultdict(int)
     kept_indices = []
@@ -1625,6 +1717,8 @@ def truncate_dataset(dataset, max_per_class: int):
             kept_indices.append(idx)
             counts[lbl] += 1
     return Subset(dataset, kept_indices)
+
+
 def balance_dataset_with_gan(
         trainset,
         num_classes,
@@ -1651,21 +1745,24 @@ def balance_dataset_with_gan(
         hidden_dim = 64
         log(INFO, f"[HDH TextGAN] Applying TextGAN to rebalance classes: {under_cls}")
         log(INFO, f"[HDH TextGAN] Detected text data: seq_len={seq_len}, vocab_size={vocab_size}")
+
         class TextGenerator(nn.Module):
             def __init__(self):
                 super().__init__()
                 self.fc_latent = nn.Linear(latent_dim, hidden_dim)
                 self.lstm = nn.LSTM(hidden_dim, hidden_dim, batch_first=True)
                 self.fc_out = nn.Linear(hidden_dim, vocab_size)
+
             def forward(self, z):
-                h = F.relu(self.fc_latent(z))  
-                h = h.unsqueeze(1).repeat(1, seq_len, 1)  
-                out, _ = self.lstm(h)  
-                logits = self.fc_out(out)  
+                h = F.relu(self.fc_latent(z))
+                h = h.unsqueeze(1).repeat(1, seq_len, 1)
+                out, _ = self.lstm(h)
+                logits = self.fc_out(out)
                 # Return one-hot (approx) for gradient flow. Gumbel-Softmax with hard=True ensures discrete output in forward,
                 # but valid gradients in backward.
                 tokens = F.gumbel_softmax(logits, tau=1.0, hard=True, dim=-1)
-                return tokens # Shape: (batch, seq_len, vocab_size)  
+                return tokens  # Shape: (batch, seq_len, vocab_size)
+
         class TextDiscriminator(nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1674,12 +1771,14 @@ def balance_dataset_with_gan(
                 self.fc_emb = nn.Linear(vocab_size, embed_dim, bias=False)
                 self.lstm = nn.LSTM(embed_dim, hidden_dim, batch_first=True)
                 self.fc = nn.Linear(hidden_dim, 1)
+
             def forward(self, x):
                 # x shape: (batch, seq_len, vocab_size)
-                emb = self.fc_emb(x)  
-                _, (h, _) = self.lstm(emb)  
-                out = self.fc(h.squeeze(0))  
+                emb = self.fc_emb(x)
+                _, (h, _) = self.lstm(emb)
+                out = self.fc(h.squeeze(0))
                 return torch.sigmoid(out)
+
         generator = TextGenerator().to(device)
         discriminator = TextDiscriminator().to(device)
         g_optimizer = torch.optim.Adam(generator.parameters(), lr=2e-4, betas=(0.5, 0.999))
@@ -1690,17 +1789,17 @@ def balance_dataset_with_gan(
         log(INFO, "[HDH TextGAN] Starting TextGAN training...")
         for epoch in range(epochs):
             for batch_idx, (real_x, _) in enumerate(loader):
-                if batch_idx >= 20: # Cap training to 20 batches to prevent CPU starvation/hangs
+                if batch_idx >= 20:  # Cap training to 20 batches to prevent CPU starvation/hangs
                     break
-                
+
                 if batch_idx % 5 == 0:
-                     log(INFO, f"[HDH TextGAN] Epoch {epoch+1}, Batch {batch_idx}...")
+                    log(INFO, f"[HDH TextGAN] Epoch {epoch + 1}, Batch {batch_idx}...")
                 real_x = real_x.to(device)
                 bs = real_x.size(0)
                 d_optimizer.zero_grad()
                 real_labels = torch.ones(bs, 1, device=device)
                 fake_labels = torch.zeros(bs, 1, device=device)
-                
+
                 # Convert real indices to one-hot for the new Discriminator
                 real_x_onehot = F.one_hot(real_x, num_classes=vocab_size).float()
                 d_real = discriminator(real_x_onehot)
@@ -1719,7 +1818,7 @@ def balance_dataset_with_gan(
                 g_loss = criterion(d_fake, real_labels)
                 g_loss.backward()
                 g_optimizer.step()
-            log(INFO, f"[HDH TextGAN] Epoch {epoch+1}/{epochs} completed.")
+            log(INFO, f"[HDH TextGAN] Epoch {epoch + 1}/{epochs} completed.")
         synth_texts, synth_lbls = [], []
         generator.eval()
         for c in under_cls:
@@ -1727,7 +1826,7 @@ def balance_dataset_with_gan(
             to_gen = target_per_class - cnt
             if to_gen <= 0:
                 continue
-            
+
             gen_batch_size = 32
             num_batches = (to_gen + gen_batch_size - 1) // gen_batch_size
             for i in range(num_batches):
@@ -1735,9 +1834,9 @@ def balance_dataset_with_gan(
                 z = torch.randn(current_batch_size, latent_dim, device=device)
                 with torch.no_grad():
                     gen_soft = generator(z).cpu()
-                    gen_indices = gen_soft.argmax(dim=-1) # Convert back to indices for the dataset
+                    gen_indices = gen_soft.argmax(dim=-1)  # Convert back to indices for the dataset
                 synth_texts.append(gen_indices)
-                
+
             synth_lbls += [c] * to_gen
         if synth_texts:
             all_texts = torch.cat(synth_texts, dim=0)
@@ -1765,10 +1864,12 @@ def balance_dataset_with_gan(
         loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
         import torchvision
         _orig_make_grid = torchvision.utils.make_grid
+
         def _make_grid_wrapper(*args, **kwargs):
             if 'range' in kwargs:
                 kwargs['value_range'] = kwargs.pop('range')
             return _orig_make_grid(*args, **kwargs)
+
         torchvision.utils.make_grid = _make_grid_wrapper
         models_cfg = {
             'generator': {'name': DCGANGenerator,
@@ -1780,18 +1881,18 @@ def balance_dataset_with_gan(
         losses = [MinimaxGeneratorLoss(), MinimaxDiscriminatorLoss()]
         log(INFO, "[HDH GAN] Starting GAN training...")
         trainer = Trainer(models=models_cfg, losses_list=losses, device=device, sample_size=batch_size, epochs=epochs)
-        
+
         # Manually train with limits to prevent hangs
         # Trainer.train() loops over the whole loader. We need to override or just use a short loader.
         # Simpler: Subset the loader or just trust Image GAN is faster (usually is).
         # But for safety, let's limit the loader size itself before passing to trainer?
         # TorchGAN trainer doesn't support easy step limiting.
         # Let's reduce the dataset size passed to it if it's too large.
-        
+
         if len(subset) > batch_size * 20:
-             subset = Subset(train_for_gan, idxs[:batch_size*20])
-             loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
-             
+            subset = Subset(train_for_gan, idxs[:batch_size * 20])
+            loader = DataLoader(subset, batch_size=batch_size, shuffle=True)
+
         trainer.train(loader)
         synth_imgs, synth_lbls = [], []
         for c in under_cls:
@@ -1799,7 +1900,7 @@ def balance_dataset_with_gan(
             to_gen = target_per_class - cnt
             if to_gen <= 0:
                 continue
-            
+
             gen_batch_size = 32
             num_batches = (to_gen + gen_batch_size - 1) // gen_batch_size
             for i in range(num_batches):
@@ -1808,7 +1909,7 @@ def balance_dataset_with_gan(
                 with torch.no_grad():
                     gen = trainer.generator(z).cpu()
                 synth_imgs.append(gen)
-            
+
             synth_lbls += [c] * to_gen
         if synth_imgs:
             all_imgs_gan = torch.cat(synth_imgs, dim=0)
@@ -1821,6 +1922,8 @@ def balance_dataset_with_gan(
             log(INFO, f"[HDH GAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
             return result
         return trainset
+
+
 def rebalance_trainloader_with_gan(trainloader):
     _t0_hdh = time.time()
     global DATASET_NAME
@@ -1850,6 +1953,8 @@ def rebalance_trainloader_with_gan(trainloader):
         hdh_ms = 0.0
     log(INFO, f"HDH Data Handler (GAN) Total Processing time: {hdh_ms:.2f} seconds")
     return DataLoader(TensorLabelDataset(trainset), batch_size=batch_size, shuffle=True), hdh_ms
+
+
 def get_jsd(trainloader):
     log(INFO, "Calculating Jensen-Shannon Divergence (JSD) for dataset distribution...")
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
@@ -1859,11 +1964,15 @@ def get_jsd(trainloader):
     P = np.array([dist.get(i, 0) / total_samples for i in range(num_classes)])
     Q = np.array([1.0 / num_classes] * num_classes)
     M = 0.5 * (P + Q)
+
     def kl_div(p, q):
         return np.sum([pi * np.log2(pi / qi) if pi > 0 else 0.0 for pi, qi in zip(p, q)])
+
     JSD = 0.5 * kl_div(P, M) + 0.5 * kl_div(Q, M)
     log(INFO, f"Jensen-Shannon Divergence (client vs perfect IID): {JSD:.2f}")
     return JSD
+
+
 def train(net, trainloader, valloader, epochs, DEVICE):
     labels = [lbl.item() if isinstance(lbl, torch.Tensor) else lbl for _, lbl in trainloader.dataset]
     dist = dict(Counter(labels))
@@ -1900,6 +2009,8 @@ def train(net, trainloader, valloader, epochs, DEVICE):
         "val_mae": val_mae,
     }
     return results, training_time
+
+
 def test(net, loader):
     net.to(DEVICE)
     criterion = nn.CrossEntropyLoss()
@@ -1925,8 +2036,12 @@ def test(net, loader):
     except:
         mae = None
     return avg_loss, accuracy, f1, mae
+
+
 def get_weights(net):
     return [val.cpu().numpy() for _, val in net.state_dict().items()]
+
+
 def set_weights(net, parameters):
     params_dict = zip(net.state_dict().keys(), parameters)
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})

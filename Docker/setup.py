@@ -6,7 +6,7 @@ N_iid = int(sys.argv[2])
 N_high = int(sys.argv[3])
 N_low = int(sys.argv[4])
 persistence = sys.argv[5]
-delay = sys.argv[6].lower()=='yes'
+delay = sys.argv[6].lower() == 'yes'
 data_persistence_types = {'new': 'New Data', 'same': 'Same Data', 'remove': 'Remove Data'}
 
 N_other = 0
@@ -41,21 +41,26 @@ with open("configuration/config.json", "w") as config_file:
         to_copy = default_config_file.read()
 
         to_copy = to_copy.replace("**CLIENTS_COUNT**", str(N_high + N_low))
-        
+
         delay_str = 'Yes' if delay else 'No'
 
         clients_config = []
         for i in range(N_high):
             if i < N_high * N_iid / 100:
-                clients_config.append(json_tplt.format(i + 1 + N_other, 2, "IID", data_persistence_types[persistence], delay_str))
-            else:
-                clients_config.append(json_tplt.format(i + 1 + N_other, 2, "non-IID", data_persistence_types[persistence], delay_str))
-        for i in range(N_low):
-            if i < N_low * N_iid / 100:
-                clients_config.append(json_tplt.format(i + 1 + N_high + N_other, 1, "IID", data_persistence_types[persistence], delay_str))
+                clients_config.append(
+                    json_tplt.format(i + 1 + N_other, 2, "IID", data_persistence_types[persistence], delay_str))
             else:
                 clients_config.append(
-                    json_tplt.format(i + 1 + N_high + N_other, 1, "non-IID", data_persistence_types[persistence], delay_str))
+                    json_tplt.format(i + 1 + N_other, 2, "non-IID", data_persistence_types[persistence], delay_str))
+        for i in range(N_low):
+            if i < N_low * N_iid / 100:
+                clients_config.append(
+                    json_tplt.format(i + 1 + N_high + N_other, 1, "IID", data_persistence_types[persistence],
+                                     delay_str))
+            else:
+                clients_config.append(
+                    json_tplt.format(i + 1 + N_high + N_other, 1, "non-IID", data_persistence_types[persistence],
+                                     delay_str))
         to_copy = to_copy.replace("**CLIENTS**", ",\n".join(clients_config))
 
         if len(sys.argv) > 7:
