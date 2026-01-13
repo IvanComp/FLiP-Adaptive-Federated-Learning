@@ -27,7 +27,9 @@ from torchtext.datasets import IMDB as TorchTextIMDB
 from torchtext.datasets import YahooAnswers as TorchTextYahooAnswers
 from torchtext.datasets import AG_NEWS as TorchTextAGNews
 from torchtext.data.utils import get_tokenizer
+
 from torchtext.vocab import build_vocab_from_iterator
+
 class TensorLabelDataset(Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
@@ -117,11 +119,30 @@ AVAILABLE_DATASETS = {
         "channels": 1,
         "num_classes": 2
     },
+
     "DBPEDIA": {
         "class": None,
         "normalize": ((0.0,), (1.0,)), 
         "channels": 1,
         "num_classes": 14
+    },
+    "SPEECHCOMMANDS": {
+        "class": None,
+        "normalize": None,
+        "channels": 1,
+        "num_classes": 30
+    },
+    "YESNO": {
+        "class": None,
+        "normalize": None,
+        "channels": 1,
+        "num_classes": 2
+    },
+    "CMUARCTIC": {
+        "class": None,
+        "normalize": None,
+        "channels": 1,
+        "num_classes": 4
     }
 }
 _orig_make_grid = vutils.make_grid
@@ -161,6 +182,14 @@ def normalize_dataset_name(name: str) -> str:
         return "YAHOOANSWERS"
     elif name_clean in ("AG_NEWS", "AGNEWS"):
         return "AG_NEWS"
+    elif name_clean in ("AG_NEWS", "AGNEWS"):
+        return "AG_NEWS"
+    elif name_clean == "SPEECHCOMMANDS":
+        return "SPEECHCOMMANDS"
+    elif name_clean == "YESNO":
+        return "YESNO"
+    elif name_clean == "CMUARCTIC":
+        return "CMUARCTIC"
     else:
         return name
 if os.path.exists(config_file):
@@ -258,6 +287,30 @@ class TextLSTM(nn.Module):
         else:
             hidden_combined = hidden[-1, :, :]
         return self.fc(hidden_combined)
+
+class M5(nn.Module):
+    def __init__(self, n_input=1, n_output=35, stride=16, n_channel=2):
+        super().__init__()
+        self.conv1 = nn.Conv1d(n_input, n_channel, kernel_size=80, stride=stride)
+        self.bn1 = nn.BatchNorm1d(n_channel)
+        self.pool1 = nn.MaxPool1d(4)
+        self.conv2 = nn.Conv1d(n_channel, n_channel, kernel_size=3)
+        self.bn2 = nn.BatchNorm1d(n_channel)
+        self.pool2 = nn.MaxPool1d(4)
+        self.fc1 = nn.Linear(n_channel, n_output)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = F.relu(self.bn1(x))
+        x = self.pool1(x)
+        x = self.conv2(x)
+        x = F.relu(self.bn2(x))
+        x = self.pool2(x)
+        x = F.avg_pool1d(x, x.shape[-1])
+        x = x.permute(0, 2, 1)
+        x = self.fc1(x)
+        return F.log_softmax(x, dim=2).squeeze(1)
+
 def get_weight_class_dynamic(model_name: str):
     weight_mapping = {
         "cnn": None,
@@ -394,8 +447,11 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
             num_classes=num_classes,
             num_layers=1,
             bidirectional=True,  
+
             dropout=0.2,  
         )
+    if name in ("m5", "m_5"):
+        return M5(n_input=1, n_output=num_classes)
     if not hasattr(models, name):
         raise ValueError(f"Modello '{model_name}' non in torchvision.models")
     constructor = getattr(models, name)
@@ -1124,6 +1180,286 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
              x = _encode_text(text)
              y = int(raw_label) - 1
              testset.append((x, y))
+        batch_size = int(client_config.get("batch_size", 64))
+    elif DATASET_NAME == "YESNO":
+        import torchaudio
+        from torchaudio.datasets import YESNO
+
+        data_root = "./data"
+        if not os.path.exists(data_root):
+             os.makedirs(data_root)
+
+        try:
+             full_ds = YESNO(root=data_root, download=True)
+        except Exception as e:
+             log(INFO, f"Error downloading YESNO: {e}")
+             raise e
+
+        max_len = 0
+        for i in range(len(full_ds)):
+             wf, _, _ = full_ds[i]
+             if wf.shape[1] > max_len: max_len = wf.shape[1]
+        
+        target_len = max_len 
+        
+        processed_data = []
+        for i in range(len(full_ds)):
+             wf, sr, labels = full_ds[i]
+             if wf.shape[1] < target_len:
+                 wf = F.pad(wf, (0, target_len - wf.shape[1]))
+             else:
+                 wf = wf[:, :target_len]
+             
+             y = labels[0]
+             processed_data.append((wf, y))
+        
+        random.seed(42)
+        random.shuffle(processed_data)
+        
+        split_idx = int(0.8 * len(processed_data))
+        trainset = processed_data[:split_idx]
+        testset = processed_data[split_idx:]
+        
+        batch_size = int(client_config.get("batch_size", 4)) 
+
+        batch_size = int(client_config.get("batch_size", 4))
+
+    elif DATASET_NAME == "CMUARCTIC":
+        import torchaudio
+        from torchaudio.datasets import CMUARCTIC
+        
+        data_root = "./data/cmu_arctic"
+        if not os.path.exists(data_root):
+            os.makedirs(data_root)
+
+        speakers = ["slt", "bdl", "clb", "rms"]
+        speaker_to_idx = {spk: i for i, spk in enumerate(speakers)}
+        
+        full_data = []
+        for spk in speakers:
+            try:
+                ds = CMUARCTIC(root=data_root, url=spk, download=True)
+                for i in range(len(ds)):
+                    # torchaudio CMUARCTIC return signature varies by version.
+                    # Usually: (waveform, sample_rate, transcript, utterance_id) -> 4 items
+                    # Safer to just take the first item as waveform
+                    item = ds[i]
+                    waveform = item[0] 
+                    full_data.append((waveform, speaker_to_idx[spk]))
+            except Exception as e:
+                log(INFO, f"Error loading CMUARCTIC speaker {spk}: {e}")
+
+        random.seed(42)
+        random.shuffle(full_data)
+        
+        new_sample_rate = 2000
+        transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
+        processed_data = []
+        target_len = 2000
+        
+        for wf, lbl in full_data:
+            wf = transform(wf)
+            if wf.shape[1] < target_len:
+                wf = F.pad(wf, (0, target_len - wf.shape[1]))
+            else:
+                wf = wf[:, :target_len]
+            processed_data.append((wf, lbl))
+            
+        split_idx = int(0.8 * len(processed_data))
+        trainset = processed_data[:split_idx]
+        testset = processed_data[split_idx:]
+        
+        batch_size = int(client_config.get("batch_size", 4))
+
+    elif DATASET_NAME == "SPEECHCOMMANDS":
+        # But wait, we need to know the *exact* set of combined labels present.
+        # Let's do a dynamic scan on training set to be safe and robust.
+        
+        train_iter = SubsetFSC("train")
+        valid_iter = SubsetFSC("valid")
+        test_iter = SubsetFSC("test")
+        
+        # Scan for labels
+        # Dataset item: (waveform, sample_rate, file_name, speaker_id, transcription, action, object, location)
+        # index 5, 6, 7 are action, object, location
+        
+        unique_labels = set()
+        # We can scan train_iter. But it might be slow if it opens files.
+        # FSC implementation in torchaudio usually reads a CSV. So it should be fast to just iterate the walker?
+        # Actually torchaudio datasets use a walker list. We can cheat and access it if we want speed,
+        # but let's just iterate a few or assume standard 31.
+        # Let's use the standard list above? It might be safer to dynamically build from train Set.
+        
+        # Optimized scan:
+        # subset._walker usually contains the metadata.
+        # For FSC: _walker is a list of indices or filenames?
+        # Let's just iterate.
+        pass
+        
+        # Re-defining intents list based on common FSC usage
+        # unique combinations of action, object, location
+        
+        known_intents = sorted([
+             "change language-none-none", "activate-music-none", "deactivate-lights-bedroom",
+             "increase-heat-kitchen", "decrease-heat-kitchen", "increase-heat-washroom",
+             "decrease-heat-washroom", "increase-heat-bedroom", "decrease-heat-bedroom", # Wait, bedroom heat?
+             # Let's just collect them dynamically to avoid errors.
+        ])
+        
+        # Dynamic collection
+        train_samples = []
+        for i in range(len(train_iter)):
+            item = train_iter[i]
+            # (waveform, sample_rate, transcript, speaker_id, action, object, location) -> verify signature
+            # Torchaudio 2.2.1 signature: 
+            # (waveform, sample_rate, fileid, speaker_id, transcription, action, object, location)
+            
+            action, obj, loc = item[5], item[6], item[7]
+            label_str = f"{action}-{obj}-{loc}"
+            unique_labels.add(label_str)
+            train_samples.append((item[0], label_str))
+            
+        labels = sorted(list(unique_labels))
+        label_to_index = {l: i for i, l in enumerate(labels)}
+        
+        new_sample_rate = 8000
+        transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
+        
+        MAX_SAMPLES = 20000 
+        
+        def _process_waveform(waveform, target_sr=new_sample_rate):
+            if waveform.shape[1] < target_sr: # 1 sec
+                 pass
+            # Resample? FSC is 16k usually.
+            # waveform shape (C, T)
+            
+            # Since we don't know original SR easily without checking item (it's in item[1]),
+            # let's assume 16k if standard.
+            # Actually item has it.
+            
+            # Simplified: assume we get waveform resampled if needed.
+            # Let's do it in the loop or collation.
+            return waveform
+
+        # Process train set
+        trainset = []
+        for wf, lbl_str in train_samples: # train_samples collected above
+             # Resample/Pad
+             if wf.shape[1] < 16000: # Original length check?
+                 pass 
+             
+             # Resample
+             wf = transform(wf)
+             
+             target_len = new_sample_rate
+             if wf.shape[1] < target_len:
+                 wf = F.pad(wf, (0, target_len - wf.shape[1]))
+             else:
+                 wf = wf[:, :target_len]
+                 
+             if lbl_str in label_to_index:
+                 trainset.append((wf, label_to_index[lbl_str]))
+
+        # Process test set
+        testset = []
+        test_limit = 2000
+        for i in range(len(test_iter)):
+             if i >= test_limit: break
+             item = test_iter[i]
+             wf = item[0]
+             # sr = item[1]
+             action, obj, loc = item[5], item[6], item[7]
+             lbl_str = f"{action}-{obj}-{loc}"
+             
+             if lbl_str not in label_to_index: continue # Should not happen if classes align
+             
+             wf = transform(wf)
+             target_len = new_sample_rate
+             if wf.shape[1] < target_len:
+                 wf = F.pad(wf, (0, target_len - wf.shape[1]))
+             else:
+                 wf = wf[:, :target_len]
+                 
+             testset.append((wf, label_to_index[lbl_str]))
+
+        batch_size = int(client_config.get("batch_size", 64))
+
+    elif DATASET_NAME == "SPEECHCOMMANDS":
+        import torchaudio
+        from torchaudio.datasets import SPEECHCOMMANDS
+
+        class SubsetSC(SPEECHCOMMANDS):
+            def __init__(self, subset: str = None):
+                super().__init__("./data", download=True)
+                def load_list(filename):
+                    filepath = os.path.join(self._path, filename)
+                    with open(filepath) as fileobj:
+                        return [os.path.normpath(os.path.join(self._path, line.strip())) for line in fileobj]
+                if subset == "validation":
+                    self._walker = load_list("validation_list.txt")
+                elif subset == "testing":
+                    self._walker = load_list("testing_list.txt")
+                elif subset == "training":
+                    excludes = load_list("validation_list.txt") + load_list("testing_list.txt")
+                    excludes = set(excludes)
+                    self._walker = [w for w in self._walker if w not in excludes]
+        
+
+        labels = ['backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow', 'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
+        try:
+             temp_train_iter = SubsetSC("training")
+             labels = sorted(list(set(datapoint[2] for datapoint in temp_train_iter)))
+        except:
+             pass
+        
+        label_to_index = {label: index for index, label in enumerate(labels)}
+
+        new_sample_rate = 8000
+        transform = torchaudio.transforms.Resample(orig_freq=16000, new_freq=new_sample_rate)
+        
+        MAX_SAMPLES = 20000 
+
+        def _process_waveform(waveform):
+            # waveform: (Channel, Time)
+            if waveform.shape[1] < 16000:
+                 # It might be short, it's fine, resample handles it
+                 pass
+
+            # Resample
+            if 16000 != new_sample_rate:
+                waveform = transform(waveform)
+            
+            # Pad/Truncate to 1s (8000 samples)
+            target_len = new_sample_rate
+            if waveform.shape[1] < target_len:
+                waveform = F.pad(waveform, (0, target_len - waveform.shape[1]))
+            else:
+                waveform = waveform[:, :target_len]
+            return waveform
+
+        def _yield_speech_data(split):
+             ds = SubsetSC(split)
+             for i in range(len(ds)):
+                  yield ds[i]
+
+        trainset = load_balanced_data(
+            _yield_speech_data("training"),
+            MAX_SAMPLES,
+            len(labels),
+            lambda x: label_to_index[x[2]], # x: (waveform, sample_rate, label, ...)
+            lambda x: (_process_waveform(x[0]), label_to_index[x[2]])
+        )
+
+        testset = []
+        test_limit = 2000
+        ds_test = SubsetSC("testing")
+        for i in range(len(ds_test)):
+             if i >= test_limit: break
+             waveform, sample_rate, label, _, _ = ds_test[i]
+             x = _process_waveform(waveform)
+             y = label_to_index[label]
+             testset.append((x, y))
+
         batch_size = int(client_config.get("batch_size", 64))
     else:
         base_size = {
