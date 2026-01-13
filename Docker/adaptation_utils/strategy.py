@@ -58,6 +58,9 @@ def get_activation_criteria(json_config, default_config):
     elif threshold_config['calculation_method'] == "contextual_bandit":
         return [ContextualBanditActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
                                                     alpha=threshold_config.get("alpha", 1.0))]
+    elif threshold_config['calculation_method'] == "contextual_bandit-local":
+        return [ContextualBanditLocalActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
+                                                    alpha=threshold_config.get("alpha", 1.0))]
     else:
         return [RandomActivationCriterion(pattern_name, metric_name, strategy_name, default_config)]
 
@@ -417,6 +420,9 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
 
     def __init__(self, pattern, metric, strategy_name, clients_config, alpha=1.0):
         self.alpha = alpha
+        
+        self._cached_time = None
+        self._cached_communication_time = None
 
         # two arms: 0 = OFF, 1 = ON
         self.arms = [0, 1]
@@ -440,16 +446,29 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         """
         model_type = args['model_type']
         new_aggregated_metrics = args['metrics']
+        last_round_time = args['time']
+        last_communication_time = args['communication_time']
         performed_rounds = len(new_aggregated_metrics[model_type]['val_f1'])
+        log(INFO, args)
 
         # TODO should be parametric w.r.t. metric name
         if performed_rounds < 1:
             return True, "Less than 1 round completed, keeping default config."
-
+        
         if performed_rounds >= 2:
-            delta_metrics = new_aggregated_metrics[model_type]['val_f1'][-1] - new_aggregated_metrics[model_type]['val_f1'][-2] 
+            if self.metric == 'time':
+                delta_metrics = - last_round_time + self._cached_time
+            elif self.metric == 'communication_time':
+                delta_metrics = (- last_communication_time + self._cached_communication_time) / max(self._cached_communication_time, 1e-6)
+            else:
+                delta_metrics = new_aggregated_metrics[model_type][self.metric][-1] - new_aggregated_metrics[model_type][self.metric][-2] 
             reward = delta_metrics
+            log(INFO, reward)
             self.update(reward)
+
+        if performed_rounds >= 1:
+            self._cached_time = last_round_time
+            self._cached_communication_time = last_communication_time
 
         context = self._extract_context(args)
         self._init_if_needed(context.shape[0])
@@ -462,7 +481,12 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
             uncertainty = self.alpha * np.sqrt(float(context.T @ A_inv @ context))
             scores[arm] = mean + uncertainty
 
-        chosen_arm = max(scores, key=scores.get)
+        best = max(scores.values())
+        best_arms = [a for a, s in scores.items() if s == best]
+        if performed_rounds <= 1:
+            chosen_arm = 1  # force one ON trial
+        else:
+            chosen_arm = np.random.choice(best_arms)
 
         # store decision for later update
         self._last_context = context
@@ -510,14 +534,156 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
         model_type = args['model_type']
         new_aggregated_metrics = args['metrics']
         metrics = self.metric.split(',')
-        last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}
+        last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics if 'time' not in m}
         last_round_time = args['time']
-        last_val_f1 = last_metrics['val_f1']
-        next_round = len(new_aggregated_metrics[model_type][metrics[0]]) + 1
+        last_communication_time = args['communication_time']
+        if self.metric == 'communication_time':
+            last_time_metric = last_communication_time
+        else:
+            last_time_metric = last_round_time
+        last_val_f1 = last_metrics.get('val_f1', 0.0)
+        next_round = len(new_aggregated_metrics[model_type]['val_f1']) + 1
 
         # adjust keys if naming differs in your codebase
         return np.array([
             next_round,
             last_val_f1,
-            last_round_time
+            last_time_metric
         ], dtype=float).reshape(-1, 1)
+
+class ContextualBanditLocalActivationCriterion(ActivationCriterion):
+    """
+    Contextual bandit (LinUCB) activation strategy for HDH.
+    One bandit per client, fully online.
+    """
+
+    def __init__(self, pattern, metric, strategy_name, clients_config, alpha=1.0):
+        self.alpha = alpha
+        self.arms = [0, 1]  # 0 = OFF, 1 = ON
+
+        # one bandit per client
+        self.bandits = {}  # client_id -> {A, b, d}
+
+        # stored for update step
+        self._last_context = {}
+        self._last_arm = {}
+        self._cached_time = None
+
+        super().__init__(pattern, metric, strategy_name, clients_config)
+
+    def __str__(self):
+        return f'Metric: {self.metric}, online learning (client-level) with alpha {self.alpha}'
+
+    # --------------------------------------------------
+    # DECISION
+    # --------------------------------------------------
+    def activate_pattern(self, args):
+        model_type = args['model_type']
+        new_aggregated_metrics = args['metrics']
+
+        performed_rounds = len(new_aggregated_metrics[model_type]['val_f1'])
+        if performed_rounds < 1:
+            return True, "Less than 1 round completed, keeping default config."
+
+        last_round_time = args['time']
+        # reward from previous round (global signal)
+        if performed_rounds >= 2:
+            delta_f1 = (
+                new_aggregated_metrics[model_type]['val_f1'][-1]
+                - new_aggregated_metrics[model_type]['val_f1'][-2]
+            )
+            delta_time = last_round_time - self._cached_time
+            lambda_cost = 0.0001  # example value
+            reward = delta_f1 - lambda_cost * delta_time
+            self._update_all(reward)
+            log(INFO, reward)
+
+        if performed_rounds >= 1:
+            self._cached_time = last_round_time
+            
+
+        metrics = self.metric.split(',')
+        last_metrics = {m: new_aggregated_metrics[model_type][m][-1] for m in metrics}
+        last_val_f1 = last_metrics['val_f1']
+        next_round = performed_rounds + 1
+
+        enabled_clients = []
+
+        for client_i in range(len(self.clients_config['client_details'])):
+            last_jsd = last_metrics['jsd'][client_i]
+            context = self._extract_context(next_round, last_jsd, last_val_f1)
+
+            self._init_client_if_needed(client_i, context.shape[0])
+
+            scores = {}
+            bandit = self.bandits[client_i]
+
+            for arm in self.arms:
+                A_inv = np.linalg.inv(bandit['A'][arm])
+                theta = A_inv @ bandit['b'][arm]
+                mean = float(theta.T @ context)
+                uncertainty = self.alpha * np.sqrt(float(context.T @ A_inv @ context))
+                scores[arm] = mean + uncertainty
+
+            chosen_arm = max(scores, key=scores.get)
+
+            # store decision for update
+            self._last_context[client_i] = context
+            self._last_arm[client_i] = chosen_arm
+
+            if chosen_arm == 1:
+                enabled_clients.append(f"Client {client_i + 1}")
+
+        if not enabled_clients:
+            return False, None, f'{self.pattern} de-activated ❌'
+        else:
+            return True, {"enabled_clients": enabled_clients}, (
+                f'{self.pattern} activated ✅ for clients: {enabled_clients}'
+            )
+
+    # --------------------------------------------------
+    # ONLINE UPDATE
+    # --------------------------------------------------
+    def _update_all(self, reward: float):
+        """
+        Update all client-level bandits with the observed reward.
+        """
+        for client_i in list(self._last_context.keys()):
+            x = self._last_context[client_i]
+            arm = self._last_arm[client_i]
+
+            bandit = self.bandits[client_i]
+            bandit['A'][arm] += x @ x.T
+            bandit['b'][arm] += reward * x
+
+        self._last_context.clear()
+        self._last_arm.clear()
+
+    # --------------------------------------------------
+    # INTERNALS
+    # --------------------------------------------------
+    def _init_client_if_needed(self, client_i, context_dim):
+        if client_i not in self.bandits:
+            self.bandits[client_i] = {
+                'd': context_dim,
+                'A': {
+                    arm: np.identity(context_dim) for arm in self.arms
+                },
+                'b': {
+                    arm: np.zeros((context_dim, 1)) for arm in self.arms
+                }
+            }
+
+    def _extract_context(self, next_round, last_jsd, last_val_f1):
+        """
+        Context vector for HDH.
+        Mirrors BO features without offline scaling.
+        """
+        return np.array(
+            [
+                next_round,
+                last_jsd,
+                last_val_f1
+            ],
+            dtype=float
+        ).reshape(-1, 1)

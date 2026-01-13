@@ -619,7 +619,8 @@ class MultiModelStrategy(Strategy):
         shutil.copy(csv_file, round_csv)
 
         log(INFO, metrics_history)
-        next_round_config = self.adapt_mgr.config_next_round(metrics_history, round_total_time)
+        next_round_config = self.adapt_mgr.config_next_round(metrics_history, 
+                                                             {"round": round_total_time, "communication": communication_time})
         config_patterns(next_round_config)
 
         return self.parameters_a, metrics_aggregated

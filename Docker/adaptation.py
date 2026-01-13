@@ -81,7 +81,7 @@ class AdaptationManager:
                     config['patterns'][pattern]['params'] = new_config['patterns'][pattern]['params']
             json.dump(config, open(config_file, 'w'), indent=4)
 
-    def config_next_round(self, new_aggregated_metrics, last_round_time):
+    def config_next_round(self, new_aggregated_metrics, time_metrics):
         if self.enabled:
             log(INFO, f"{self.name}: Configuring next round...")
             log(INFO, self.default_config["patterns"])
@@ -93,7 +93,9 @@ class AdaptationManager:
 
         for p_i, pattern in enumerate(self.patterns):
             if self.default_config["patterns"][pattern]['enabled'] and pattern in self.adaptation_criteria:
-                args = {"model_type": self.model_type, "metrics": new_aggregated_metrics, "time": last_round_time}
+                args = {"model_type": self.model_type, "metrics": new_aggregated_metrics, 
+                        "time": time_metrics["round"], 
+                        "communication_time": time_metrics["communication"],}
                 # FIXME: activation criteria may change from pattern to pattern
                 activate, args, expl = self.adaptation_criteria[pattern].activate_pattern(args)
 
