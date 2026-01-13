@@ -9,19 +9,32 @@ persistence = sys.argv[5]
 delay = sys.argv[6].lower()=='yes'
 data_persistence_types = {'new': 'New Data', 'same': 'Same Data', 'remove': 'Remove Data'}
 
-N_other = 22
+N_other = 0
 
-json_tplt = """{{
-            \"client_id\": {},
-            \"cpu\": {},
-            \"ram\": 4,
-            \"dataset\": \"AGNEWS\",
-            \"data_distribution_type\": \"{}\",
-            \"data_persistence_type\": \"{}\",
-            \"delay_combobox\": \"{}\",
-            \"model\": \"TextMLP\",
-            \"epochs\": 1
-        }}"""
+if 'text' in sys.argv[1]:
+    json_tplt = """{{
+                \"client_id\": {},
+                \"cpu\": {},
+                \"ram\": 4,
+                \"dataset\": \"AGNEWS\",
+                \"data_distribution_type\": \"{}\",
+                \"data_persistence_type\": \"{}\",
+                \"delay_combobox\": \"{}\",
+                \"model\": \"TextMLP\",
+                \"epochs\": 1
+            }}"""
+else:
+    json_tplt = """{{
+                \"client_id\": {},
+                \"cpu\": {},
+                \"ram\": 4,
+                \"dataset\": \"CIFAR10\",
+                \"data_distribution_type\": \"{}\",
+                \"data_persistence_type\": \"{}\",
+                \"delay_combobox\": \"{}\",
+                \"model\": \"CNN 16k\",
+                \"epochs\": 1
+            }}"""
 
 with open("configuration/config.json", "w") as config_file:
     with open("configuration/{}.json".format(sys.argv[1]), "r") as default_config_file:
@@ -65,14 +78,14 @@ docker_client_tplt = """  {}:
     cpus: {}
     cpuset: \"{}\"
     depends_on:
-      - server2
+      - server
     environment:
       CLIENT_ID: '{}'
       DELAY_FLAG: '{}'
       NUM_CPUS: '{}'
       NUM_RAM: '4'
       NUM_ROUNDS: '20'
-      SERVER_ADDRESS: server2:8081
+      SERVER_ADDRESS: server:8080
     labels:
       - type=client
     mem_limit: 4g
