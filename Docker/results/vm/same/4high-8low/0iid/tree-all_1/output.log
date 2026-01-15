@@ -1,0 +1,628 @@
+==========================================
+  ___  ______  ___ ______       _ 
+ / _ \ | ___ \/   ||  ___|     | |
+/ /_\ \| |_/ / /| || |_ ___  __| |
+|  _  ||  __/ /_| ||  _/ _ \/ _` |
+| | | || |  \___  || ||  __/ (_| |
+\_| |_/\_|      |_/\_| \___|\__,_| v.1.5.0
+
+==========================================
+Simulation Started!
+List of the Architectural Patterns enabled:
+Adaptation Enabled ✅
+Metric: val_f1, predictor-based: predictors/f1overtime_tree_selector_1720.pkl
+Metric: val_f1,jsd, local predictor-based: predictors/f1overtime_tree_hdh_3990.pkl
+Client Registry ✅
+Client Selector ✅
+ AP Parameters: {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}
+Heterogeneous Data Handler ✅
+ AP Parameters: {'enabled_clients': []}
+==========================================
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 134.78 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958], 'train_accuracy': [0.4866], 'train_f1': [0.34952275854822706], 'train_mae': [1.80734], 'val_loss': [2.6574760881900787], 'val_accuracy': [0.3233], 'val_f1': [0.26421842915613286], 'val_mae': [2.462275], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0023 vs w:0.0026, client_selector de-activated ❌
+client 23, predicted wo:0.0760 vs w:0.0786
+client 24, predicted wo:0.0760 vs w:0.0786
+client 25, predicted wo:0.0760 vs w:0.0786
+client 26, predicted wo:0.0760 vs w:0.0786
+client 27, predicted wo:0.0760 vs w:0.0786
+client 28, predicted wo:0.0760 vs w:0.0786
+client 29, predicted wo:0.0760 vs w:0.0786
+client 30, predicted wo:0.0760 vs w:0.0786
+client 31, predicted wo:0.0760 vs w:0.0786
+client 32, predicted wo:0.0760 vs w:0.0786
+client 33, predicted wo:0.0760 vs w:0.0786
+client 34, predicted wo:0.0760 vs w:0.0786
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Results Aggregated in 84.98 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794], 'train_accuracy': [0.4866, 0.4319296296296296], 'train_f1': [0.34952275854822706, 0.39804550378943826], 'train_mae': [1.80734, 1.9224925925925926], 'val_loss': [2.6574760881900787, 2.463450588655472], 'val_accuracy': [0.3233, 0.37171666666666664], 'val_f1': [0.26421842915613286, 0.3170500411600223], 'val_mae': [2.462275, 2.3795083333333333], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.1140 vs w:0.1140
+client 24, predicted wo:0.1140 vs w:0.1140
+client 25, predicted wo:0.1140 vs w:0.1140
+client 26, predicted wo:0.1140 vs w:0.1140
+client 27, predicted wo:0.1140 vs w:0.1140
+client 28, predicted wo:0.1140 vs w:0.1140
+client 29, predicted wo:0.1140 vs w:0.1140
+client 30, predicted wo:0.1140 vs w:0.1140
+client 31, predicted wo:0.1140 vs w:0.1140
+client 32, predicted wo:0.1140 vs w:0.1140
+client 33, predicted wo:0.1140 vs w:0.1140
+client 34, predicted wo:0.1140 vs w:0.1140
+heterogeneous_data_handler de-activated ❌
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 17.12 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374], 'val_mae': [2.462275, 2.3795083333333333, 2.163025], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.1140 vs w:0.1140
+client 24, predicted wo:0.1140 vs w:0.1140
+client 25, predicted wo:0.1140 vs w:0.1140
+client 26, predicted wo:0.1140 vs w:0.1140
+client 27, predicted wo:0.1140 vs w:0.1140
+client 28, predicted wo:0.1140 vs w:0.1140
+client 29, predicted wo:0.1140 vs w:0.1140
+client 30, predicted wo:0.1140 vs w:0.1140
+client 31, predicted wo:0.1140 vs w:0.1140
+client 32, predicted wo:0.1140 vs w:0.1140
+client 33, predicted wo:0.1140 vs w:0.1140
+client 34, predicted wo:0.1140 vs w:0.1140
+heterogeneous_data_handler de-activated ❌
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 17.97 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.1140 vs w:0.1140
+client 24, predicted wo:0.1140 vs w:0.1140
+client 25, predicted wo:0.1140 vs w:0.1140
+client 26, predicted wo:0.1140 vs w:0.1140
+client 27, predicted wo:0.1140 vs w:0.1140
+client 28, predicted wo:0.1140 vs w:0.1140
+client 29, predicted wo:0.1140 vs w:0.1140
+client 30, predicted wo:0.1140 vs w:0.1140
+client 31, predicted wo:0.1140 vs w:0.1140
+client 32, predicted wo:0.1140 vs w:0.1140
+client 33, predicted wo:0.1140 vs w:0.1140
+client 34, predicted wo:0.1140 vs w:0.1140
+heterogeneous_data_handler de-activated ❌
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 16.33 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.1140 vs w:0.1140
+client 24, predicted wo:0.1140 vs w:0.1140
+client 25, predicted wo:0.1140 vs w:0.1140
+client 26, predicted wo:0.1140 vs w:0.1140
+client 27, predicted wo:0.1140 vs w:0.1140
+client 28, predicted wo:0.1140 vs w:0.1140
+client 29, predicted wo:0.1140 vs w:0.1140
+client 30, predicted wo:0.1140 vs w:0.1140
+client 31, predicted wo:0.1140 vs w:0.1140
+client 32, predicted wo:0.1140 vs w:0.1140
+client 33, predicted wo:0.1140 vs w:0.1140
+client 34, predicted wo:0.1140 vs w:0.1140
+heterogeneous_data_handler de-activated ❌
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 17.00 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.1140 vs w:0.1140
+client 24, predicted wo:0.1140 vs w:0.1140
+client 25, predicted wo:0.1140 vs w:0.1140
+client 26, predicted wo:0.1140 vs w:0.1140
+client 27, predicted wo:0.1140 vs w:0.1140
+client 28, predicted wo:0.1140 vs w:0.1140
+client 29, predicted wo:0.1140 vs w:0.1140
+client 30, predicted wo:0.1140 vs w:0.1140
+client 31, predicted wo:0.1140 vs w:0.1140
+client 32, predicted wo:0.1140 vs w:0.1140
+client 33, predicted wo:0.1140 vs w:0.1140
+client 34, predicted wo:0.1140 vs w:0.1140
+heterogeneous_data_handler de-activated ❌
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 16.85 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.2590 vs w:0.2590
+client 24, predicted wo:0.2590 vs w:0.2590
+client 25, predicted wo:0.2590 vs w:0.2590
+client 26, predicted wo:0.2590 vs w:0.2590
+client 27, predicted wo:0.2590 vs w:0.2590
+client 28, predicted wo:0.2590 vs w:0.2590
+client 29, predicted wo:0.2590 vs w:0.2590
+client 30, predicted wo:0.2590 vs w:0.2590
+client 31, predicted wo:0.2590 vs w:0.2590
+client 32, predicted wo:0.2590 vs w:0.2590
+client 33, predicted wo:0.2590 vs w:0.2590
+client 34, predicted wo:0.2590 vs w:0.2590
+heterogeneous_data_handler de-activated ❌
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 17.24 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.2527 vs w:0.2527
+client 24, predicted wo:0.2527 vs w:0.2527
+client 25, predicted wo:0.2527 vs w:0.2527
+client 26, predicted wo:0.2527 vs w:0.2527
+client 27, predicted wo:0.2527 vs w:0.2527
+client 28, predicted wo:0.2527 vs w:0.2527
+client 29, predicted wo:0.2527 vs w:0.2527
+client 30, predicted wo:0.2527 vs w:0.2527
+client 31, predicted wo:0.2527 vs w:0.2527
+client 32, predicted wo:0.2527 vs w:0.2527
+client 33, predicted wo:0.2527 vs w:0.2527
+client 34, predicted wo:0.2527 vs w:0.2527
+heterogeneous_data_handler de-activated ❌
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 16.80 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.2965 vs w:0.2913
+client 24, predicted wo:0.2965 vs w:0.2913
+client 25, predicted wo:0.2965 vs w:0.2913
+client 26, predicted wo:0.2965 vs w:0.2913
+client 27, predicted wo:0.2965 vs w:0.2913
+client 28, predicted wo:0.2965 vs w:0.2913
+client 29, predicted wo:0.2965 vs w:0.2913
+client 30, predicted wo:0.2965 vs w:0.2913
+client 31, predicted wo:0.2965 vs w:0.2913
+client 32, predicted wo:0.2965 vs w:0.2913
+client 33, predicted wo:0.2965 vs w:0.2913
+client 34, predicted wo:0.2965 vs w:0.2913
+heterogeneous_data_handler de-activated ❌
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 16.20 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3281 vs w:0.3281
+client 24, predicted wo:0.3281 vs w:0.3281
+client 25, predicted wo:0.3281 vs w:0.3281
+client 26, predicted wo:0.3281 vs w:0.3281
+client 27, predicted wo:0.3281 vs w:0.3281
+client 28, predicted wo:0.3281 vs w:0.3281
+client 29, predicted wo:0.3281 vs w:0.3281
+client 30, predicted wo:0.3281 vs w:0.3281
+client 31, predicted wo:0.3281 vs w:0.3281
+client 32, predicted wo:0.3281 vs w:0.3281
+client 33, predicted wo:0.3281 vs w:0.3281
+client 34, predicted wo:0.3281 vs w:0.3281
+heterogeneous_data_handler de-activated ❌
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 17.12 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.2883 vs w:0.2883
+client 24, predicted wo:0.2883 vs w:0.2883
+client 25, predicted wo:0.2883 vs w:0.2883
+client 26, predicted wo:0.2883 vs w:0.2883
+client 27, predicted wo:0.2883 vs w:0.2883
+client 28, predicted wo:0.2883 vs w:0.2883
+client 29, predicted wo:0.2883 vs w:0.2883
+client 30, predicted wo:0.2883 vs w:0.2883
+client 31, predicted wo:0.2883 vs w:0.2883
+client 32, predicted wo:0.2883 vs w:0.2883
+client 33, predicted wo:0.2883 vs w:0.2883
+client 34, predicted wo:0.2883 vs w:0.2883
+heterogeneous_data_handler de-activated ❌
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 16.70 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3344 vs w:0.3929
+client 24, predicted wo:0.3344 vs w:0.3929
+client 25, predicted wo:0.3344 vs w:0.3929
+client 26, predicted wo:0.3344 vs w:0.3929
+client 27, predicted wo:0.3344 vs w:0.3929
+client 28, predicted wo:0.3344 vs w:0.3929
+client 29, predicted wo:0.3344 vs w:0.3929
+client 30, predicted wo:0.3344 vs w:0.3929
+client 31, predicted wo:0.3344 vs w:0.3929
+client 32, predicted wo:0.3344 vs w:0.3929
+client 33, predicted wo:0.3344 vs w:0.3929
+client 34, predicted wo:0.3344 vs w:0.3929
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 19.41 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3344 vs w:0.4109
+client 24, predicted wo:0.3344 vs w:0.4109
+client 25, predicted wo:0.3344 vs w:0.4109
+client 26, predicted wo:0.3344 vs w:0.4109
+client 27, predicted wo:0.3344 vs w:0.4109
+client 28, predicted wo:0.3344 vs w:0.4109
+client 29, predicted wo:0.3344 vs w:0.4109
+client 30, predicted wo:0.3344 vs w:0.4109
+client 31, predicted wo:0.3344 vs w:0.4109
+client 32, predicted wo:0.3344 vs w:0.4109
+client 33, predicted wo:0.3344 vs w:0.4109
+client 34, predicted wo:0.3344 vs w:0.4109
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 17.50 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3589 vs w:0.4109
+client 24, predicted wo:0.3589 vs w:0.4109
+client 25, predicted wo:0.3589 vs w:0.4109
+client 26, predicted wo:0.3589 vs w:0.4109
+client 27, predicted wo:0.3589 vs w:0.4109
+client 28, predicted wo:0.3589 vs w:0.4109
+client 29, predicted wo:0.3589 vs w:0.4109
+client 30, predicted wo:0.3589 vs w:0.4109
+client 31, predicted wo:0.3589 vs w:0.4109
+client 32, predicted wo:0.3589 vs w:0.4109
+client 33, predicted wo:0.3589 vs w:0.4109
+client 34, predicted wo:0.3589 vs w:0.4109
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Results Aggregated in 18.41 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887, 1.1432185214996338], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334, 0.5475111111111111], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063, 0.5399497280500807], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334, 1.6188444444444445], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464, 2.3455688859939574], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475, 0.507625], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557, 0.47531942901605906], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525, 1.837225], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3589 vs w:0.4109
+client 24, predicted wo:0.3589 vs w:0.4109
+client 25, predicted wo:0.3589 vs w:0.4109
+client 26, predicted wo:0.3589 vs w:0.4109
+client 27, predicted wo:0.3589 vs w:0.4109
+client 28, predicted wo:0.3589 vs w:0.4109
+client 29, predicted wo:0.3589 vs w:0.4109
+client 30, predicted wo:0.3589 vs w:0.4109
+client 31, predicted wo:0.3589 vs w:0.4109
+client 32, predicted wo:0.3589 vs w:0.4109
+client 33, predicted wo:0.3589 vs w:0.4109
+client 34, predicted wo:0.3589 vs w:0.4109
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 17.79 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887, 1.1432185214996338, 1.1455703243520525], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334, 0.5475111111111111, 0.5455222222222222], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063, 0.5399497280500807, 0.5396167510172964], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334, 1.6188444444444445, 1.7363111111111111], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464, 2.3455688859939574, 2.4108882964134217], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475, 0.507625, 0.4989], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557, 0.47531942901605906, 0.47003269619095467], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525, 1.837225, 1.8352], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3635 vs w:0.4217
+client 24, predicted wo:0.3635 vs w:0.4217
+client 25, predicted wo:0.3635 vs w:0.4217
+client 26, predicted wo:0.3635 vs w:0.4217
+client 27, predicted wo:0.3635 vs w:0.4217
+client 28, predicted wo:0.3635 vs w:0.4217
+client 29, predicted wo:0.3635 vs w:0.4217
+client 30, predicted wo:0.3635 vs w:0.4217
+client 31, predicted wo:0.3635 vs w:0.4217
+client 32, predicted wo:0.3635 vs w:0.4217
+client 33, predicted wo:0.3635 vs w:0.4217
+client 34, predicted wo:0.3635 vs w:0.4217
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 18.03 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887, 1.1432185214996338, 1.1455703243520525, 1.1330557896163729], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334, 0.5475111111111111, 0.5455222222222222, 0.5514555555555556], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063, 0.5399497280500807, 0.5396167510172964, 0.5486415840439614], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334, 1.6188444444444445, 1.7363111111111111, 1.6092666666666666], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464, 2.3455688859939574, 2.4108882964134217, 2.3572145547866823], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475, 0.507625, 0.4989, 0.504425], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557, 0.47531942901605906, 0.47003269619095467, 0.47422683024089557], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525, 1.837225, 1.8352, 1.833975], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3903 vs w:0.3724
+client 24, predicted wo:0.3903 vs w:0.3724
+client 25, predicted wo:0.3903 vs w:0.3724
+client 26, predicted wo:0.3903 vs w:0.3724
+client 27, predicted wo:0.3903 vs w:0.3724
+client 28, predicted wo:0.3903 vs w:0.3724
+client 29, predicted wo:0.3903 vs w:0.3724
+client 30, predicted wo:0.3903 vs w:0.3724
+client 31, predicted wo:0.3903 vs w:0.3724
+client 32, predicted wo:0.3903 vs w:0.3724
+client 33, predicted wo:0.3903 vs w:0.3724
+client 34, predicted wo:0.3903 vs w:0.3724
+heterogeneous_data_handler de-activated ❌
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 16.80 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887, 1.1432185214996338, 1.1455703243520525, 1.1330557896163729, 1.1118803211450576], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334, 0.5475111111111111, 0.5455222222222222, 0.5514555555555556, 0.5603944444444444], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063, 0.5399497280500807, 0.5396167510172964, 0.5486415840439614, 0.5538924121219431], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334, 1.6188444444444445, 1.7363111111111111, 1.6092666666666666, 1.5773722222222222], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464, 2.3455688859939574, 2.4108882964134217, 2.3572145547866823, 2.3268672222852707], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475, 0.507625, 0.4989, 0.504425, 0.507025], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557, 0.47531942901605906, 0.47003269619095467, 0.47422683024089557, 0.47376323528009234], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525, 1.837225, 1.8352, 1.833975, 1.800025], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3813 vs w:0.3724
+client 24, predicted wo:0.3813 vs w:0.3724
+client 25, predicted wo:0.3813 vs w:0.3724
+client 26, predicted wo:0.3813 vs w:0.3724
+client 27, predicted wo:0.3813 vs w:0.3724
+client 28, predicted wo:0.3813 vs w:0.3724
+client 29, predicted wo:0.3813 vs w:0.3724
+client 30, predicted wo:0.3813 vs w:0.3724
+client 31, predicted wo:0.3813 vs w:0.3724
+client 32, predicted wo:0.3813 vs w:0.3724
+client 33, predicted wo:0.3813 vs w:0.3724
+client 34, predicted wo:0.3813 vs w:0.3724
+heterogeneous_data_handler de-activated ❌
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 18.34 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887, 1.1432185214996338, 1.1455703243520525, 1.1330557896163729, 1.1118803211450576, 1.1098176990773942], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334, 0.5475111111111111, 0.5455222222222222, 0.5514555555555556, 0.5603944444444444, 0.5625666666666668], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063, 0.5399497280500807, 0.5396167510172964, 0.5486415840439614, 0.5538924121219431, 0.5549773541652968], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334, 1.6188444444444445, 1.7363111111111111, 1.6092666666666666, 1.5773722222222222, 1.6344833333333333], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464, 2.3455688859939574, 2.4108882964134217, 2.3572145547866823, 2.3268672222852707, 2.300245189476013], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475, 0.507625, 0.4989, 0.504425, 0.507025, 0.505875], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557, 0.47531942901605906, 0.47003269619095467, 0.47422683024089557, 0.47376323528009234, 0.4744430184054473], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525, 1.837225, 1.8352, 1.833975, 1.800025, 1.807875], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3862 vs w:0.4260
+client 24, predicted wo:0.3862 vs w:0.4260
+client 25, predicted wo:0.3862 vs w:0.4260
+client 26, predicted wo:0.3862 vs w:0.4260
+client 27, predicted wo:0.3862 vs w:0.4260
+client 28, predicted wo:0.3862 vs w:0.4260
+client 29, predicted wo:0.3862 vs w:0.4260
+client 30, predicted wo:0.3862 vs w:0.4260
+client 31, predicted wo:0.3862 vs w:0.4260
+client 32, predicted wo:0.3862 vs w:0.4260
+client 33, predicted wo:0.3862 vs w:0.4260
+client 34, predicted wo:0.3862 vs w:0.4260
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
+Client Client 23 participates in this round. (CPU: 2, RAM: 4)
+Client Client 24 participates in this round. (CPU: 2, RAM: 4)
+Client Client 26 participates in this round. (CPU: 2, RAM: 4)
+Client Client 27 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 33 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 32 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 29 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 34 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 28 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 25 participates in this round. (CPU: 2, RAM: 4)
+Client Client 30 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 31 has insufficient CPU (1). Will not participate in the next FL round.
+Results Aggregated in 18.20 seconds.
+{'CNN 16k': {'train_loss': [1.430082700881958, 1.4285226572866794, 1.421495935424169, 1.3758610803339217, 1.323767439863417, 1.2949697138150533, 1.2672200426260631, 1.2567495593971676, 1.2266334377553727, 1.218972131175465, 1.197410370704863, 1.1899154022455216, 1.1579030764844682, 1.1585373154083887, 1.1432185214996338, 1.1455703243520525, 1.1330557896163729, 1.1118803211450576, 1.1098176990773942, 1.096487885289722], 'train_accuracy': [0.4866, 0.4319296296296296, 0.4398388888888889, 0.45726666666666665, 0.4765333333333333, 0.48861666666666664, 0.5022166666666666, 0.5062055555555556, 0.5157888888888889, 0.5171222222222223, 0.5263444444444444, 0.5318111111111111, 0.5415277777777778, 0.5439333333333334, 0.5475111111111111, 0.5455222222222222, 0.5514555555555556, 0.5603944444444444, 0.5625666666666668, 0.5665888888888889], 'train_f1': [0.34952275854822706, 0.39804550378943826, 0.41358198054411455, 0.4463945004311255, 0.4655218294918437, 0.47840295001650457, 0.5007375032911167, 0.49451979554078507, 0.5076609606120198, 0.5157753907969509, 0.5145909411639519, 0.5243102381884169, 0.5341856383656272, 0.5381608954483063, 0.5399497280500807, 0.5396167510172964, 0.5486415840439614, 0.5538924121219431, 0.5549773541652968, 0.5632676092180751], 'train_mae': [1.80734, 1.9224925925925926, 2.0187222222222223, 1.8888833333333332, 1.858538888888889, 1.7776222222222222, 1.7341944444444444, 1.7578888888888888, 1.7913722222222221, 1.6578666666666666, 1.7335944444444444, 1.7003333333333333, 1.5928555555555555, 1.6194833333333334, 1.6188444444444445, 1.7363111111111111, 1.6092666666666666, 1.5773722222222222, 1.6344833333333333, 1.6138222222222223], 'val_loss': [2.6574760881900787, 2.463450588655472, 2.2801520067691805, 2.2831295459747314, 2.283558116722107, 2.329052103042603, 2.328950615930557, 2.3571651117801666, 2.3222072278499604, 2.334131455421448, 2.3364593835353853, 2.334163272356987, 2.2976228254795075, 2.3473260426044464, 2.3455688859939574, 2.4108882964134217, 2.3572145547866823, 2.3268672222852707, 2.300245189476013, 2.3600415908813477], 'val_accuracy': [0.3233, 0.37171666666666664, 0.424275, 0.44795, 0.463225, 0.4682, 0.483275, 0.482925, 0.491925, 0.491125, 0.494075, 0.49715, 0.50255, 0.503475, 0.507625, 0.4989, 0.504425, 0.507025, 0.505875, 0.5102], 'val_f1': [0.26421842915613286, 0.3170500411600223, 0.3796455566686374, 0.41069411427876223, 0.4271265545403476, 0.4324988570277064, 0.4530263839917065, 0.450634345446549, 0.4601966202064886, 0.46109678575104934, 0.45850508576629107, 0.4642694516384179, 0.47100155006889366, 0.4758037267936557, 0.47531942901605906, 0.47003269619095467, 0.47422683024089557, 0.47376323528009234, 0.4744430184054473, 0.48088267817291763], 'val_mae': [2.462275, 2.3795083333333333, 2.163025, 2.00445, 2.0315, 1.914575, 1.88645, 1.896275, 1.8323, 1.863125, 1.85485, 1.821725, 1.816025, 1.779525, 1.837225, 1.8352, 1.833975, 1.800025, 1.807875, 1.813], 'jsd': [(0, 0, 0, 0, 0, 0, 0, 0, 0.10183030497959977, 0.09715030499075647, 0.1398600060747966, 0.13021109898673217), (0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516), (0, 0, 0, 0, 0, 0, 0, 0, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516, 0.051899160321315516)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': False, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': False}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']}}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0021 vs w:0.0021, client_selector activated ✅
+client 23, predicted wo:0.3862 vs w:0.4260
+client 24, predicted wo:0.3862 vs w:0.4260
+client 25, predicted wo:0.3862 vs w:0.4260
+client 26, predicted wo:0.3862 vs w:0.4260
+client 27, predicted wo:0.3862 vs w:0.4260
+client 28, predicted wo:0.3862 vs w:0.4260
+client 29, predicted wo:0.3862 vs w:0.4260
+client 30, predicted wo:0.3862 vs w:0.4260
+client 31, predicted wo:0.3862 vs w:0.4260
+client 32, predicted wo:0.3862 vs w:0.4260
+client 33, predicted wo:0.3862 vs w:0.4260
+client 34, predicted wo:0.3862 vs w:0.4260
+heterogeneous_data_handler activated ✅ for clients: ['Client 23', 'Client 24', 'Client 25', 'Client 26', 'Client 27', 'Client 28', 'Client 29', 'Client 30', 'Client 31', 'Client 32', 'Client 33', 'Client 34']
