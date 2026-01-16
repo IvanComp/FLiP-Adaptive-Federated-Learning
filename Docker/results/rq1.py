@@ -72,6 +72,7 @@ metric = {('all', 'same'): 'Cumulative F1',
           ('hdh-text', 'same'): 'Cumulative F1',
           ('hdh-text', 'new'): 'Cumulative F1',
           ('compressor', 'same'): 'Cumulative Communication Time',
+          ('compressor-2', 'same'): 'Total Time of FL Round',
           ('compressor-delay', 'same'): 'Cumulative Communication Time',
           ('compressor-text', 'same'): 'Cumulative Communication Time',
           ('compressor-text-delay', 'same'): 'Cumulative Communication Time',
@@ -89,10 +90,11 @@ metric_per_round = {('all', 'same'): 'Cumulative F1',
                     ('hdh', 'new'): 'Cumulative F1',
                     ('hdh-text', 'same'): 'Cumulative F1',
                     ('hdh-text', 'new'): 'Cumulative F1',
-                    ('compressor', 'same'): 'Cumulative Communication Time',
-                    ('compressor-delay', 'same'): 'Cumulative Communication Time',
-                    ('compressor-text', 'same'): 'Cumulative Communication Time',
-                    ('compressor-text-delay', 'same'): 'Cumulative Communication Time'
+                    ('compressor', 'same'): 'Total Time of FL Round',
+                    ('compressor-2', 'same'): 'Total Time of FL Round',
+                    ('compressor-delay', 'same'): 'Total Time of FL Round',
+                    ('compressor-text', 'same'): 'Total Time of FL Round',
+                    ('compressor-text-delay', 'same'): 'Total Time of FL Round'
                     }
 
 should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1', 'Cumulative F1']
@@ -138,6 +140,9 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('compressor', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                        r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                        r'$\mathrm{FliP_{online}}$'],
+              ('compressor-2', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                         r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                         r'$\mathrm{FliP_{online}}$'],
               ('compressor-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                              r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                              r'$\mathrm{FliP_{online}}$'],
@@ -149,9 +154,7 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
                                                   r'$\mathrm{FliP_{online}}$'],
               }
 
-patterns = ['selector', 'hdh', 'selector-text', 'hdh-text']
-# ['all-text', 'selector-text', 'selector', 'hdh', 'hdh-text'] #, 'compressor-text',
-# 'compressor-text-delay', 'selector', 'hdh', 'compressor', 'compressor-delay']
+patterns = ['selector', 'hdh']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -171,6 +174,7 @@ filters = {
     'hdh': [filter_4],
     'hdh-text': [filter_4],
     'compressor': [filter_4],
+    'compressor-2': [filter_4],
     'compressor-text': [filter_4],
     'compressor-delay': [filter_4],
     'compressor-text-delay': [filter_4]
@@ -300,6 +304,72 @@ def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
                 dpi=300, bbox_inches='tight')
 
 
+def adjacent_values(sorted_vals, q1, q3):
+    """
+    Compute Tukey whiskers (1.5 IQR rule).
+    """
+    iqr = q3 - q1
+    upper = q3 + 1.5 * iqr
+    lower = q1 - 1.5 * iqr
+
+    upper_adjacent = np.clip(upper, q3, sorted_vals[-1])
+    lower_adjacent = np.clip(lower, sorted_vals[0], q1)
+
+    return lower_adjacent, upper_adjacent
+
+
+def draw_iqr_whiskers(ax, data, positions):
+    """
+    Draw:
+    - dot at median
+    - thick vertical line for IQR
+    - thin vertical whiskers (Tukey)
+    `data` is a list of lists with variable lengths.
+    """
+
+    for vals, pos in zip(data, positions):
+        vals = np.asarray(vals)
+        if len(vals) == 0:
+            continue
+
+        q1, median, q3 = np.percentile(vals, [25, 50, 75])
+
+        lower, upper = adjacent_values(sorted(vals), q1, q3)
+
+        # median dot
+        ax.scatter(
+            pos,
+            median,
+            marker='o',
+            color='white',
+            edgecolor='black',
+            s=30,
+            zorder=4
+        )
+
+        # IQR (thick)
+        ax.vlines(
+            pos,
+            q1,
+            q3,
+            color='black',
+            linestyle='-',
+            lw=5,
+            zorder=3
+        )
+
+        # whiskers (thin)
+        ax.vlines(
+            pos,
+            lower,
+            upper,
+            color='black',
+            linestyle='-',
+            lw=1,
+            zorder=2
+        )
+
+
 def plot_by_filter(pattern, persistence, iid_percentage, filter):
     exp_data = []
     for pair in pairs:
@@ -343,6 +413,97 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     fig.tight_layout()
     fig.savefig('plots/rq1/{}/{}-{}-{}.pdf'.format(persistence, pattern, filter[1], iid_percentage),
                 dpi=300, bbox_inches='tight')
+
+    d = []
+    valid_labels = []
+    valid_colors = []
+
+    for conf, label, color in zip(selected_confs, labels, colors):
+        values = []
+        data = [
+            model_data[metric[(pattern, persistence)]].tolist()
+            for exp, model_data in exp_data
+            if exp.split('/')[-1].split('_')[0] == conf.format(pattern)
+        ]
+        for i in range(len(data)):
+            values.append(data[i][-1])
+
+        if len(values) > 0:  # <-- key fix
+            d.append(values)
+            valid_labels.append(label)
+            valid_colors.append(color)
+
+    labels = valid_labels
+    colors = valid_colors
+
+    fig = plt.figure(figsize=(5, 3))
+    ax = fig.add_subplot(111)
+    ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+
+    # Create violin plot
+    vp = ax.violinplot(
+        d,
+        showmeans=False,
+        showmedians=True,
+        showextrema=False
+    )
+
+    # Color violins
+    for body, color in zip(vp['bodies'], colors):
+        body.set_facecolor(color)
+        body.set_edgecolor('black')
+        body.set_alpha(1.0)
+        body.set_linewidth(0.5)
+        body.set_zorder(2)
+
+    positions = np.arange(1, len(d) + 1)
+    draw_iqr_whiskers(ax, d, positions)
+
+    # Style median lines
+    vp['cmedians'].set_color('black')
+    vp['cmedians'].set_linewidth(1.0)
+
+    # Add mean markers manually
+    means = [np.mean(vals) for vals in d]
+    # ax.scatter(
+    #    range(1, len(means) + 1),
+    #    means,
+    #    marker='^',
+    #    color='white',
+    #    edgecolor='black',
+    #    s=60,
+    #    zorder=4
+    # )
+
+    # X-axis labels
+    ax.set_xticks(range(1, len(labels) + 1))
+    ax.set_xticklabels(labels)
+
+    ax.yaxis.grid(
+        True,
+        linestyle='-',
+        which='major',
+        color='lightgrey',
+        alpha=0.7,
+        zorder=0
+    )
+
+    # Special-case limits (unchanged)
+    if pattern == 'hdh-text' and iid_percentage == 0 and persistence == 'new':
+        ax.set_ylim([8.0, 10.0])
+    if pattern == 'selector-text' and iid_percentage == 0 and persistence == 'same':
+        ax.set_ylim([1.8 * 10 ** -3, 2.65 * 10 ** -3])
+
+    offset_text = ax.yaxis.get_offset_text()
+    offset_text.set_verticalalignment('bottom')
+    offset_text.set_position((-0.12, -1.0))
+
+    fig.tight_layout()
+    fig.savefig(
+        'plots/rq1/{}/violin_{}-{}-{}.pdf'.format(persistence, pattern, filter[1], iid_percentage),
+        dpi=300,
+        bbox_inches='tight'
+    )
 
 
 # GENERATES BOX PLOTS
@@ -435,6 +596,92 @@ def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
     fig.tight_layout()
     fig.savefig(
         f'plots/rq1/{persistence}/{pattern}-vs-all-{filter[1]}-{iid_percentage}.pdf',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
+    # ---- plotting ----
+    plt.rcParams.update({'font.size': 12})
+    plt.rcParams['text.usetex'] = True
+
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    labels = []
+    pos = 1
+
+    valid_data = []
+    valid_positions = []
+    valid_colors = []
+
+    colors = ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600', '#f5e979']
+    color_idx = 0
+
+    for i, p in enumerate(patterns):
+        for j, values in enumerate(data_by_pattern[i]):
+            if len(values) == 0:
+                continue
+
+            valid_data.append(values)
+            valid_positions.append(pos)
+            labels.append(label_dict[(p, persistence)][j])
+            valid_colors.append(colors[color_idx % len(colors)])
+
+            pos += 1
+            color_idx += 1
+
+        pos += 1  # gap between pattern groups
+
+    # --- grid BELOW everything ---
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, linestyle='-', alpha=0.7, zorder=0)
+
+    # --- violin plot ---
+    vp = ax.violinplot(
+        valid_data,
+        positions=valid_positions,
+        widths=0.6,
+        showmeans=False,
+        showmedians=True,
+        showextrema=False
+    )
+
+    # style violins
+    for body, color in zip(vp['bodies'], valid_colors):
+        body.set_facecolor(color)
+        body.set_edgecolor('black')
+        body.set_alpha(1.0)
+        body.set_linewidth(0.5)
+        body.set_zorder(2)
+
+    draw_iqr_whiskers(ax, valid_data, valid_positions)
+
+    # medians
+    vp['cmedians'].set_color('black')
+    vp['cmedians'].set_linewidth(1.0)
+    vp['cmedians'].set_zorder(3)
+
+    # means (same as boxplot)
+    means = [np.mean(vals) for vals in valid_data]
+    # ax.scatter(
+    #    valid_positions,
+    #    means,
+    #    marker='^',
+    #    color='white',
+    #    edgecolor='black',
+    #    s=60,
+    #    zorder=4
+    # )
+
+    # axis formatting
+    if pattern == 'hdh-text' and iid_percentage == 0 and persistence == 'new':
+        ax.set_ylim([8.0, 10.0])
+
+    ax.set_xticks(valid_positions)
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+
+    fig.tight_layout()
+    fig.savefig(
+        f'plots/rq1/{persistence}/violin_{pattern}-vs-all-{filter[1]}-{iid_percentage}.pdf',
         dpi=300,
         bbox_inches='tight'
     )
