@@ -4,6 +4,16 @@
         "metrics": [
             {
                 "name": "f1overtime",
+                "metric": "val_f1",
+                "pattern": "client_selector",
+                "threshold": {
+                    "type": "increasing",
+                    "calculation_method": "contextual_bandit",
+                    "alpha": 0.1
+                }
+            },
+            {
+                "name": "f1overtime",
                 "pattern": "heterogeneous_data_handler",
                 "metric": "val_f1,jsd",
                 "threshold": {
@@ -15,16 +25,20 @@
         ]
     },
     "simulation_type": "Docker",
-    "rounds": 10,
-    "clients": 2,
+    "rounds": 20,
+    "clients": 12,
     "patterns": {
         "client_registry": {
             "enabled": true,
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "selection_strategy": "Resource-Based",
+                "selection_criteria": "CPU",
+                "selection_value": 2
+            }
         },
         "client_cluster": {
             "enabled": false,
@@ -46,37 +60,145 @@
             "enabled": true,
             "params": {
                 "enabled_clients": [
-                    "Client 1",
-                    "Client 2",
-                    "Client 3",
-                    "Client 4",
-                    "Client 5",
-                    "Client 6"
+                    "Client 29",
+                    "Client 30",
+                    "Client 31",
+                    "Client 32"
                 ]
             }
         }
     },
     "client_details": [
         {
-            "client_id": 1,
-            "cpu": 5,
-            "ram": 2,
-            "dataset": "CMUARCTIC",
-            "data_distribution_type": "IID",
-            "data_persistence_type": "Same Data",
+            "client_id": 23,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
             "delay_combobox": "No",
-            "model": "m5",
+            "model": "CNN 16k",
             "epochs": 1
         },
         {
-            "client_id": 2,
-            "cpu": 5,
-            "ram": 2,
-            "dataset": "CMUARCTIC",
-            "data_distribution_type": "IID",
-            "data_persistence_type": "Same Data",
+            "client_id": 24,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
             "delay_combobox": "No",
-            "model": "m5",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 25,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 26,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 27,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 28,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 29,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 30,
+            "cpu": 2,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 31,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 32,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 33,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
+            "epochs": 1
+        },
+        {
+            "client_id": 34,
+            "cpu": 1,
+            "ram": 4,
+            "dataset": "CIFAR10",
+            "data_distribution_type": "non-IID",
+            "data_persistence_type": "New Data",
+            "delay_combobox": "No",
+            "model": "CNN 16k",
             "epochs": 1
         }
     ]
