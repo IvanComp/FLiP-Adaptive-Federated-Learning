@@ -1,4 +1,5 @@
 import os
+import random
 
 
 def warn(*args, **kwargs):
@@ -18,7 +19,6 @@ from typing import List
 import scipy.stats as ss
 from scipy.stats import mannwhitneyu
 import itertools
-
 
 def VD_A(treatment: List[float], control: List[float]):
     """
@@ -154,7 +154,9 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
                                                   r'$\mathrm{FliP_{online}}$'],
               }
 
-patterns = ['compressor-2']
+random.seed(10)
+
+patterns = ['selector']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -258,6 +260,119 @@ def filter_outliers_iqr(data):
         filtered_data.append(filtered_sublist)
 
     return filtered_data
+
+
+def plot_delta_vs_never(pattern, persistence, iid_percentage, filter):
+    """
+    Box plot of run-by-run percentage delta w.r.t. the 'never' baseline.
+    """
+    # ---- collect experiments ----
+    exp_data = []
+    for pair in pairs:
+        if filter[0](pair):
+            exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
+
+    # ---- helper: map exp_name -> value ----
+    def extract_last_value(conf_name):
+        values = {}
+        for exp, model_data in exp_data:
+            name = exp.split('/')[-1].split('_')[0]
+            if name == conf_name:
+                values[exp] = model_data[metric[(pattern, persistence)]].tolist()[-1]
+        return values
+
+    # ---- baseline ("never") ----
+    baseline_name = 'no-{}'.format(pattern)
+    baseline_vals = extract_last_value(baseline_name)
+
+    if len(baseline_vals) == 0:
+        return  # nothing to plot safely
+
+    # ---- compute deltas per configuration ----
+    d = []
+    labels = []
+    colors = ['#003f5c', '#444e86', '#955196',
+              '#dd5182', '#ff6e54', '#ffa600', '#f5e979']
+
+    for conf, label, color in zip(selected_confs,
+                                  label_dict[(pattern, persistence)],
+                                  colors):
+
+        if conf == 'no-{}':
+            continue
+
+        conf_name = conf.format(pattern)
+        conf_vals = extract_last_value(conf_name)
+
+        deltas = []
+
+        if len(conf_vals) < len(baseline_vals):
+            baseline_sample = random.sample(list(baseline_vals.values()), len(conf_vals))
+            conf_sample = list(conf_vals.values())
+        elif len(conf_vals) > len(baseline_vals):
+            baseline_sample = list(baseline_vals.values())
+            conf_sample = random.sample(list(conf_vals.values()), len(baseline_vals))
+        else:
+            baseline_sample = list(baseline_vals.values())
+            conf_sample = list(conf_vals.values())
+
+        for b_i, baseline in enumerate(baseline_sample):
+            val = conf_sample[b_i]
+            delta = 100.0 * (val - baseline) / baseline
+            deltas.append(delta)
+
+        d.append(deltas)
+        labels.append(label)
+
+    if len(d) == 0:
+        return
+
+    # ---- plotting ----
+    plt.rcParams.update({'font.size': 12})
+    plt.rcParams['text.usetex'] = True
+
+    fig, ax = plt.subplots(figsize=(5, 3))
+
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, linestyle='-', color='lightgrey', alpha=0.7, zorder=0)
+
+    meanprops = dict(marker='^',
+                     markerfacecolor='white',
+                     markeredgecolor='black',
+                     markersize=6)
+
+    bp = ax.boxplot(
+        d,
+        patch_artist=True,
+        showmeans=True,
+        meanprops=meanprops,
+        showfliers=True
+    )
+
+    for patch, color in zip(bp['boxes'], colors[1:]):
+        patch.set_facecolor(color)
+        patch.set_alpha(1.0)
+        patch.set_linewidth(0.5)
+
+    for median in bp['medians']:
+        median.set_color('black')
+
+    # zero reference line
+    ax.axhline(0, color='black', linestyle='--', linewidth=1, zorder=1)
+
+    ax.set_xticks(range(1, len(labels) + 1))
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+    ax.set_ylabel(r'$\Delta$ vs.\ never (\%)')
+
+    if pattern == 'hdh-text' and iid_percentage == 0 and persistence == 'new':
+        ax.set_ylim([-5, 15])
+
+    fig.tight_layout()
+    fig.savefig(
+        f'plots/rq1/{persistence}/{pattern}-delta-vs-never-{filter[1]}-{iid_percentage}.pdf',
+        dpi=300,
+        bbox_inches='tight'
+    )
 
 
 def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
@@ -517,6 +632,7 @@ for setup in setups:
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     plot_by_filter(setup[0], setup[1], setup[2], setup[3])
     # plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
+    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
@@ -714,7 +830,8 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 
     with (open('plots/rq1/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f):
         # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
-        conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4), (0, 5), (1, 5), (2, 5)]
+        conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4),
+                           (0, 5), (1, 5), (2, 5), (0, 6), (1, 6), (2, 6)]
         latex_str = f"\n{filter[2]} & {iid_percentage}"
 
         the_lower_the_better = metric[(pattern, persistence)] in should_decrease
@@ -725,12 +842,8 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
             d_2 = d[conf_pair[1]]
 
             if len(d_1) != len(d_2):
-                if the_higher_the_better:
-                    d_1 = sorted(d_1)[:min(len(d_1), len(d_2))]
-                    d_2 = sorted(d_2, reverse=True)[:min(len(d_1), len(d_2))]
-                else:
-                    d_1 = sorted(d_1, reverse=True)[:min(len(d_1), len(d_2))]
-                    d_2 = sorted(d_2)[:min(len(d_1), len(d_2))]
+                d_1 = random.sample(d_1, min(len(d_1), len(d_2)))
+                d_2 = random.sample(d_2, min(len(d_1), len(d_2)))
 
             try:
                 U1, p = mannwhitneyu(d_1, d_2, method="auto")
@@ -742,9 +855,9 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
                 if p < 0.05:
                     if (the_higher_the_better and np.mean(d_2) > np.mean(d_1)) or (
                             the_lower_the_better and np.mean(d_2) < np.mean(d_1)):
-                        latex_str += f" & \\better{{<0.05 ({effect_size[magnitude]})}}"
+                        latex_str += f" & \\better{{({effect_size[magnitude]})}}"
                     else:
-                        latex_str += f" & \\worse{{<0.05 ({effect_size[magnitude]})}}"
+                        latex_str += f" & \\worse{{({effect_size[magnitude]})}}"
                 else:
                     latex_str += f" & {p:.2f} ({effect_size[magnitude]})"
             except ValueError:
@@ -762,4 +875,4 @@ for setup in setups:
         continue
 
     print(f'Performing statistical tests for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
-    # run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
+    run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
