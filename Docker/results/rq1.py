@@ -20,6 +20,7 @@ import scipy.stats as ss
 from scipy.stats import mannwhitneyu
 import itertools
 
+
 def VD_A(treatment: List[float], control: List[float]):
     """
     Computes Vargha and Delaney A index
@@ -156,7 +157,7 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector']
+patterns = ['compressor-2']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -291,8 +292,7 @@ def plot_delta_vs_never(pattern, persistence, iid_percentage, filter):
     # ---- compute deltas per configuration ----
     d = []
     labels = []
-    colors = ['#003f5c', '#444e86', '#955196',
-              '#dd5182', '#ff6e54', '#ffa600', '#f5e979']
+    colors = ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600', '#f5e979']
 
     for conf, label, color in zip(selected_confs,
                                   label_dict[(pattern, persistence)],
@@ -370,6 +370,174 @@ def plot_delta_vs_never(pattern, persistence, iid_percentage, filter):
     fig.tight_layout()
     fig.savefig(
         f'plots/rq1/{persistence}/{pattern}-delta-vs-never-{filter[1]}-{iid_percentage}.pdf',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
+
+def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter):
+    """
+    Box plot of run-by-run percentage delta w.r.t. the 'never' baseline
+    for multi-pattern configurations, with a reference line corresponding
+    to the mean delta of the best single-pattern configuration.
+    """
+
+    # ---- collect experiments ----
+    exp_data = []
+    for pair in pairs:
+        if filter[0](pair):
+            exp_data.extend(get_exp_data(pair[0], pair[1], iid_percentage, persistence))
+
+    # ---- helper: extract last metric per run for a given config ----
+    def extract_last_values(conf_name):
+        values = {}
+        for exp, model_data in exp_data:
+            name = exp.split('/')[-1].split('_')[0]
+            if name == conf_name:
+                values[exp] = model_data[metric[(pattern, persistence)]].tolist()[-1]
+        return values
+
+    # ---- baseline ("never") ----
+    baseline_name = 'no-{}'.format(pattern)
+    baseline_vals = extract_last_values(baseline_name)
+
+    if len(baseline_vals) == 0:
+        return  # nothing to plot safely
+
+    # ---- compute delta vs never for single-pattern configs ----
+    single_pattern_deltas = {}
+    for conf in selected_confs:
+        if conf == 'no-{}':
+            continue
+
+        conf_name = conf.format(pattern)
+        conf_vals = extract_last_values(conf_name)
+
+        deltas = []
+
+        if len(conf_vals) < len(baseline_vals):
+            baseline_sample = random.sample(list(baseline_vals.values()), len(conf_vals))
+            conf_sample = list(conf_vals.values())
+        elif len(conf_vals) > len(baseline_vals):
+            baseline_sample = list(baseline_vals.values())
+            conf_sample = random.sample(list(conf_vals.values()), len(baseline_vals))
+        else:
+            baseline_sample = list(baseline_vals.values())
+            conf_sample = list(conf_vals.values())
+
+        for b_i, baseline in enumerate(baseline_sample):
+            val = conf_sample[b_i]
+            delta = 100.0 * (val - baseline) / baseline
+            deltas.append(delta)
+
+        single_pattern_deltas[conf] = deltas
+
+    if len(single_pattern_deltas) == 0:
+        return
+
+    # ---- best single-pattern (by mean delta) ----
+    best_single_mean = max(np.mean(d) for d in single_pattern_deltas.values())
+
+    # ---- compute delta vs never for two-pattern configs ----
+    d = []
+    labels = []
+    colors = ['#003f5c', '#444e86', '#955196',
+              '#dd5182', '#ff6e54', '#ffa600', '#f5e979']
+    multi_p_key = 'all' if 'text' not in pattern else 'all-text'
+    for conf, label, color in zip(selected_confs,
+                                  label_dict[(multi_p_key, persistence)],
+                                  colors):
+
+        if 'no-{}' == conf:
+            continue
+
+        conf_name = conf.format(multi_p_key)
+        conf_vals = extract_last_values(conf_name)
+
+        deltas = []
+
+        if len(conf_vals) < len(baseline_vals):
+            baseline_sample = random.sample(list(baseline_vals.values()), len(conf_vals))
+            conf_sample = list(conf_vals.values())
+        elif len(conf_vals) > len(baseline_vals):
+            baseline_sample = list(baseline_vals.values())
+            conf_sample = random.sample(list(conf_vals.values()), len(baseline_vals))
+        else:
+            baseline_sample = list(baseline_vals.values())
+            conf_sample = list(conf_vals.values())
+
+        for b_i, baseline in enumerate(baseline_sample):
+            val = conf_sample[b_i]
+            delta = 100.0 * (val - baseline) / baseline
+            deltas.append(delta)
+
+        d.append(deltas)
+        labels.append(label)
+
+    # ---- plotting ----
+    plt.rcParams.update({'font.size': 12})
+    plt.rcParams['text.usetex'] = True
+
+    fig, ax = plt.subplots(figsize=(5, 3))
+
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, linestyle='-', color='lightgrey', alpha=0.7, zorder=0)
+
+    meanprops = dict(marker='^',
+                     markerfacecolor='white',
+                     markeredgecolor='black',
+                     markersize=6)
+
+    bp = ax.boxplot(
+        d,
+        patch_artist=True,
+        showmeans=True,
+        meanprops=meanprops
+    )
+
+    for patch, color in zip(bp['boxes'], colors[1:]):
+        patch.set_facecolor(color)
+        patch.set_alpha(1.0)
+        patch.set_linewidth(0.5)
+
+    for median in bp['medians']:
+        median.set_color('black')
+
+    # ---- reference lines ----
+    ax.axhline(0, color='black', linestyle='--', linewidth=1, zorder=1)
+
+    # best single-pattern distribution (IQR band)
+    best_conf = max(single_pattern_deltas, key=lambda k: np.mean(single_pattern_deltas[k]))
+    best_deltas = np.asarray(single_pattern_deltas[best_conf])
+
+    q1, q3 = np.percentile(best_deltas, [25, 75])
+    best_mean = np.mean(best_deltas)
+
+    ax.axhspan(
+        q1,
+        q3,
+        color='red',
+        alpha=0.15,
+        zorder=1
+    )
+
+    # optional: keep mean line for anchoring
+    ax.axhline(
+        best_mean,
+        color='red',
+        linestyle='--',
+        linewidth=1,
+        zorder=1
+    )
+
+    # ---- labels ----
+    ax.set_xticks(range(1, len(labels) + 1))
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+    ax.set_ylabel(r'$\Delta$ vs.\ never (\%)')
+
+    fig.tight_layout()
+    fig.savefig(
+        f'plots/rq1/{persistence}/{pattern}-delta-vs-never-multi-pattern-{filter[1]}-{iid_percentage}.pdf',
         dpi=300,
         bbox_inches='tight'
     )
@@ -810,6 +978,7 @@ for setup in setups:
     if pattern in ['selector', 'hdh', 'selector-text', 'hdh-text'] and iid_percentage == 0:
         print(f'Generating {pattern} vs all comparison plot')
         plot_pattern_vs_all(pattern, persistence, iid_percentage, filter)
+        plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
 
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):
