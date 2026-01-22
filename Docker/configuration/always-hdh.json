@@ -1,19 +1,6 @@
 {
-    "adaptation": true,
-    "activation_criteria": {
-        "metrics": [
-            {
-                "name": "fixed",
-                "pattern": "message_compressor",
-                "metric": "time",
-                "threshold": {
-                    "type": "decreasing",
-                    "calculation_method": "fixed-global",
-                    "value": 85.0
-                }
-            }
-        ]
-    },
+    "adaptation": false,
+    "activation_criteria": {},
     "simulation_type": "Docker",
     "rounds": 20,
     "clients": **CLIENTS_COUNT**,
@@ -31,7 +18,7 @@
             "params": {}
         },
         "message_compressor": {
-            "enabled": true,
+            "enabled": false,
             "params": {}
         },
         "model_co-versioning_registry": {
@@ -43,7 +30,7 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": false,
+            "enabled": true,
             "params": {}
         }
     },

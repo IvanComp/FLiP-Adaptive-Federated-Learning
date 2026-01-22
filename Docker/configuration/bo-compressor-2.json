@@ -3,13 +3,15 @@
     "activation_criteria": {
         "metrics": [
             {
-                "name": "fixed",
-                "pattern": "message_compressor",
+                "name": "f1overtime",
                 "metric": "time",
+                "pattern": "message_compressor",
                 "threshold": {
-                    "type": "decreasing",
-                    "calculation_method": "fixed-global",
-                    "value": 85.0
+                    "type": "increasing",
+                    "calculation_method": "bayesian_optimization",
+                    "predictor": {
+                        "model_path": "predictors/bo_model_compressor-2.pkl"
+                    }
                 }
             }
         ]
