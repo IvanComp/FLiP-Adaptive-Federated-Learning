@@ -91,11 +91,11 @@ metric_per_round = {('all', 'same'): 'Cumulative F1',
                     ('hdh', 'new'): 'Cumulative F1',
                     ('hdh-text', 'same'): 'Cumulative F1',
                     ('hdh-text', 'new'): 'Cumulative F1',
-                    ('compressor', 'same'): 'Total Time of FL Round',
+                    ('compressor', 'same'): 'Cumulative Communication Time',
                     ('compressor-2', 'same'): 'Total Time of FL Round',
-                    ('compressor-delay', 'same'): 'Total Time of FL Round',
-                    ('compressor-text', 'same'): 'Total Time of FL Round',
-                    ('compressor-text-delay', 'same'): 'Total Time of FL Round'
+                    ('compressor-delay', 'same'): 'Cumulative Communication Time',
+                    ('compressor-text', 'same'): 'Cumulative Communication Time',
+                    ('compressor-text-delay', 'same'): 'Cumulative Communication Time'
                     }
 
 should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1', 'Cumulative F1']
@@ -157,12 +157,14 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['compressor-2']
+patterns = ['selector', 'selector-text', 'hdh', 'hdh-text',
+            'compressor', 'compressor-text',
+            'compressor-delay', 'compressor-text-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
 
-selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
+selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}']
 
 filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow', '$\mathsf{N_{high}}=\mathsf{N_{low}}$')
 filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow', '$\mathsf{N_{high}}>\mathsf{N_{low}}$')
@@ -551,40 +553,83 @@ def plot_by_filter_and_round(pattern, persistence, iid_percentage, filter):
 
     colors = ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600', '#f5e979'][:len(selected_confs)]
     labels = label_dict[(pattern, persistence)][:len(selected_confs)]
-    fig, ax = plt.subplots(figsize=(5, 3))
+    fig, ax = plt.subplots(figsize=(5, 2))
 
     baseline = [model_data[metric_per_round[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
                 exp.split('/')[-1].split('_')[0] == 'always-{}'.format(pattern)]
     means_baseline = [np.mean([exp[round] for exp in baseline]) for round in range(len(baseline[0]))]
 
+    legend_lines = []
+    legend_labels = []
+
     compared_confs = ['fixed-{}', 'tree-{}', 'bo-{}']
     for conf_i, conf in enumerate(compared_confs):
-        data = [model_data[metric_per_round[(pattern, persistence)]].tolist() for exp, model_data in exp_data if
-                exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
-        a, b, c = pattern, conf, persistence
+        data = [model_data[metric_per_round[(pattern, persistence)]].tolist()
+                for exp, model_data in exp_data
+                if exp.split('/')[-1].split('_')[0] == conf.format(pattern)]
 
         try:
-            means = [np.mean([(exp[round] - means_baseline[round]) / means_baseline[round] * 100 for exp in data])
+            means = [np.mean([(exp[round] - means_baseline[round]) / means_baseline[round] * 100
+                              for exp in data])
                      for round in range(1, len(data[0]))]
 
-            stds = [np.std([(exp[round] - means_baseline[round]) / means_baseline[round] * 100 for exp in data]) for
-                    round in range(1, len(data[0]))]
+            stds = [np.std([(exp[round] - means_baseline[round]) / means_baseline[round] * 100
+                            for exp in data])
+                    for round in range(1, len(data[0]))]
 
             means = np.array(means)
-            stds = np.array(stds)
-            ax.plot(range(2, len(data[0]) + 1), means, label=labels[selected_confs.index(conf)],
-                    marker='o', markersize=2, color=colors[selected_confs.index(conf)])
+
+            line, = ax.plot(
+                range(2, len(data[0]) + 1),
+                means,
+                label=labels[selected_confs.index(conf)],
+                marker='o',
+                markersize=2,
+                color=colors[selected_confs.index(conf)]
+            )
+
+            legend_lines.append(line)
+            legend_labels.append(labels[selected_confs.index(conf)])
+
         except:
             print('insufficient data')
+
     ax.plot(range(1, len(data[0]) + 1), [0] * len(data[0]), linestyle='--', color='black', linewidth=0.5)
     ax.set_xticks(range(1, len(data[0]) + 1))
     ax.set_xticklabels(range(1, len(data[0]) + 1))
     ax.set_xlim([2, len(data[0])])
     ax.grid(True, axis='y', linestyle='-', which='major', color='lightgrey',
             alpha=0.7, zorder=0)
-    ax.legend(loc='best', fontsize=12)
+    # ax.legend(loc='best', fontsize=12)
     fig.savefig('plots/rq1/{}/{}-{}-{}-round.pdf'.format(persistence, pattern, filter[1], iid_percentage),
                 dpi=300, bbox_inches='tight')
+
+    # fig_legend = plt.figure()
+    # ax_legend = fig_legend.add_subplot(111)
+    #
+    # legend = ax_legend.legend(
+    #     handles=legend_lines,
+    #     labels=legend_labels,
+    #     loc='center',
+    #     ncol=len(legend_labels),
+    #     frameon=False
+    # )
+    #
+    # ax_legend.axis('off')
+    #
+    # # Draw once to compute legend size
+    # fig_legend.canvas.draw()
+    #
+    # # Get tight bounding box of the legend
+    # bbox = legend.get_window_extent().transformed(fig_legend.dpi_scale_trans.inverted())
+    #
+    # fig_legend.savefig(
+    #     'plots/rq1/{}/{}-{}-{}-legend.pdf'.format(persistence, pattern, filter[1], iid_percentage),
+    #     dpi=300,
+    #     bbox_inches=bbox
+    # )
+    #
+    # plt.close(fig_legend)
 
 
 def adjacent_values(sorted_vals, q1, q3):
@@ -672,7 +717,7 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     plt.rcParams['text.usetex'] = True
     plt.rcParams['font.family'] = 'sans-serif'  # Often looks good with LaTeX
     plt.rcParams['font.serif'] = ['Helvetica']  # Specify LaTeX font
-    fig = plt.figure(figsize=(5, 3))
+    fig = plt.figure(figsize=(5, 2.5))
     ax = fig.add_subplot(111)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     meanprops = dict(marker='^', markerfacecolor='white', markeredgecolor='black', markersize=8)
@@ -799,8 +844,8 @@ for setup in setups:
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    # plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
-    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
+    plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
+    # plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
@@ -977,8 +1022,8 @@ for setup in setups:
 
     if pattern in ['selector', 'hdh', 'selector-text', 'hdh-text'] and iid_percentage == 0:
         print(f'Generating {pattern} vs all comparison plot')
-        plot_pattern_vs_all(pattern, persistence, iid_percentage, filter)
-        plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
+        # plot_pattern_vs_all(pattern, persistence, iid_percentage, filter)
+        # plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
 
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):
@@ -1000,7 +1045,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
     with (open('plots/rq1/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f):
         # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
         conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4),
-                           (0, 5), (1, 5), (2, 5), (0, 6), (1, 6), (2, 6)]
+                           (0, 5), (1, 5), (2, 5)] #, (0, 6), (1, 6), (2, 6)]
         latex_str = f"\n{filter[2]} & {iid_percentage}"
 
         the_lower_the_better = metric[(pattern, persistence)] in should_decrease
