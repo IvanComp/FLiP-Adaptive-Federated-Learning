@@ -68,13 +68,20 @@ metric = {('all', 'same'): 'Cumulative F1',
           ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+          ('selector-2', 'same'): 'F1 Score Over Total Time for FL Round',
+          ('selector-2', 'new'): 'F1 Score Over Total Time for FL Round',
           ('hdh', 'same'): 'Cumulative F1',
           ('hdh', 'new'): 'Cumulative F1',
+          ('hdh-2', 'same'): 'Cumulative F1',
+          ('hdh-2', 'new'): 'Cumulative F1',
           ('hdh-text', 'same'): 'Cumulative F1',
           ('hdh-text', 'new'): 'Cumulative F1',
           ('compressor', 'same'): 'Cumulative Communication Time',
           ('compressor-2', 'same'): 'Total Time of FL Round',
+          ('compressor-2', 'new'): 'Total Time of FL Round',
           ('compressor-delay', 'same'): 'Cumulative Communication Time',
+          ('compressor-2-delay', 'same'): 'Total Time of FL Round',
+          ('compressor-2-delay', 'new'): 'Total Time of FL Round',
           ('compressor-text', 'same'): 'Cumulative Communication Time',
           ('compressor-text-delay', 'same'): 'Cumulative Communication Time',
           }
@@ -87,12 +94,19 @@ metric_per_round = {('all', 'same'): 'Cumulative F1',
                     ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
                     ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
                     ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
+                    ('selector-2', 'same'): 'F1 Score Over Total Time for FL Round',
+                    ('selector-2', 'new'): 'F1 Score Over Total Time for FL Round',
                     ('hdh', 'same'): 'Cumulative F1',
                     ('hdh', 'new'): 'Cumulative F1',
+                    ('hdh-2', 'same'): 'Cumulative F1',
+                    ('hdh-2', 'new'): 'Cumulative F1',
                     ('hdh-text', 'same'): 'Cumulative F1',
                     ('hdh-text', 'new'): 'Cumulative F1',
                     ('compressor', 'same'): 'Cumulative Communication Time',
                     ('compressor-2', 'same'): 'Total Time of FL Round',
+                    ('compressor-2', 'new'): 'Total Time of FL Round',
+                    ('compressor-2-delay', 'same'): 'Total Time of FL Round',
+                    ('compressor-2-delay', 'new'): 'Total Time of FL Round',
                     ('compressor-delay', 'same'): 'Cumulative Communication Time',
                     ('compressor-text', 'same'): 'Cumulative Communication Time',
                     ('compressor-text-delay', 'same'): 'Cumulative Communication Time'
@@ -126,12 +140,24 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('selector', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                     r'$\mathrm{FliP_{online}}$'],
+              ('selector-2', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                       r'$\mathrm{FliP_{online}}$'],
+              ('selector-2', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                      r'$\mathrm{FliP_{online}}$'],
               ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                 r'$\mathrm{FliP_{online}}$'],
               ('hdh', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                r'$\mathrm{FliP_{online}}$'],
+              ('hdh-2', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
+                                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                  r'$\mathrm{FliP_{online}}$'],
+              ('hdh-2', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                 r'$\mathrm{FliP_{online}}$'],
               ('hdh-text', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                      r'$\mathrm{FliP_{online}}$'],
@@ -144,6 +170,15 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('compressor-2', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                          r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                          r'$\mathrm{FliP_{online}}$'],
+              ('compressor-2', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                        r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                        r'$\mathrm{FliP_{online}}$'],
+              ('compressor-2-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                               r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                               r'$\mathrm{FliP_{online}}$'],
+              ('compressor-2-delay', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                              r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                              r'$\mathrm{FliP_{online}}$'],
               ('compressor-delay', 'same'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                              r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                              r'$\mathrm{FliP_{online}}$'],
@@ -157,14 +192,12 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector', 'selector-text', 'hdh', 'hdh-text',
-            'compressor', 'compressor-text',
-            'compressor-delay', 'compressor-text-delay']
+patterns = ['compressor-2', 'compressor-2-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
 
-selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}']
+selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
 
 filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow', '$\mathsf{N_{high}}=\mathsf{N_{low}}$')
 filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow', '$\mathsf{N_{high}}>\mathsf{N_{low}}$')
@@ -176,12 +209,15 @@ filters = {
     'all': [filter_4],
     'selector-text': [filter_4],
     'selector': [filter_4],
+    'selector-2': [filter_4],
     'hdh': [filter_4],
+    'hdh-2': [filter_4],
     'hdh-text': [filter_4],
     'compressor': [filter_4],
     'compressor-2': [filter_4],
     'compressor-text': [filter_4],
     'compressor-delay': [filter_4],
+    'compressor-2-delay': [filter_4],
     'compressor-text-delay': [filter_4]
 }
 
@@ -285,7 +321,7 @@ def plot_delta_vs_never(pattern, persistence, iid_percentage, filter):
         return values
 
     # ---- baseline ("never") ----
-    baseline_name = 'no-{}'.format(pattern)
+    baseline_name = 'no-{}'.format(pattern) if pattern != 'hdh-2' else 'no-selector-2'
     baseline_vals = extract_last_value(baseline_name)
 
     if len(baseline_vals) == 0:
@@ -717,7 +753,7 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
     plt.rcParams['text.usetex'] = True
     plt.rcParams['font.family'] = 'sans-serif'  # Often looks good with LaTeX
     plt.rcParams['font.serif'] = ['Helvetica']  # Specify LaTeX font
-    fig = plt.figure(figsize=(5, 2.5))
+    fig = plt.figure(figsize=(5, 3))
     ax = fig.add_subplot(111)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     meanprops = dict(marker='^', markerfacecolor='white', markeredgecolor='black', markersize=8)
@@ -837,21 +873,23 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
 # GENERATES BOX PLOTS
 for setup in setups:
     exclude = (('all' in setup[0] and setup[2] == 100) or
-               ('hdh' in setup[0] and setup[2] == 100) or
-               ('compressor' in setup[0] and setup[1] == 'new'))
+               ('hdh' in setup[0] and setup[2] == 100)
+               # or ('compressor' in setup[0] and setup[1] == 'new')
+               )
     if exclude:
         continue
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
-    plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
-    # plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
+    # plot_by_filter(setup[0], setup[1], setup[2], setup[3])
+    # plot_by_filter_and_round(setup[0], setup[1], setup[2], setup[3])
+    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
     """
     Bar plot comparing a single pattern vs the 'all' (selector + HDH) configuration.
     """
+
     if 'text' in pattern:
         patterns = [pattern, 'all-text']
     else:
@@ -1045,7 +1083,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
     with (open('plots/rq1/{}/{}-{}-{}-VD_A.txt'.format(persistence, pattern, filter[1], iid_percentage), 'w') as f):
         # 'no-', 'random-', 'all-high-', 'fixed-', 'tree-', 'bo-'
         conf_to_compare = [(0, 3), (1, 3), (2, 3), (0, 4), (1, 4), (2, 4),
-                           (0, 5), (1, 5), (2, 5)] #, (0, 6), (1, 6), (2, 6)]
+                           (0, 5), (1, 5), (2, 5)]  # , (0, 6), (1, 6), (2, 6)]
         latex_str = f"\n{filter[2]} & {iid_percentage}"
 
         the_lower_the_better = metric[(pattern, persistence)] in should_decrease
@@ -1083,10 +1121,11 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 # PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE
 for setup in setups:
     exclude = (('all' in setup[0] and setup[2] == 100) or
-               ('hdh' in setup[0] and setup[2] == 100) or
-               ('compressor' in setup[0] and setup[1] == 'new'))
+               ('hdh' in setup[0] and setup[2] == 100)
+               # or ('compressor' in setup[0] and setup[1] == 'new')
+               )
     if exclude:
         continue
 
     print(f'Performing statistical tests for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
-    run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
+    # run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
