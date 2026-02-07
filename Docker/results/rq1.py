@@ -192,7 +192,8 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['compressor-2', 'compressor-2-delay']
+patterns = ['selector-2', 'hdh-2',
+    'compressor-2', 'compressor-2-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
