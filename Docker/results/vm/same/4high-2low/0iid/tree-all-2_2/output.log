@@ -1,0 +1,426 @@
+==========================================
+  ___  ______  ___ ______       _ 
+ / _ \ | ___ \/   ||  ___|     | |
+/ /_\ \| |_/ / /| || |_ ___  __| |
+|  _  ||  __/ /_| ||  _/ _ \/ _` |
+| | | || |  \___  || ||  __/ (_| |
+\_| |_/\_|      |_/\_| \___|\__,_| v.1.5.0
+
+==========================================
+Simulation Started!
+List of the Architectural Patterns enabled:
+Adaptation Enabled ✅
+Metric: val_f1, predictor-based: predictors/f1overtime_xgboost_selector-2-570.pkl
+Metric: val_f1,jsd, local predictor-based: predictors/f1overtime_tree_hdh-2_4830.pkl
+Metric: time, predictor-based: predictors/f1overtime_tree_compressor-2_5472.pkl
+Client Registry ✅
+Client Selector ✅
+ AP Parameters: {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}
+Message Compressor ✅
+Heterogeneous Data Handler ✅
+ AP Parameters: {'enabled_clients': []}
+==========================================
+Client Client 5 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 3 participates in this round. (CPU: 2, RAM: 4)
+Client Client 6 has insufficient CPU (1). Will not participate in the next FL round.
+Client Client 2 participates in this round. (CPU: 2, RAM: 4)
+Client Client 4 participates in this round. (CPU: 2, RAM: 4)
+Client Client 1 participates in this round. (CPU: 2, RAM: 4)
+Local parameters compressed: reduced 18491 bytes (7.44%)
+Local parameters compressed: reduced 18528 bytes (7.46%)
+Local parameters compressed: reduced 18506 bytes (7.45%)
+Local parameters compressed: reduced 18318 bytes (7.37%)
+Results Aggregated in 124.09 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445], 'train_accuracy': [0.564865], 'train_f1': [0.3808545727575782], 'train_mae': [1.422], 'val_loss': [2.660024239397049], 'val_accuracy': [0.346475], 'val_f1': [0.2717749580372765], 'val_mae': [2.4575], 'jsd': [(0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': True}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': True}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0036 vs w:0.0036, client_selector de-activated ❌
+0.0-iid clients, predicted wo:87.0340 vs w:75.3174, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 18379 bytes (7.40%)
+Local parameters compressed: reduced 18389 bytes (7.40%)
+Local parameters compressed: reduced 18398 bytes (7.40%)
+Local parameters compressed: reduced 18366 bytes (7.39%)
+Local parameters compressed: reduced 18405 bytes (7.41%)
+Local parameters compressed: reduced 18311 bytes (7.37%)
+Results Aggregated in 75.10 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185], 'train_accuracy': [0.564865, 0.624], 'train_f1': [0.3808545727575782, 0.48648754130516103], 'train_mae': [1.422, 1.3020866666666666], 'val_loss': [2.660024239397049, 2.341587350432078], 'val_accuracy': [0.346475, 0.42436666666666667], 'val_f1': [0.2717749580372765, 0.36377385383961225], 'val_mae': [2.4575, 2.1825], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0054 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:73.8400, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 18314 bytes (7.37%)
+Local parameters compressed: reduced 18269 bytes (7.35%)
+Local parameters compressed: reduced 18269 bytes (7.35%)
+Local parameters compressed: reduced 18228 bytes (7.34%)
+Local parameters compressed: reduced 18327 bytes (7.38%)
+Local parameters compressed: reduced 18227 bytes (7.33%)
+Results Aggregated in 74.24 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045], 'val_mae': [2.4575, 2.1825, 1.9822], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0056 vs w:0.0056, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.4888, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 18161 bytes (7.31%)
+Local parameters compressed: reduced 18106 bytes (7.29%)
+Local parameters compressed: reduced 18124 bytes (7.29%)
+Local parameters compressed: reduced 18068 bytes (7.27%)
+Local parameters compressed: reduced 18150 bytes (7.30%)
+Local parameters compressed: reduced 18150 bytes (7.30%)
+Results Aggregated in 75.69 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0058 vs w:0.0058, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.5800, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17928 bytes (7.21%)
+Local parameters compressed: reduced 18010 bytes (7.25%)
+Local parameters compressed: reduced 17998 bytes (7.24%)
+Local parameters compressed: reduced 17937 bytes (7.22%)
+Local parameters compressed: reduced 17975 bytes (7.23%)
+Local parameters compressed: reduced 17964 bytes (7.23%)
+Results Aggregated in 74.21 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0054 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:75.1608, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17902 bytes (7.20%)
+Local parameters compressed: reduced 17794 bytes (7.16%)
+Local parameters compressed: reduced 17893 bytes (7.20%)
+Local parameters compressed: reduced 17915 bytes (7.21%)
+Local parameters compressed: reduced 17922 bytes (7.21%)
+Local parameters compressed: reduced 17877 bytes (7.19%)
+Results Aggregated in 74.65 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0054 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:73.4723, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17789 bytes (7.16%)
+Local parameters compressed: reduced 17762 bytes (7.15%)
+Local parameters compressed: reduced 17766 bytes (7.15%)
+Local parameters compressed: reduced 17780 bytes (7.16%)
+Local parameters compressed: reduced 17798 bytes (7.16%)
+Local parameters compressed: reduced 17679 bytes (7.11%)
+Results Aggregated in 76.09 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0054 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:76.4200, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17656 bytes (7.11%)
+Local parameters compressed: reduced 17669 bytes (7.11%)
+Local parameters compressed: reduced 17657 bytes (7.11%)
+Local parameters compressed: reduced 17656 bytes (7.11%)
+Local parameters compressed: reduced 17661 bytes (7.11%)
+Local parameters compressed: reduced 17595 bytes (7.08%)
+Results Aggregated in 76.70 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:77.6200, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17650 bytes (7.10%)
+Local parameters compressed: reduced 17572 bytes (7.07%)
+Local parameters compressed: reduced 17603 bytes (7.08%)
+Local parameters compressed: reduced 17568 bytes (7.07%)
+Local parameters compressed: reduced 17608 bytes (7.09%)
+Local parameters compressed: reduced 17589 bytes (7.08%)
+Results Aggregated in 75.81 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.5800, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17522 bytes (7.05%)
+Local parameters compressed: reduced 17485 bytes (7.04%)
+Local parameters compressed: reduced 17514 bytes (7.05%)
+Local parameters compressed: reduced 17469 bytes (7.03%)
+Local parameters compressed: reduced 17531 bytes (7.05%)
+Local parameters compressed: reduced 17526 bytes (7.05%)
+Results Aggregated in 75.16 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:73.8400, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17499 bytes (7.04%)
+Local parameters compressed: reduced 17422 bytes (7.01%)
+Local parameters compressed: reduced 17420 bytes (7.01%)
+Local parameters compressed: reduced 17430 bytes (7.01%)
+Local parameters compressed: reduced 17381 bytes (6.99%)
+Local parameters compressed: reduced 17426 bytes (7.01%)
+Results Aggregated in 73.05 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.0726, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17405 bytes (7.00%)
+Local parameters compressed: reduced 17421 bytes (7.01%)
+Local parameters compressed: reduced 17338 bytes (6.98%)
+Local parameters compressed: reduced 17388 bytes (7.00%)
+Local parameters compressed: reduced 17358 bytes (6.99%)
+Local parameters compressed: reduced 17405 bytes (7.00%)
+Results Aggregated in 73.90 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.0726, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17299 bytes (6.96%)
+Local parameters compressed: reduced 17348 bytes (6.98%)
+Local parameters compressed: reduced 17375 bytes (6.99%)
+Local parameters compressed: reduced 17313 bytes (6.97%)
+Local parameters compressed: reduced 17322 bytes (6.97%)
+Local parameters compressed: reduced 17363 bytes (6.99%)
+Results Aggregated in 75.61 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.5800, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17315 bytes (6.97%)
+Local parameters compressed: reduced 17263 bytes (6.95%)
+Local parameters compressed: reduced 17312 bytes (6.97%)
+Local parameters compressed: reduced 17321 bytes (6.97%)
+Local parameters compressed: reduced 17318 bytes (6.97%)
+Local parameters compressed: reduced 17340 bytes (6.98%)
+Results Aggregated in 75.58 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:74.5800, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17306 bytes (6.96%)
+Local parameters compressed: reduced 17323 bytes (6.97%)
+Local parameters compressed: reduced 17288 bytes (6.96%)
+Local parameters compressed: reduced 17239 bytes (6.94%)
+Local parameters compressed: reduced 17282 bytes (6.95%)
+Local parameters compressed: reduced 17301 bytes (6.96%)
+Results Aggregated in 78.03 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313, 0.39738888075351714], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334, 0.8645233333333333], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072, 0.8229078263163525], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667, 0.43261666666666665], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405, 2.063341167259216], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333, 0.5633], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967, 0.5325739684110418], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668, 1.5724333333333333], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0054 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:73.8200, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17262 bytes (6.95%)
+Local parameters compressed: reduced 17266 bytes (6.95%)
+Local parameters compressed: reduced 17231 bytes (6.93%)
+Local parameters compressed: reduced 17240 bytes (6.94%)
+Local parameters compressed: reduced 17171 bytes (6.91%)
+Local parameters compressed: reduced 17221 bytes (6.93%)
+Results Aggregated in 83.10 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313, 0.39738888075351714, 0.3809176220591863], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334, 0.8645233333333333, 0.8699], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072, 0.8229078263163525, 0.8332003101920854], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667, 0.43261666666666665, 0.41791333333333336], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405, 2.063341167259216, 2.082197074222565], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333, 0.5633, 0.5675666666666667], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967, 0.5325739684110418, 0.5371201937211427], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668, 1.5724333333333333, 1.55985], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0056 vs w:0.0056, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:73.2168, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17228 bytes (6.93%)
+Local parameters compressed: reduced 17148 bytes (6.90%)
+Local parameters compressed: reduced 17201 bytes (6.92%)
+Local parameters compressed: reduced 17156 bytes (6.90%)
+Local parameters compressed: reduced 17209 bytes (6.93%)
+Local parameters compressed: reduced 17228 bytes (6.93%)
+Results Aggregated in 74.88 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313, 0.39738888075351714, 0.3809176220591863, 0.3634638590812683], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334, 0.8645233333333333, 0.8699, 0.87491], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072, 0.8229078263163525, 0.8332003101920854, 0.8398428685770443], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667, 0.43261666666666665, 0.41791333333333336, 0.4042733333333333], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405, 2.063341167259216, 2.082197074222565, 2.106157612101237], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333, 0.5633, 0.5675666666666667, 0.5689], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967, 0.5325739684110418, 0.5371201937211427, 0.5406605770063948], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668, 1.5724333333333333, 1.55985, 1.5356833333333333], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0055 vs w:0.0056, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:73.6833, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17200 bytes (6.92%)
+Local parameters compressed: reduced 17155 bytes (6.90%)
+Local parameters compressed: reduced 17220 bytes (6.93%)
+Local parameters compressed: reduced 17163 bytes (6.91%)
+Local parameters compressed: reduced 17273 bytes (6.95%)
+Local parameters compressed: reduced 17243 bytes (6.94%)
+Results Aggregated in 78.26 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313, 0.39738888075351714, 0.3809176220591863, 0.3634638590812683, 0.3430483735430241], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334, 0.8645233333333333, 0.8699, 0.87491, 0.8829966666666667], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072, 0.8229078263163525, 0.8332003101920854, 0.8398428685770443, 0.8453375907906582], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667, 0.43261666666666665, 0.41791333333333336, 0.4042733333333333, 0.38266666666666665], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405, 2.063341167259216, 2.082197074222565, 2.106157612101237, 2.12410837653478], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333, 0.5633, 0.5675666666666667, 0.5689, 0.5617833333333333], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967, 0.5325739684110418, 0.5371201937211427, 0.5406605770063948, 0.5313370282569324], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668, 1.5724333333333333, 1.55985, 1.5356833333333333, 1.5587333333333333], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0055 vs w:0.0056, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:78.6639, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17231 bytes (6.93%)
+Local parameters compressed: reduced 17159 bytes (6.91%)
+Local parameters compressed: reduced 17308 bytes (6.97%)
+Local parameters compressed: reduced 17213 bytes (6.93%)
+Local parameters compressed: reduced 17135 bytes (6.90%)
+Local parameters compressed: reduced 17202 bytes (6.92%)
+Results Aggregated in 79.24 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313, 0.39738888075351714, 0.3809176220591863, 0.3634638590812683, 0.3430483735430241, 0.3394202999091148], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334, 0.8645233333333333, 0.8699, 0.87491, 0.8829966666666667, 0.88293], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072, 0.8229078263163525, 0.8332003101920854, 0.8398428685770443, 0.8453375907906582, 0.8485224368045614], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667, 0.43261666666666665, 0.41791333333333336, 0.4042733333333333, 0.38266666666666665, 0.38631666666666664], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405, 2.063341167259216, 2.082197074222565, 2.106157612101237, 2.12410837653478, 2.198317085711161], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333, 0.5633, 0.5675666666666667, 0.5689, 0.5617833333333333, 0.5600666666666667], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967, 0.5325739684110418, 0.5371201937211427, 0.5406605770063948, 0.5313370282569324, 0.5288829470066618], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668, 1.5724333333333333, 1.55985, 1.5356833333333333, 1.5587333333333333, 1.5880833333333333], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0055 vs w:0.0055, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:78.6639, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
+Local parameters compressed: reduced 17179 bytes (6.91%)
+Local parameters compressed: reduced 17150 bytes (6.90%)
+Local parameters compressed: reduced 17167 bytes (6.91%)
+Local parameters compressed: reduced 17172 bytes (6.91%)
+Local parameters compressed: reduced 17175 bytes (6.91%)
+Local parameters compressed: reduced 17195 bytes (6.92%)
+Results Aggregated in 79.15 seconds.
+{'CNN 64k': {'train_loss': [1.213403504190445, 1.0542973029057185, 0.9437534299341838, 0.8512854643344879, 0.7703038391335805, 0.7197659147961935, 0.6633801105912527, 0.6404599339501063, 0.5840681909434, 0.5618692451119423, 0.5139147072331111, 0.4917998025894165, 0.4527513557346662, 0.4342627171532313, 0.39738888075351714, 0.3809176220591863, 0.3634638590812683, 0.3430483735430241, 0.3394202999091148, 0.3214913173302015], 'train_accuracy': [0.564865, 0.624, 0.6647566666666667, 0.6973433333333333, 0.7284066666666666, 0.7465166666666667, 0.7672466666666666, 0.7740333333333334, 0.7947633333333334, 0.8026266666666667, 0.82063, 0.82676, 0.8427966666666666, 0.8485033333333334, 0.8645233333333333, 0.8699, 0.87491, 0.8829966666666667, 0.88293, 0.8892866666666667], 'train_f1': [0.3808545727575782, 0.48648754130516103, 0.5482458909260655, 0.6035401144803296, 0.634698873304681, 0.6728670359533843, 0.7024509206907591, 0.7090683093795914, 0.7332189725900685, 0.746714914817153, 0.7649633941171011, 0.7706090076141956, 0.797996236298445, 0.801276966581072, 0.8229078263163525, 0.8332003101920854, 0.8398428685770443, 0.8453375907906582, 0.8485224368045614, 0.856457669268004], 'train_mae': [1.422, 1.3020866666666666, 1.1309433333333334, 1.0103433333333334, 0.9092, 0.85251, 0.78135, 0.7550566666666667, 0.66486, 0.6544166666666666, 0.5834666666666667, 0.55764, 0.5133466666666666, 0.5015466666666667, 0.43261666666666665, 0.41791333333333336, 0.4042733333333333, 0.38266666666666665, 0.38631666666666664, 0.3561533333333333], 'val_loss': [2.660024239397049, 2.341587350432078, 2.2618948035875954, 2.121373162428538, 2.0719212242444356, 1.9691727150440217, 1.958500707022349, 1.9702472074667612, 1.9695751986821493, 1.9555293603897095, 2.023853119468689, 2.063766422812144, 1.986104485797882, 2.017985558573405, 2.063341167259216, 2.082197074222565, 2.106157612101237, 2.12410837653478, 2.198317085711161, 2.183985494995117], 'val_accuracy': [0.346475, 0.42436666666666667, 0.46241666666666664, 0.4960333333333333, 0.5088, 0.5289833333333334, 0.5444166666666667, 0.5363, 0.55085, 0.5578833333333333, 0.5561666666666667, 0.5546, 0.5638166666666666, 0.5625833333333333, 0.5633, 0.5675666666666667, 0.5689, 0.5617833333333333, 0.5600666666666667, 0.56025], 'val_f1': [0.2717749580372765, 0.36377385383961225, 0.414706601406045, 0.45437651902457493, 0.4632648748205688, 0.493679055464584, 0.5084763552309152, 0.5011850365575584, 0.5159129511208876, 0.5228748558071722, 0.5242960048325652, 0.5201199055892262, 0.5343087167188995, 0.530528993682967, 0.5325739684110418, 0.5371201937211427, 0.5406605770063948, 0.5313370282569324, 0.5288829470066618, 0.5322817544868267], 'val_mae': [2.4575, 2.1825, 1.9822, 1.8466166666666666, 1.8449833333333334, 1.7423833333333334, 1.6944666666666666, 1.69915, 1.61495, 1.6313666666666666, 1.5947, 1.61485, 1.5655, 1.5737666666666668, 1.5724333333333333, 1.55985, 1.5356833333333333, 1.5587333333333333, 1.5880833333333333, 1.5430333333333333], 'jsd': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)]}}
+AdaptationManager: Configuring next round...
+{'client_registry': {'enabled': True, 'params': {}}, 'client_selector': {'enabled': True, 'params': {'selection_strategy': 'Resource-Based', 'selection_criteria': 'CPU', 'selection_value': 2}}, 'client_cluster': {'enabled': False, 'params': {}}, 'message_compressor': {'enabled': True, 'params': {}}, 'model_co-versioning_registry': {'enabled': False, 'params': {}}, 'multi-task_model_trainer': {'enabled': False, 'params': {}}, 'heterogeneous_data_handler': {'enabled': True, 'params': {'enabled_clients': []}}}
+{'client_selector': {'enabled': False}, 'client_cluster': {'enabled': False}, 'message_compressor': {'enabled': True}, 'model_co-versioning_registry': {'enabled': False}, 'multi-task_model_trainer': {'enabled': False}, 'heterogeneous_data_handler': {'enabled': False}, 'client_registry': {'enabled': True, 'params': {}}}
+0.0-iid clients, predicted wo:0.0053 vs w:0.0054, client_selector de-activated ❌
+0.0-iid clients, predicted wo:88.3000 vs w:78.6639, message_compressor activated ✅
+client 1, predicted wo:0.0862 vs w:0.0862
+client 2, predicted wo:0.0862 vs w:0.0862
+client 3, predicted wo:0.0862 vs w:0.0862
+client 4, predicted wo:0.0862 vs w:0.0862
+client 5, predicted wo:0.0862 vs w:0.0862
+client 6, predicted wo:0.0862 vs w:0.0862
+heterogeneous_data_handler de-activated ❌
