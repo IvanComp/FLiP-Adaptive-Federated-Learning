@@ -62,6 +62,8 @@ def VD_A(treatment: List[float], control: List[float]):
 
 metric = {('all', 'same'): 'Cumulative F1',
           ('all', 'new'): 'Cumulative F1',
+          ('all-2', 'same'): 'Cumulative F1',
+          ('all-2', 'new'): 'Cumulative F1',
           ('all-text', 'same'): 'Cumulative F1',
           ('all-text', 'new'): 'Cumulative F1',
           ('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
@@ -88,6 +90,8 @@ metric = {('all', 'same'): 'Cumulative F1',
 
 metric_per_round = {('all', 'same'): 'Cumulative F1',
                     ('all', 'new'): 'Cumulative F1',
+                    ('all-2', 'same'): 'Cumulative F1',
+                    ('all-2', 'new'): 'Cumulative F1',
                     ('all-text', 'same'): 'Cumulative F1',
                     ('all-text', 'new'): 'Cumulative F1',
                     ('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
@@ -122,6 +126,12 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('all', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                r'$\mathrm{FliP_{online}}$'],
+              ('all-2', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{FliP_{rule}}$',
+                                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                  r'$\mathrm{FliP_{online}}$'],
+              ('all-2', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
+                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                 r'$\mathrm{FliP_{online}}$'],
               ('all-text', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{FliP_{rule}}$',
                                      r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                      r'$\mathrm{FliP_{online}}$'],
@@ -192,8 +202,10 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector-2', 'hdh-2',
-    'compressor-2', 'compressor-2-delay']
+patterns = ['selector', 'selector-text',
+            'hdh', 'hdh-text',
+            'selector-2', 'hdh-2',
+            'compressor-2', 'compressor-2-delay']
 persistences = ['same', 'new']
 iid_percentages = [100, 0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -482,7 +494,12 @@ def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filt
     labels = []
     colors = ['#003f5c', '#444e86', '#955196',
               '#dd5182', '#ff6e54', '#ffa600', '#f5e979']
-    multi_p_key = 'all' if 'text' not in pattern else 'all-text'
+    if 'text' in pattern:
+        multi_p_key = 'all-text'
+    elif '-2' in pattern:
+        multi_p_key = 'all-2'
+    else:
+        multi_p_key = 'all'
     for conf, label, color in zip(selected_confs,
                                   label_dict[(multi_p_key, persistence)],
                                   colors):
@@ -1028,18 +1045,6 @@ def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
     vp['cmedians'].set_linewidth(1.0)
     vp['cmedians'].set_zorder(3)
 
-    # means (same as boxplot)
-    means = [np.mean(vals) for vals in valid_data]
-    # ax.scatter(
-    #    valid_positions,
-    #    means,
-    #    marker='^',
-    #    color='white',
-    #    edgecolor='black',
-    #    s=60,
-    #    zorder=4
-    # )
-
     # axis formatting
     if pattern == 'hdh-text' and iid_percentage == 0 and persistence == 'new':
         ax.set_ylim([8.0, 10.0])
@@ -1059,10 +1064,11 @@ def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
 for setup in setups:
     pattern, persistence, iid_percentage, filter = setup
 
-    if pattern in ['selector', 'hdh', 'selector-text', 'hdh-text'] and iid_percentage == 0:
+    if (pattern in ['selector', 'hdh', 'selector-text', 'hdh-text', 'selector-2', 'hdh-2', 'compressor-2']
+            and iid_percentage == 0):
         print(f'Generating {pattern} vs all comparison plot')
         # plot_pattern_vs_all(pattern, persistence, iid_percentage, filter)
-        # plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
+        plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
 
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):
