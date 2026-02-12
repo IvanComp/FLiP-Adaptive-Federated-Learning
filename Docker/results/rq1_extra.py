@@ -34,14 +34,15 @@ should_decrease = ['Cumulative Communication Time', 'Cumulative Training Time', 
                    'Total Time of FL Round', 'Total Time Without Training',
                    'Cumulative Time Without Training']
 
-metrics_for_all_conf = ["Val F1", "Cumulative Total Time", "Cumulative HDH Time"]
+metrics_for_all_conf = ["Cumulative F1", "Val F1",
+                        "Cumulative Total Time", "Cumulative HDH Time",
+                        "Cumulative Time Without Training"]
 
 random.seed(10)
 
-patterns = ['hdh-text',
-            'all-text']
-persistences = ['same', 'new']
-iid_percentages = [100, 0]
+patterns = ['selector-2', 'hdh-2', 'compressor-2', 'all-2']
+persistences = ['new']
+iid_percentages = [0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
 
 selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
@@ -54,6 +55,7 @@ filter_4 = (lambda tup: tup[0] > 0 and tup[1] > 0, 'any-Nhigh-Nlow', '$\\text{an
 filters = {
     'all-text': [filter_4],
     'all': [filter_4],
+    'all-2': [filter_4],
     'selector-text': [filter_4],
     'selector': [filter_4],
     'selector-2': [filter_4],

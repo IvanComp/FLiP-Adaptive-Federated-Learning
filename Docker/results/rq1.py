@@ -96,10 +96,10 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('all', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                r'$\mathrm{FliP_{online}}$'],
-              ('all-2', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{FliP_{rule}}$',
+              ('all-2', 'same'): ['never', 'random', 'all-high+once+always', r'$\mathrm{FliP_{rule}}$',
                                   r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                   r'$\mathrm{FliP_{online}}$'],
-              ('all-2', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
+              ('all-2', 'new'): ['never', 'random', 'all-high+always+always', r'$\mathrm{FliP_{rule}}$',
                                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                  r'$\mathrm{FliP_{online}}$'],
               ('all-text', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{FliP_{rule}}$',
@@ -172,9 +172,9 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector', 'hdh', 'selector-text', 'hdh-text']
+patterns = ['selector-2', 'hdh-2', 'compressor-2']
 persistences = ['same', 'new']
-iid_percentages = [100, 0]
+iid_percentages = [0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
 
 selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
@@ -536,7 +536,11 @@ def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filt
     ax.axhline(0, color='black', linestyle='--', linewidth=1, zorder=1)
 
     # best single-pattern distribution (IQR band)
-    best_conf = max(single_pattern_deltas, key=lambda k: np.mean(single_pattern_deltas[k]))
+    if metric[(pattern, persistence)] in should_decrease:
+        best_conf = min(single_pattern_deltas, key=lambda k: np.mean(single_pattern_deltas[k]))
+    else:
+        best_conf = max(single_pattern_deltas, key=lambda k: np.mean(single_pattern_deltas[k]))
+
     best_deltas = np.asarray(single_pattern_deltas[best_conf])
 
     q1, q3 = np.percentile(best_deltas, [25, 75])
