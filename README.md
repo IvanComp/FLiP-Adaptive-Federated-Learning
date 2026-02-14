@@ -1,7 +1,7 @@
 ---
 Version: [1.5.0]
-Main Libraries: [Flower, PyTorch, Torchvision]
-Testing Datasets: [torchvision.datasets, torchtext.datasets]
+Main Libraries: [Flower, PyTorch, matplotlib]
+Testing Datasets: [torchvision.datasets, torchtext.datasets, torchaudio.datasets]
 Testing Models: [torchvision.models (+120)]
 ---
 
