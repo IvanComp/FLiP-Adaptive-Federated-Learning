@@ -31,6 +31,9 @@ This repository extends [AP4Fed](https://github.com/IvanComp/AP4Fed) (Architectu
 
 # FLiP in a Nutshell
 
+<p align="center">
+<img src="img/readme/adaptArch.pdf" width="340px" height="210px"/>
+</p>
 
 
 # Experiments for [1]
