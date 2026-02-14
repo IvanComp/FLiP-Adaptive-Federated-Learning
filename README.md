@@ -35,6 +35,7 @@ This repository extends [AP4Fed](https://github.com/IvanComp/AP4Fed) (Architectu
 <img src="img/readme/adaptArch.pdf" width="340px" height="210px"/>
 </p>
 
+FLiP is a Federated Learning framework built on top of Flower, an open-source Python library designed to simplify the development of Federated Learning systems. FLiP enhances this foundation with an adaptation layer that monitors each training round and selects which architectural patterns to apply, enabling or disabling them and tuning their parameters to match current system conditions and performance goals.
 
 # Experiments for [1]
 
