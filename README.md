@@ -9,6 +9,13 @@ Testing Models: [torchvision.models (+120)]
 
 This repository contains AP4Fed (Architectural Patterns for Federated Learning), a Flower-based reference implementation equipped with an adaptation subsystem that enables and disables architectural patterns and tunes their parameters across FL rounds. The implementation builds on the ideas introduced in FLiP [1], where architectural patterns are toggled at runtime (round-by-round) to better match evolving system conditions and performance goals. 
 
+# Authors
+
+- Luciano Baresi (Politecnico di Milano)
+- Ivan Compagnucci (Gran Sasso Science Institute)
+- Livia Lestingi (Politecnico di Milano)
+- Catia Trubiani (Gran Sasso Science Institute)
+
 _JSS__Adaptive_FL_Patterns__ECS…
 
 - Detailed Dockerized implementation and adaptation docs: [Docker/README.md](Docker/README.md)
