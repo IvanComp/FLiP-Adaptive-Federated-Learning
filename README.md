@@ -8,7 +8,6 @@ Testing Models: [torchvision.models (+120)]
 # FLiP
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/IvanComp/FLiP-Adaptive-Federated-Learning">
   <img src="https://img.shields.io/badge/python-3.12+-yellow">
   <img src="https://img.shields.io/badge/docker-3.10+-blue">
 </p>
@@ -21,7 +20,7 @@ Testing Models: [torchvision.models (+120)]
 </p>
 
 
-This repository extends [AP4Fed (Architectural Patterns for Federated Learning)](https://www.python.org/downloads/](https://github.com/IvanComp/AP4Fed), a Flower-based reference implementation equipped with an adaptation subsystem that enables and disables architectural patterns and tunes their parameters across FL rounds. The implementation builds on the ideas introduced in FLiP [1], where architectural patterns are toggled at runtime (round-by-round) to better match evolving system conditions and performance goals. 
+This repository extends [AP4Fed](https://github.com/IvanComp/AP4Fed) (Architectural Patterns for Federated Learning), a Flower-based reference implementation equipped with an adaptation subsystem that enables and disables architectural patterns and tunes their parameters across FL rounds. The implementation builds on the ideas introduced in **FLiP** [1], where architectural patterns are toggled at runtime (round-by-round) to better match evolving system conditions and performance goals. 
 
 # Authors
 
