@@ -9,23 +9,6 @@ Testing Models: [torchvision.models (+120)]
 
 This repository contains AP4Fed (Architectural Patterns for Federated Learning), a Flower-based reference implementation equipped with an adaptation subsystem that enables and disables architectural patterns and tunes their parameters across FL rounds. The implementation builds on the ideas introduced in FLiP [1], where architectural patterns are toggled at runtime (round-by-round) to better match evolving system conditions and performance goals. 
 
-# References
-
-[1] Baresi, L., Compagnucci, I., Lestingi, L., & Trubiani, C. (2026). Adaptive Toggling of Architectural Patterns for Federated Learning.
-Accepted for the International Conference on Software Engineering for Adaptive and Self-Managing Systems (SEAMS) 2026. Rio de Janeiro, Brazil, 13–14 April 2026.
-
-```
-@inproceedings{BaresiSEAMSFlIP,
-  author    = {Baresi, Luciano and Compagnucci, Ivan and Lestingi, Livia and Trubiani, Catia},
-  title     = {{Adaptive Toggling of Architectural Patterns for Federated Learning}},
-  booktitle = {International Conference on Software Engineering for Adaptive and Self-Managing Systems (SEAMS)},
-  year      = {2026},
-  address   = {Rio de Janeiro, Brazil},
-  date      = {13--14 April 2026}
-}
-
-```
-
 _JSS__Adaptive_FL_Patterns__ECS…
 
 - Detailed Dockerized implementation and adaptation docs: [Docker/README.md](Docker/README.md)
@@ -70,3 +53,19 @@ The [Docker/results](Docker/results) folder contains the experimental results. B
   ```
 
 If you are looking to run the experiments and produce the input data for these analyses, see [Docker/README.md](Docker/README.md).
+
+# References
+
+[1] Baresi, L., Compagnucci, I., Lestingi, L., & Trubiani, C. (2026). Adaptive Toggling of Architectural Patterns for Federated Learning.
+Accepted for the International Conference on Software Engineering for Adaptive and Self-Managing Systems (SEAMS) 2026. Rio de Janeiro, Brazil, 13–14 April 2026.
+
+```
+@inproceedings{BaresiSEAMSFlIP,
+  author    = {Baresi, Luciano and Compagnucci, Ivan and Lestingi, Livia and Trubiani, Catia},
+  title     = {{Adaptive Toggling of Architectural Patterns for Federated Learning}},
+  booktitle = {International Conference on Software Engineering for Adaptive and Self-Managing Systems (SEAMS)},
+  year      = {2026},
+  address   = {Rio de Janeiro, Brazil},
+  date      = {13--14 April 2026}
+}
+```
