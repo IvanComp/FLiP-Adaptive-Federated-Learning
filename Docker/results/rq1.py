@@ -172,7 +172,9 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector-2', 'hdh-2', 'compressor-2']
+patterns = ['selector-text', 'hdh-text', 'compressor-text', 'compressor-text-delay',
+            'selector', 'hdh', 'compressor', 'compressor-delay',
+            'selector-2', 'hdh-2', 'compressor-2', 'compressor-2-delay']
 persistences = ['same', 'new']
 iid_percentages = [0]
 pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
@@ -549,7 +551,7 @@ def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filt
     ax.axhspan(
         q1,
         q3,
-        color='red',
+        color='green',
         alpha=0.15,
         zorder=1
     )
@@ -557,9 +559,9 @@ def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filt
     # optional: keep mean line for anchoring
     ax.axhline(
         best_mean,
-        color='red',
-        linestyle='--',
-        linewidth=1,
+        color='green',
+        linestyle='-',
+        linewidth=.75,
         zorder=1
     )
 
@@ -789,7 +791,7 @@ for setup in setups:
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     # plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
+    # plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
