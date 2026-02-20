@@ -170,7 +170,7 @@ class FlowerClient(NumPyClient):
         self.did_hdh = False
         self.trainloader, self.testloader = None, None
         self.delay_enabled = (client_config.get("delay_combobox") == "Yes")
-        self.delay_injection = 50
+        self.delay_injection = 20
 
         if self.n_cpu is not None:
             try:
@@ -410,6 +410,7 @@ class FlowerClient(NumPyClient):
                 "data_distribution_type": self.data_distribution_type,
                 "dataset": self.dataset,
                 "compressed_parameters_b64": compressed_parameters_b64,
+                "jsd": get_jsd_A(self.trainloader)
             }
             return [], len(self.trainloader.dataset), metrics
         else:

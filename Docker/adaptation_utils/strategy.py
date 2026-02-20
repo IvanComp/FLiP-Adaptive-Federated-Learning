@@ -13,57 +13,51 @@ def get_patterns(json_config):
 
 
 def get_activation_criteria(json_config, default_config):
-    # TODO should work with multiple metrics
-    pattern_name = json_config['activation_criteria']['metrics'][0]['pattern']
-    metric_name = json_config['activation_criteria']['metrics'][0]['metric']
-    metric_type = json_config['activation_criteria']['metrics'][0]['threshold']['type']
-    threshold_config = json_config['activation_criteria']['metrics'][0]['threshold']
-    strategy_name = json_config['activation_criteria']['metrics'][0]['name']
+    criteria = []
+    for criterion in json_config['activation_criteria']['metrics']:
+        pattern_name = criterion['pattern']
+        metric_name = criterion['metric']
+        metric_type = criterion['threshold']['type']
+        threshold_config = criterion['threshold']
+        strategy_name = criterion['name']
 
-    if threshold_config['calculation_method'] == 'predictor_based':
-        model_path = threshold_config['predictor']['model_path']
-        with open(model_path, "rb") as f:
-            model = load(f)
-
-        return [PredictorBasedActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
-                                                  default_config, metric_type)]
-    elif threshold_config['calculation_method'] == 'predictor-local':
-        model_path = threshold_config['predictor']['model_path']
-        with open(model_path, "rb") as f:
-            model = load(f)
-
-        return [PredictorBasedLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
-                                                       default_config)]
-    elif threshold_config['calculation_method'] == 'bayesian_optimization':
-        model_path = threshold_config['predictor']['model_path']
-        model = joblib.load(threshold_config['predictor']['model_path'])
-
-        return [BayesianOptimizationActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
-                                                        default_config)]
-
-    elif threshold_config['calculation_method'] == 'bayesian_optimization-local':
-        model_path = threshold_config['predictor']['model_path']
-        model = joblib.load(threshold_config['predictor']['model_path'])
-
-        return [
-            BayesianOptimizationLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
-                                                         default_config)]
-    elif threshold_config['calculation_method'] == 'fixed-global':
-        return [FixedGlobalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
-                                                        strategy_name, default_config, metric_type)]
-    elif threshold_config['calculation_method'] == 'fixed-local':
-        return [FixedLocalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
-                                                       strategy_name,
-                                                       default_config)]
-    elif threshold_config['calculation_method'] == "contextual_bandit":
-        return [ContextualBanditActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
-                                                    alpha=threshold_config.get("alpha", 1.0))]
-    elif threshold_config['calculation_method'] == "contextual_bandit-local":
-        return [ContextualBanditLocalActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
-                                                         alpha=threshold_config.get("alpha", 1.0))]
-    else:
-        return [RandomActivationCriterion(pattern_name, metric_name, strategy_name, default_config)]
-
+        if threshold_config['calculation_method'] == 'predictor_based':
+            model_path = threshold_config['predictor']['model_path']
+            with open(model_path, "rb") as f:
+                model = load(f)
+            criteria.append(PredictorBasedActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                    default_config, metric_type))
+        elif threshold_config['calculation_method'] == 'predictor-local':
+            model_path = threshold_config['predictor']['model_path']
+            with open(model_path, "rb") as f:
+                model = load(f)
+            criteria.append(PredictorBasedLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                        default_config, metric_type))
+        elif threshold_config['calculation_method'] == 'bayesian_optimization':
+            model_path = threshold_config['predictor']['model_path']
+            model = joblib.load(threshold_config['predictor']['model_path'])
+            criteria.append(BayesianOptimizationActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                            default_config))
+        elif threshold_config['calculation_method'] == 'bayesian_optimization-local':
+            model_path = threshold_config['predictor']['model_path']
+            model = joblib.load(threshold_config['predictor']['model_path'])
+            criteria.append(BayesianOptimizationLocalActivationCriterion(pattern_name, metric_name, model, model_path, strategy_name,
+                                                            default_config))
+        elif threshold_config['calculation_method'] == 'fixed-global':
+            criteria.append(FixedGlobalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
+                                                            strategy_name, default_config, metric_type))
+        elif threshold_config['calculation_method'] == 'fixed-local':
+            criteria.append(FixedLocalThresholdActivationCriterion(pattern_name, metric_name, float(threshold_config['value']),
+                                                        strategy_name, default_config))
+        elif threshold_config['calculation_method'] == "contextual_bandit":
+            criteria.append(ContextualBanditActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
+                                                        alpha=threshold_config.get("alpha", 1.0)))
+        elif threshold_config['calculation_method'] == "contextual_bandit-local":
+            criteria.append(ContextualBanditLocalActivationCriterion(pattern_name, metric_name, strategy_name, default_config,
+                                                         alpha=threshold_config.get("alpha", 1.0)))
+        else:
+            criteria.append(RandomActivationCriterion(pattern_name, metric_name, strategy_name, default_config))
+    return criteria
 
 def get_no_iid_clients(clients_config):
     no_clients = len(clients_config['client_details'])
@@ -84,7 +78,7 @@ def compare_w_threshold(metric, value, metric_type):
     if metric_type == 'increasing':
         return metric <= value
     elif metric_type == 'decreasing':
-        return metric > value
+        return metric >= value
     else:
         raise ValueError(f"Unknown metric type: {metric_type}")
 
@@ -205,7 +199,7 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         new_aggregated_metrics = args['metrics']
         last_round_time = args['time']
 
-        if len(new_aggregated_metrics[model_type][self.metric]) < 1:
+        if len(new_aggregated_metrics[model_type]['val_f1']) < 1:
             return True, "Less than 1 round completed, keeping default config."
 
         if self.metric != 'time':
@@ -217,10 +211,17 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
         iid_clients = get_no_iid_clients(self.clients_config)
         n_high, n_low = get_high_low_clients(self.clients_config)
 
-        # TODO should be parametric w.r.t. predictor input
-        prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, last_metric]])[
+        if self.metric != 'time':
+            # TODO should be parametric w.r.t. predictor input
+            prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, len(new_aggregated_metrics[model_type][self.metric]), last_metric]])[
             0]
-        prediction_wo_pattern = \
+            prediction_wo_pattern = \
+            self.model.predict([[n_high, n_low, iid_clients, False, len(new_aggregated_metrics[model_type][self.metric]), last_metric]])[0]
+        else:
+            # TODO should be parametric w.r.t. predictor input
+            prediction_w_pattern = self.model.predict([[n_high, n_low, iid_clients, True, last_metric]])[
+            0]
+            prediction_wo_pattern = \
             self.model.predict([[n_high, n_low, iid_clients, False, last_metric]])[0]
 
         expl = "{}-iid clients, predicted wo:{:.4f} vs w:{:.4f}, ".format(iid_clients, prediction_wo_pattern,
@@ -235,9 +236,10 @@ class PredictorBasedActivationCriterion(ActivationCriterion):
 
 
 class PredictorBasedLocalActivationCriterion(ActivationCriterion):
-    def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config):
+    def __init__(self, pattern, metric, model, model_name, strategy_name, clients_config, metric_type):
         self.model = model
         self.model_name = model_name
+        self.metric_type = metric_type
         super().__init__(pattern, metric, strategy_name, clients_config)
 
     def __str__(self):
@@ -275,7 +277,7 @@ class PredictorBasedLocalActivationCriterion(ActivationCriterion):
             expl = f"client {client_i + 1}, predicted wo:{prediction_wo_pattern:.4f} vs w:{prediction_w_pattern:.4f}"
             log(INFO, expl)
 
-            if prediction_w_pattern > prediction_wo_pattern:
+            if compare_w_threshold(prediction_w_pattern, prediction_wo_pattern, self.metric_type):
                 apply_pattern.append(f"Client {client_i + 1}")
 
         if len(apply_pattern) == 0:
@@ -304,7 +306,7 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
         if self.metric != 'time':
             scaler = joblib.load('predictors/bo_scaler.pkl')
         else:
-            scaler = joblib.load('predictors/bo_scaler_selector_new.pkl')
+            scaler = joblib.load('predictors/bo_scaler_compressor-2-delay.pkl')
 
         if self.metric != 'time':
             def objective(pattern_on, next_round, prev_f1_overtime):  # binary: 0 or 1

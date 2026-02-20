@@ -248,7 +248,17 @@ def preprocess_csv():
             subdf.loc[subdf["Client Number"] != last, col] = pd.NA
         return subdf
 
+    Fl_col_pos = df.columns.get_loc("FL Round")
+    Fl_col = df["FL Round"].copy()
     df = df.groupby("FL Round", group_keys=False).apply(fix_round_values)
+    df["FL Round"] = Fl_col
+    
+    # restore the original order of columns
+    cols = list(df.columns)
+    cols.remove("FL Round")
+    cols.insert(Fl_col_pos, "FL Round")
+    df = df[cols]
+
     df.drop(columns=["Client Number"], inplace=True)
     df.to_csv(csv_file, index=False)
     sns.set_theme(style="ticks")
@@ -482,7 +492,7 @@ class MultiModelStrategy(Strategy):
             self._send_ts[client.cid] = time.time()
             if 'MESSAGE_COMPRESSOR' in globals() and MESSAGE_COMPRESSOR:
                 cfg = {"compressed_parameters_b64": compressed_parameters_b64}
-                fit_ins = FitIns(fake_parameters, cfg)
+                fit_ins = FitIns(base_params, cfg)
             else:
                 fit_ins = FitIns(base_params, {})
 
@@ -511,7 +521,7 @@ class MultiModelStrategy(Strategy):
             if fit_res.num_examples == 0:
                 training_time = None
                 communication_time = None
-                compressed_parameters_hex = None
+                compressed_parameters_b64 = None
                 client_id = client_proxy.cid
                 model_type = None
                 metrics = {

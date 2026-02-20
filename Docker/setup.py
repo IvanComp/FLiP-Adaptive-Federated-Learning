@@ -32,7 +32,7 @@ else:
                 \"data_distribution_type\": \"{}\",
                 \"data_persistence_type\": \"{}\",
                 \"delay_combobox\": \"{}\",
-                \"model\": \"CNN 16k\",
+                \"model\": \"CNN 64k\",
                 \"epochs\": 1
             }}"""
 
