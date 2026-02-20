@@ -1,21 +1,6 @@
 {
-    "adaptation": true,
-    "activation_criteria": {
-        "metrics": [
-            {
-                "name": "f1overtime",
-                "pattern": "message_compressor",
-                "metric": "val_f1",
-                "threshold": {
-                    "type": "increasing",
-                    "calculation_method": "predictor_based",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_tree_compressor-2_5472.pkl"
-                    }
-                }
-            }
-        ]
-    },
+    "adaptation": false,
+    "activation_criteria": {},
     "simulation_type": "Docker",
     "rounds": 20,
     "clients": **CLIENTS_COUNT**,
@@ -25,15 +10,14 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {}
+            "enabled": false
         },
         "client_cluster": {
             "enabled": false,
             "params": {}
         },
         "message_compressor": {
-            "enabled": true,
+            "enabled": false,
             "params": {}
         },
         "model_co-versioning_registry": {

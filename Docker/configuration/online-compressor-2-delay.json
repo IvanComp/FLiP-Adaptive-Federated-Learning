@@ -5,13 +5,11 @@
             {
                 "name": "f1overtime",
                 "pattern": "message_compressor",
-                "metric": "val_f1",
+                "metric": "communication_time",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "predictor_based",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_tree_compressor-2_5472.pkl"
-                    }
+                    "calculation_method": "contextual_bandit",
+                    "alpha": 1.0
                 }
             }
         ]

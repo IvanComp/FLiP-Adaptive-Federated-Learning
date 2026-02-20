@@ -4,14 +4,29 @@
         "metrics": [
             {
                 "name": "f1overtime",
+                "pattern": "client_selector",
+                "metric": "val_f1",
+                "threshold": {
+                    "type": "increasing",
+                    "calculation_method": "random"
+                }
+            },
+            {
+                "name": "random",
+                "pattern": "heterogeneous_data_handler",
+                "metric": "jsd",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "random"
+                }
+            },
+            {
+                "name": "f1overtime",
                 "pattern": "message_compressor",
                 "metric": "val_f1",
                 "threshold": {
                     "type": "increasing",
-                    "calculation_method": "predictor_based",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_tree_compressor-2_5472.pkl"
-                    }
+                    "calculation_method": "random"
                 }
             }
         ]
@@ -25,8 +40,12 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "selection_strategy": "Resource-Based",
+                "selection_criteria": "CPU",
+                "selection_value": 2
+            }
         },
         "client_cluster": {
             "enabled": false,
@@ -45,8 +64,10 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "enabled_clients": []
+            }
         }
     },
     "client_details": [

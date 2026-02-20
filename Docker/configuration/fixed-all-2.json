@@ -1,0 +1,79 @@
+{
+    "adaptation": true,
+    "activation_criteria": {
+        "metrics": [
+            {
+                "name": "fixed",
+                "pattern": "client_selector",
+                "metric": "val_f1",
+                "threshold": {
+                    "type": "increasing",
+                    "calculation_method": "fixed-global",
+                    "value": 0.4
+                }
+            },
+            {
+                "name": "fixed",
+                "pattern": "heterogeneous_data_handler",
+                "metric": "jsd",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "fixed-local",
+                    "value": 0.1
+                }
+            },
+            {
+                "name": "fixed",
+                "pattern": "message_compressor",
+                "metric": "time",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "fixed-global",
+                    "value": 85.0
+                }
+            }
+        ]
+    },
+    "simulation_type": "Docker",
+    "rounds": 20,
+    "clients": **CLIENTS_COUNT**,
+    "patterns": {
+        "client_registry": {
+            "enabled": true,
+            "params": {}
+        },
+        "client_selector": {
+            "enabled": true,
+            "params": {
+                "selection_strategy": "Resource-Based",
+                "selection_criteria": "CPU",
+                "selection_value": 2
+            }
+        },
+        "client_cluster": {
+            "enabled": false,
+            "params": {}
+        },
+        "message_compressor": {
+            "enabled": true,
+            "params": {}
+        },
+        "model_co-versioning_registry": {
+            "enabled": false,
+            "params": {}
+        },
+        "multi-task_model_trainer": {
+            "enabled": false,
+            "params": {}
+        },
+        "heterogeneous_data_handler": {
+            "enabled": true,
+            "params": {
+                "enabled_clients": []
+            }
+        }
+    },
+    "client_details": [
+        **CLIENTS**
+    ]
+}
