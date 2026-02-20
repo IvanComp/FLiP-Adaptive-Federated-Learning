@@ -516,7 +516,7 @@ class MultiModelStrategy(Strategy):
         training_times = []
         currentRnd += 1
         model_type = None  # Initialize to handle case when all clients fail
-
+        max_communication_time = 0.0
         for client_proxy, fit_res in results:
             if fit_res.num_examples == 0:
                 training_time = None
@@ -557,6 +557,7 @@ class MultiModelStrategy(Strategy):
                     metrics["communication_time"] = server_comm_time
                 else:
                     metrics["server_comm_time"] = server_comm_time
+                max_communication_time = max(max_communication_time, communication_time, server_comm_time)
 
             if MESSAGE_COMPRESSOR and compressed_parameters_b64:
                 compressed = base64.b64decode(compressed_parameters_b64)
@@ -630,7 +631,7 @@ class MultiModelStrategy(Strategy):
         log(INFO, metrics_history)
         next_round_config = self.adapt_mgr.config_next_round(metrics_history,
                                                              {"round": round_total_time,
-                                                              "communication": communication_time})
+                                                              "communication": max_communication_time})
         config_patterns(next_round_config)
 
         return self.parameters_a, metrics_aggregated
