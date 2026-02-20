@@ -222,7 +222,7 @@ class FlowerClient(NumPyClient):
             self.trainloader, self.testloader = load_data_A(self.client_config, GLOBAL_ROUND_COUNTER)
 
         needs_rebalancing = self.data_persistence_type != "Same Data" or (
-                    self.data_persistence_type == "Same Data" and not self.did_hdh)
+                self.data_persistence_type == "Same Data" and not self.did_hdh)
         if HETEROGENEOUS_DATA_HANDLER and (ADAPTATION_ENABLED or needs_rebalancing):
             self.trainloader, hdh_ms = rebalance_trainloader_with_gan_A(self.trainloader)
             self.did_hdh = True

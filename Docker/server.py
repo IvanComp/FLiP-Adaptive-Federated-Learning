@@ -252,7 +252,7 @@ def preprocess_csv():
     Fl_col = df["FL Round"].copy()
     df = df.groupby("FL Round", group_keys=False).apply(fix_round_values)
     df["FL Round"] = Fl_col
-    
+
     # restore the original order of columns
     cols = list(df.columns)
     cols.remove("FL Round")

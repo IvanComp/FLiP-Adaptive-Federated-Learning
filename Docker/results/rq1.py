@@ -172,8 +172,8 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector-text', 'hdh-text', 'compressor-text', 'compressor-text-delay',
-            'selector', 'hdh', 'compressor', 'compressor-delay',
+patterns = ['selector-text', 'hdh-text',
+            'selector', 'hdh',
             'selector-2', 'hdh-2', 'compressor-2', 'compressor-2-delay']
 persistences = ['same', 'new']
 iid_percentages = [0]
@@ -791,7 +791,7 @@ for setup in setups:
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     # plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    # plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
+    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
@@ -1030,4 +1030,4 @@ for setup in setups:
         continue
 
     print(f'Performing statistical tests for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
-    # run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
+    run_statistical_tests(setup[0], setup[1], setup[2], setup[3])
