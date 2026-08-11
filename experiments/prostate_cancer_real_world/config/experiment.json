@@ -1,0 +1,62 @@
+{
+  "seed": 1234,
+  "rounds": 20,
+  "repetitions": 1,
+  "test_size": 0.2,
+  "model": {
+    "type": "logistic_regression",
+    "solver": "lbfgs",
+    "penalty": "l2",
+    "class_weight": null,
+    "local_max_iter_per_round": 100,
+    "tolerance": 0.0001,
+    "C": 1.0
+  },
+  "network": {
+    "conditions": [
+      "stable",
+      "unstable"
+    ],
+    "unstable_delay_seconds": {
+      "distribution": "discrete_uniform",
+      "minimum": 0,
+      "maximum": 20
+    }
+  },
+  "patterns": {
+    "client_selector": {
+      "cpu_threshold": 2
+    },
+    "heterogeneous_data_handler": {
+      "method": "random_minority_oversampling",
+      "target": "balanced"
+    },
+    "message_compressor": {
+      "algorithm": "zlib_lz77",
+      "level": 1
+    }
+  },
+  "policy": {
+    "methods": [
+      "never",
+      "random",
+      "always",
+      "fliponline"
+    ],
+    "patterns": [
+      "client_selector",
+      "heterogeneous_data_handler",
+      "message_compressor"
+    ],
+    "linucb_alpha": 1.0,
+    "hdh_time_lambda": 0.0001
+  },
+  "data": {
+    "url": "https://raw.githubusercontent.com/phaseivai/Towards-Practical-FL/fbf825ba48e12e4c40c299d65ee6b9268c276d14/data/data.pkl",
+    "sha256": "4188abeebd77484bd5b6ace48cef224bfc355998fcd3a28c40012688af52030e",
+    "excluded_silos": [
+      "Turkey",
+      "Finland"
+    ]
+  }
+}

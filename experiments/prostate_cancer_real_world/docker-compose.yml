@@ -1,0 +1,195 @@
+name: prostate-flip
+
+x-image: &experiment-image
+  image: prostate-flip-clinical:latest
+
+x-client-environment: &client-environment
+  SERVER_ADDRESS: server:8080
+  SEED: "1234"
+  REPETITION: ${REPETITION:-1}
+  CLIENT_DATA_PATH: /app/data/client.npz
+
+x-client: &client
+  <<: *experiment-image
+  command: ["sh", "-c", "sleep 5 && python /app/client.py"]
+  depends_on:
+    - server
+  restart: on-failure:3
+  mem_limit: 512m
+  networks:
+    - flwr_network
+  labels:
+    experiment: prostate-cancer-real-world
+    role: flower-client
+
+services:
+  server:
+    <<: *experiment-image
+    build:
+      context: ../..
+      dockerfile: experiments/prostate_cancer_real_world/docker/Dockerfile
+    command: ["python", "/app/server.py"]
+    environment:
+      METHOD: ${METHOD:-fliponline}
+      NETWORK_CONDITION: ${NETWORK_CONDITION:-unstable}
+      REPETITION: ${REPETITION:-1}
+      RESULTS_ROOT: /app/results
+      ROUNDS: ${ROUNDS:-20}
+      RUN_ID: ${RUN_ID:-manual}
+    ports:
+      - "18080:8080"
+    volumes:
+      - ./docker_results:/app/results
+      - ../../Docker:/app/Docker:ro
+    networks:
+      - flwr_network
+    labels:
+      experiment: prostate-cancer-real-world
+      role: flower-server
+
+  client-es:
+    <<: *client
+    container_name: prostate-client-es
+    cpus: 2.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "1"
+      SILO: Spain
+      CLIENT_CODE: es
+      CPU_LIMIT: "2"
+    volumes:
+      - ./data/clients/es.npz:/app/data/client.npz:ro
+
+  client-kr:
+    <<: *client
+    container_name: prostate-client-kr
+    cpus: 1.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "2"
+      SILO: Korea
+      CLIENT_CODE: kr
+      CPU_LIMIT: "1"
+    volumes:
+      - ./data/clients/kr.npz:/app/data/client.npz:ro
+
+  client-de1:
+    <<: *client
+    container_name: prostate-client-de1
+    cpus: 2.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "3"
+      SILO: Germany1
+      CLIENT_CODE: de1
+      CPU_LIMIT: "2"
+    volumes:
+      - ./data/clients/de1.npz:/app/data/client.npz:ro
+
+  client-ch2:
+    <<: *client
+    container_name: prostate-client-ch2
+    cpus: 1.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "4"
+      SILO: China2
+      CLIENT_CODE: ch2
+      CPU_LIMIT: "1"
+    volumes:
+      - ./data/clients/ch2.npz:/app/data/client.npz:ro
+
+  client-ch1:
+    <<: *client
+    container_name: prostate-client-ch1
+    cpus: 2.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "5"
+      SILO: China1
+      CLIENT_CODE: ch1
+      CPU_LIMIT: "2"
+    volumes:
+      - ./data/clients/ch1.npz:/app/data/client.npz:ro
+
+  client-us2:
+    <<: *client
+    container_name: prostate-client-us2
+    cpus: 1.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "6"
+      SILO: USA2
+      CLIENT_CODE: us2
+      CPU_LIMIT: "1"
+    volumes:
+      - ./data/clients/us2.npz:/app/data/client.npz:ro
+
+  client-us1:
+    <<: *client
+    container_name: prostate-client-us1
+    cpus: 2.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "7"
+      SILO: USA1
+      CLIENT_CODE: us1
+      CPU_LIMIT: "2"
+    volumes:
+      - ./data/clients/us1.npz:/app/data/client.npz:ro
+
+  client-nl:
+    <<: *client
+    container_name: prostate-client-nl
+    cpus: 1.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "8"
+      SILO: Netherlands
+      CLIENT_CODE: nl
+      CPU_LIMIT: "1"
+    volumes:
+      - ./data/clients/nl.npz:/app/data/client.npz:ro
+
+  client-it:
+    <<: *client
+    container_name: prostate-client-it
+    cpus: 2.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "9"
+      SILO: Italy
+      CLIENT_CODE: it
+      CPU_LIMIT: "2"
+    volumes:
+      - ./data/clients/it.npz:/app/data/client.npz:ro
+
+  client-de2:
+    <<: *client
+    container_name: prostate-client-de2
+    cpus: 1.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "10"
+      SILO: Germany2
+      CLIENT_CODE: de2
+      CPU_LIMIT: "1"
+    volumes:
+      - ./data/clients/de2.npz:/app/data/client.npz:ro
+
+  client-gb:
+    <<: *client
+    container_name: prostate-client-gb
+    cpus: 2.0
+    environment:
+      <<: *client-environment
+      CLIENT_ID: "11"
+      SILO: UK
+      CLIENT_CODE: gb
+      CPU_LIMIT: "2"
+    volumes:
+      - ./data/clients/gb.npz:/app/data/client.npz:ro
+
+networks:
+  flwr_network:
+    driver: bridge
