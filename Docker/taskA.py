@@ -1,4 +1,5 @@
 import json
+import pickle
 import os
 import random
 import time
@@ -8,6 +9,7 @@ from logging import INFO
 from pathlib import Path
 from collections import defaultdict
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,6 +17,8 @@ import torchvision.models as models
 import torchvision.utils as vutils
 from flwr.common.logger import log
 from sklearn.metrics import f1_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
 from torch.utils.data import Dataset
 from torchgan.losses import MinimaxGeneratorLoss, MinimaxDiscriminatorLoss
@@ -148,6 +152,13 @@ AVAILABLE_DATASETS = {
         "normalize": None,
         "channels": 1,
         "num_classes": 4
+    },
+    "PROSTATE_CANCER": {
+        "class": None,
+        "normalize": None,
+        "channels": 1,
+        "num_classes": 2,
+        "num_features": 8
     }
 }
 _orig_make_grid = vutils.make_grid
@@ -203,6 +214,8 @@ def normalize_dataset_name(name: str) -> str:
         return "YESNO"
     elif name_clean == "CMUARCTIC":
         return "CMUARCTIC"
+    elif name_clean in ("PROSTATECANCER", "PROSTATE", "PCA", "PROSTATEFL"):
+        return "PROSTATE_CANCER"
     else:
         return name
 
@@ -312,6 +325,20 @@ class TextLSTM(nn.Module):
         else:
             hidden_combined = hidden[-1, :, :]
         return self.fc(hidden_combined)
+
+
+class ProstateLogisticRegression(nn.Module):
+    """Single-logit binary logistic regression matching the source study."""
+
+    def __init__(self, input_dim: int = 8, num_classes: int = 2) -> None:
+        super().__init__()
+        # sklearn LogisticRegression for a binary target learns one coefficient
+        # vector and one intercept. Keeping the same parameterization also makes
+        # Flower's weighted parameter averaging equivalent to the source study.
+        self.linear = nn.Linear(input_dim, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.linear(x.float()).squeeze(-1)
 
 
 class M5(nn.Module):
@@ -481,6 +508,11 @@ def get_dynamic_model(num_classes: int, model_name: str = None, pretrained: bool
         )
     if name in ("m5", "m_5"):
         return M5(n_input=1, n_output=num_classes)
+    if name in ("prostate_logreg", "prostate_logistic_regression", "tabular_logreg", "logistic_regression"):
+        return ProstateLogisticRegression(
+            input_dim=AVAILABLE_DATASETS["PROSTATE_CANCER"]["num_features"],
+            num_classes=num_classes,
+        )
     if not hasattr(models, name):
         raise ValueError(f"Modello '{model_name}' non in torchvision.models")
     constructor = getattr(models, name)
@@ -600,6 +632,269 @@ def load_balanced_data(iterator, max_total, num_classes, label_extractor, item_p
     return data
 
 
+PROSTATE_FEATURE_COLUMNS = [
+    "age", "PSA", "PV", "PSA_SPLINE_2", "PSA_SPLINE_3",
+    "PIRADS_3", "PIRADS_4", "PIRADS_5",
+]
+
+
+def _prostate_spline(x: float, i: int) -> float:
+    """Restricted cubic spline used by the source prostate-cancer study."""
+    t = [3.80, 6.60, 9.40, 18.47]
+    return (
+        max(x - t[i], 0) ** 3
+        - max(x - t[2], 0) ** 3 * (t[3] - t[i]) / (t[3] - t[2])
+        + max(x - t[3], 0) ** 3 * (t[2] - t[i]) / (t[3] - t[2])
+    )
+
+
+def _prepare_prostate_dataframe(df):
+    """Convert one preprocessed hospital dataframe to the paper's model features."""
+    required = {"sig_cancer", "age", "PSA", "PV", "PIRADS"}
+    missing = required.difference(df.columns)
+    if missing:
+        raise ValueError(f"Prostate dataset is missing required columns: {sorted(missing)}")
+
+    value = df.copy()
+    if "5ARI" not in value.columns:
+        value["5ARI"] = 0.0
+
+    for col in ["sig_cancer", "age", "PSA", "PV", "PIRADS", "5ARI"]:
+        value[col] = pd.to_numeric(value[col], errors="coerce")
+    value = value.dropna(subset=["sig_cancer", "age", "PSA", "PV", "PIRADS"])
+
+    # Same 5-alpha-reductase-inhibitor correction and spline transformation
+    # used in the public replication package of Kazlouski et al. (2025).
+    on_5ari = value["5ARI"] == 1
+    value.loc[on_5ari, "PV"] = value.loc[on_5ari, "PV"] / 0.7
+    value.loc[on_5ari, "PSA"] = value.loc[on_5ari, "PSA"] * 2.0
+    value["PSA_SPLINE_2"] = value["PSA"].apply(lambda x: _prostate_spline(float(x), 0))
+    value["PSA_SPLINE_3"] = value["PSA"].apply(lambda x: _prostate_spline(float(x), 1))
+
+    pirads = value["PIRADS"].astype(int)
+    value["PIRADS_3"] = (pirads == 3).astype(float)
+    value["PIRADS_4"] = (pirads == 4).astype(float)
+    value["PIRADS_5"] = (pirads == 5).astype(float)
+    value["sig_cancer"] = value["sig_cancer"].astype(int)
+
+    value = value[["sig_cancer"] + PROSTATE_FEATURE_COLUMNS]
+    value = value.replace([np.inf, -np.inf], np.nan).dropna()
+    return value.reset_index(drop=True)
+
+
+def _stratified_frame_split(df, test_fraction: float, seed: int):
+    """Match the source study's sklearn stratified 80/20 silo split."""
+    train_df, test_df = train_test_split(
+        df,
+        test_size=test_fraction,
+        random_state=seed,
+        stratify=df["sig_cancer"],
+    )
+    return train_df.reset_index(drop=True), test_df.reset_index(drop=True)
+
+
+def _allocate_prostate_shards(silo_sizes, total_clients: int):
+    """Allocate virtual clients across source hospitals using largest remainders."""
+    names = list(silo_sizes.keys())
+    if total_clients < 1:
+        raise ValueError("The prostate task requires at least one client.")
+    if total_clients < len(names):
+        names = sorted(names, key=lambda n: silo_sizes[n], reverse=True)[:total_clients]
+        return {name: 1 for name in names}
+
+    allocation = {name: 1 for name in names}
+    remaining = total_clients - len(names)
+    if remaining == 0:
+        return allocation
+
+    total_samples = float(sum(silo_sizes[name] for name in names))
+    exact = {name: remaining * silo_sizes[name] / total_samples for name in names}
+    floors = {name: int(np.floor(exact[name])) for name in names}
+    for name in names:
+        allocation[name] += floors[name]
+    left = remaining - sum(floors.values())
+    order = sorted(names, key=lambda n: (exact[n] - floors[n], silo_sizes[n]), reverse=True)
+    for name in order[:left]:
+        allocation[name] += 1
+    return allocation
+
+
+def _split_prostate_silo_into_shards(df, n_shards: int, seed: int):
+    """Split one hospital's training data into stratified, non-overlapping virtual clients."""
+    if n_shards == 1:
+        return [df.reset_index(drop=True)]
+    shards = [[] for _ in range(n_shards)]
+    rng = np.random.default_rng(seed)
+    for label in sorted(df["sig_cancer"].unique()):
+        idx = df.index[df["sig_cancer"] == label].to_numpy()
+        idx = rng.permutation(idx)
+        for shard_id, part in enumerate(np.array_split(idx, n_shards)):
+            shards[shard_id].extend(part.tolist())
+    return [df.loc[idx].sample(frac=1.0, random_state=seed + i).reset_index(drop=True)
+            for i, idx in enumerate(shards)]
+
+
+def _frame_to_tensor_dataset(df):
+    x = torch.tensor(df[PROSTATE_FEATURE_COLUMNS].to_numpy(dtype=np.float32), dtype=torch.float32)
+    y = torch.tensor(df["sig_cancer"].to_numpy(dtype=np.int64), dtype=torch.long)
+    return TensorDataset(x, y)
+
+
+PROSTATE_DATA_URL = (
+    "https://raw.githubusercontent.com/phaseivai/"
+    "Towards-Practical-FL/main/data/data.pkl"
+)
+
+
+def _ensure_prostate_dataset(data_path: Path) -> Path:
+    """Download the source study's preprocessed data.pkl once if it is missing."""
+    if data_path.exists():
+        return data_path
+
+    import fcntl
+    import urllib.request
+
+    data_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = data_path.parent / ".prostate_data_download.lock"
+
+    # All Docker clients mount the same ./data directory. The lock prevents
+    # simultaneous downloads when many clients start at the same time.
+    with open(lock_path, "w") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            if data_path.exists():
+                return data_path
+
+            tmp_path = data_path.with_suffix(data_path.suffix + ".tmp")
+            if tmp_path.exists():
+                tmp_path.unlink()
+
+            log(INFO, f"Downloading prostate dataset to {data_path}...")
+            try:
+                urllib.request.urlretrieve(PROSTATE_DATA_URL, tmp_path)
+                if not tmp_path.exists() or tmp_path.stat().st_size == 0:
+                    raise RuntimeError("Downloaded prostate dataset is empty.")
+
+                # Validate the pickle before exposing it to the other clients.
+                with open(tmp_path, "rb") as f:
+                    downloaded = pickle.load(f)
+                if not isinstance(downloaded, dict) or not downloaded:
+                    raise ValueError(
+                        "Downloaded prostate data.pkl does not contain the expected silo dictionary."
+                    )
+
+                os.replace(tmp_path, data_path)
+                log(INFO, f"Prostate dataset downloaded successfully ({data_path.stat().st_size} bytes).")
+            except Exception as exc:
+                if tmp_path.exists():
+                    tmp_path.unlink()
+                raise RuntimeError(
+                    f"Could not download the prostate dataset from {PROSTATE_DATA_URL}: {exc}"
+                ) from exc
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+    return data_path
+
+
+def _load_prostate_cross_silo_data(client_config):
+    """
+    Load the prostate-cancer task from the public replication package.
+
+    The source data.pkl contains natural hospital/country silos. For a federation
+    larger than the 11 natural silos used in the paper, each hospital's training
+    partition is deterministically subdivided into non-overlapping virtual silos;
+    samples from different source hospitals are never mixed within a client.
+    """
+    configured_path = client_config.get("prostate_data_path")
+    if configured_path:
+        data_path = Path(configured_path)
+    else:
+        data_path = Path(current_dir) / "data" / "prostate" / "data.pkl"
+
+    data_path = _ensure_prostate_dataset(data_path)
+
+    with open(data_path, "rb") as f:
+        silos_raw = pickle.load(f)
+    if not isinstance(silos_raw, dict) or not silos_raw:
+        raise ValueError("The prostate data.pkl file must contain a non-empty dictionary of silo DataFrames.")
+
+    # The source study excludes these two datasets from its multi-silo experiments.
+    excluded = set(client_config.get("prostate_excluded_silos", ["Turkey", "Finland"]))
+    silos = {}
+    for name, df in silos_raw.items():
+        if name in excluded:
+            continue
+        silos[name] = _prepare_prostate_dataframe(df)
+    if not silos:
+        raise ValueError("No prostate silos remain after applying prostate_excluded_silos.")
+
+    # The original implementation seeds NumPy with 1234, draws one split
+    # random_state, and reuses that same state for every hospital. Reproduce
+    # that behavior by default (1234 -> 486191), while allowing an explicit
+    # override for controlled sensitivity experiments.
+    master_seed = int(client_config.get("prostate_master_seed", 1234))
+    default_split_seed = int(np.random.RandomState(master_seed).randint(0, 10000000))
+    split_seed = int(client_config.get("prostate_split_seed", default_split_seed))
+    test_fraction = float(client_config.get("prostate_test_fraction", 0.20))
+    if not 0.0 < test_fraction < 1.0:
+        raise ValueError("prostate_test_fraction must be between 0 and 1.")
+
+    train_silos, test_silos = {}, {}
+    for name in sorted(silos):
+        train_silos[name], test_silos[name] = _stratified_frame_split(
+            silos[name], test_fraction=test_fraction, seed=split_seed
+        )
+
+    with open(config_file, "r") as f:
+        full_config = json.load(f)
+    total_clients = int(client_config.get("prostate_num_clients", len(full_config.get("client_details", []))))
+    if total_clients <= 0:
+        total_clients = len(train_silos)
+
+    allocation = _allocate_prostate_shards(
+        {name: len(df) for name, df in train_silos.items()}, total_clients
+    )
+    virtual_clients = []
+    for offset, name in enumerate(sorted(allocation)):
+        shards = _split_prostate_silo_into_shards(
+            train_silos[name], allocation[name], seed=split_seed + 1000 + offset
+        )
+        virtual_clients.extend((name, shard_id, shard) for shard_id, shard in enumerate(shards))
+
+    # Client IDs in setup.py determine simulated resource classes (high-spec
+    # clients are created first). Randomize the data-to-ID assignment with a
+    # fixed seed so hospital identity/size is not systematically coupled to
+    # the assigned CPU class in the 40-client experiment.
+    assignment_seed = int(client_config.get("prostate_client_assignment_seed", 1234))
+    assignment_rng = np.random.default_rng(assignment_seed)
+    assignment_rng.shuffle(virtual_clients)
+
+    client_id = int(os.environ.get("CLIENT_ID", client_config.get("client_id", 1)))
+    client_index = client_id - 1
+    if client_index < 0 or client_index >= len(virtual_clients):
+        raise ValueError(
+            f"CLIENT_ID={client_id} is outside the configured prostate federation "
+            f"of {len(virtual_clients)} clients."
+        )
+
+    source_silo, shard_id, client_df = virtual_clients[client_index]
+    if client_df.empty:
+        raise ValueError(
+            f"Prostate client {client_id} ({source_silo}, shard {shard_id}) has no training samples."
+        )
+
+    # If fewer than the 11 natural silos are requested for a smoke test, only
+    # evaluate on the held-out portions of the silos that actually participate
+    # in training. For 11+ clients, all 11 source silos are represented.
+    participating_silos = sorted(allocation)
+    test_df = pd.concat([test_silos[name] for name in participating_silos], ignore_index=True)
+    log(INFO, f"Prostate client {client_id}: source_silo={source_silo}, shard={shard_id}, "
+              f"train_samples={len(client_df)}, global_test_samples={len(test_df)}, "
+              f"split_seed={split_seed}")
+    return _frame_to_tensor_dataset(client_df), _frame_to_tensor_dataset(test_df)
+
+
 def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
     global DATASET_NAME, DATASET_TYPE, DATASET_PERSISTENCE
     DATASET_TYPE = client_config.get("data_distribution_type", "").lower()
@@ -617,7 +912,10 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
     config = AVAILABLE_DATASETS[DATASET_NAME]
     normalize_params = config["normalize"]
-    if DATASET_NAME == "IMDB":
+    if DATASET_NAME == "PROSTATE_CANCER":
+        trainset, testset = _load_prostate_cross_silo_data(client_config)
+        batch_size = int(client_config.get("batch_size", 32))
+    elif DATASET_NAME == "IMDB":
         tokenizer = get_tokenizer("basic_english")
 
         def _yield_tokens(data_iter):
@@ -1585,7 +1883,7 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             else:
                 trainset = cls("./data", train=True, download=True, transform=trf)
                 testset = cls("./data", train=False, download=True, transform=trf)
-    if DATASET_TYPE == "non-iid":
+    if DATASET_TYPE == "non-iid" and DATASET_NAME != "PROSTATE_CANCER":
         classes = list({lbl for _, lbl in trainset})
         n_cls = len(classes)
         remove_frac = random.uniform(1 / n_cls, (n_cls - 1) / n_cls)
@@ -1927,6 +2225,12 @@ def balance_dataset_with_gan(
 def rebalance_trainloader_with_gan(trainloader):
     _t0_hdh = time.time()
     global DATASET_NAME
+    if DATASET_NAME == "PROSTATE_CANCER":
+        raise NotImplementedError(
+            "The added prostate-cancer scale-up task does not define a tabular GAN for "
+            "heterogeneous-data-handler. Use this task for the scalability/client-selector "
+            "validation unless a tabular augmentation method is added explicitly."
+        )
     if DATASET_NAME not in AVAILABLE_DATASETS:
         raise ValueError(f"[ERROR] Dataset '{DATASET_NAME}' non trovato in AVAILABLE_DATASETS.")
     dataset_config = AVAILABLE_DATASETS[DATASET_NAME]
@@ -1980,18 +2284,51 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     num_classes = AVAILABLE_DATASETS[DATASET_NAME]["num_classes"]
     log(INFO, "Starting training...")
     start_time = time.time()
-    net.to(DEVICE)
-    criterion = torch.nn.CrossEntropyLoss().to(DEVICE)
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    net.train()
-    for _ in range(epochs):
-        for images, labels in trainloader:
-            images, labels = images.to(DEVICE), labels.to(DEVICE)
-            optimizer.zero_grad()
-            loss = criterion(net(images), labels)
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
-            optimizer.step()
+
+    if DATASET_NAME == "PROSTATE_CANCER":
+        # Match the local estimator used in the source prostate study. Each
+        # client fits a binary L2-regularized logistic regression with LBFGS
+        # and Flower subsequently performs sample-weighted parameter averaging.
+        # The rest of the tasks keep the original PyTorch Adam path unchanged.
+        xs, ys = [], []
+        for batch_x, batch_y in trainloader:
+            xs.append(batch_x.detach().cpu().numpy())
+            ys.append(batch_y.detach().cpu().numpy())
+        X = np.concatenate(xs, axis=0)
+        y = np.concatenate(ys, axis=0).astype(np.int64)
+
+        if len(np.unique(y)) < 2:
+            raise ValueError(
+                "Prostate logistic regression requires both target classes in each client shard. "
+                "Reduce prostate_num_clients or inspect the shard allocation."
+            )
+
+        local_model = LogisticRegression(solver="lbfgs", max_iter=10000)
+        local_model.fit(X, y)
+
+        net.to(DEVICE)
+        with torch.no_grad():
+            net.linear.weight.copy_(
+                torch.tensor(local_model.coef_, dtype=net.linear.weight.dtype, device=DEVICE)
+            )
+            net.linear.bias.copy_(
+                torch.tensor(local_model.intercept_, dtype=net.linear.bias.dtype, device=DEVICE)
+            )
+        log(INFO, f"[Prostate LR] LBFGS iterations: {int(local_model.n_iter_[0])}")
+    else:
+        net.to(DEVICE)
+        criterion = torch.nn.CrossEntropyLoss().to(DEVICE)
+        optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+        net.train()
+        for _ in range(epochs):
+            for images, labels in trainloader:
+                images, labels = images.to(DEVICE), labels.to(DEVICE)
+                optimizer.zero_grad()
+                loss = criterion(net(images), labels)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
+                optimizer.step()
+
     training_time = time.time() - start_time
     log(INFO, f"Training completed in {training_time:.2f} seconds")
     global TRAIN_COMPLETED_TS
@@ -2013,21 +2350,37 @@ def train(net, trainloader, valloader, epochs, DEVICE):
 
 def test(net, loader):
     net.to(DEVICE)
-    criterion = nn.CrossEntropyLoss()
     net.eval()
     all_preds, all_labels = [], []
     total_loss = 0.0
     correct = 0
-    with torch.no_grad():
-        for imgs, labels in loader:
-            imgs, labels = imgs.to(DEVICE), labels.to(DEVICE)
-            outputs = net(imgs)
-            loss = criterion(outputs, labels)
-            total_loss += loss.item() * imgs.size(0)
-            _, preds = torch.max(outputs, 1)
-            correct += (preds == labels).sum().item()
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(labels.cpu().numpy())
+
+    if DATASET_NAME == "PROSTATE_CANCER":
+        criterion = nn.BCEWithLogitsLoss()
+        with torch.no_grad():
+            for inputs, labels in loader:
+                inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
+                logits = net(inputs)
+                targets = labels.float()
+                loss = criterion(logits, targets)
+                total_loss += loss.item() * inputs.size(0)
+                preds = (torch.sigmoid(logits) >= 0.5).long()
+                correct += (preds == labels).sum().item()
+                all_preds.extend(preds.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
+    else:
+        criterion = nn.CrossEntropyLoss()
+        with torch.no_grad():
+            for imgs, labels in loader:
+                imgs, labels = imgs.to(DEVICE), labels.to(DEVICE)
+                outputs = net(imgs)
+                loss = criterion(outputs, labels)
+                total_loss += loss.item() * imgs.size(0)
+                _, preds = torch.max(outputs, 1)
+                correct += (preds == labels).sum().item()
+                all_preds.extend(preds.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
+
     avg_loss = total_loss / len(loader.dataset)
     accuracy = correct / len(loader.dataset)
     f1 = f1_score(all_labels, all_preds, average='macro')

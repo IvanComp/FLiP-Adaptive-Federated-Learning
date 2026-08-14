@@ -23,6 +23,18 @@ if 'text' in sys.argv[1]:
                 \"model\": \"TextMLP\",
                 \"epochs\": 1
             }}"""
+elif 'pca' in sys.argv[1]:
+    json_tplt = """{{
+                \"client_id\": {},
+                \"cpu\": {},
+                \"ram\": 2,
+                \"dataset\": \"PROSTATE\",
+                \"data_distribution_type\": \"{}\",
+                \"data_persistence_type\": \"{}\",
+                \"delay_combobox\": \"{}\",
+                \"model\": \"prostate_logreg\",
+                \"epochs\": 1
+            }}"""
 else:
     json_tplt = """{{
                 \"client_id\": {},

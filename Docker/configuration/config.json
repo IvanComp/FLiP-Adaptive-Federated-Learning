@@ -1,67 +1,23 @@
 {
-    "adaptation": true,
-    "activation_criteria": {
-        "metrics": [
-            {
-                "name": "f1overtime",
-                "pattern": "client_selector",
-                "metric": "val_f1",
-                "threshold": {
-                    "type": "increasing",
-                    "calculation_method": "predictor_based",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_xgboost_selector-2-570.pkl"
-                    }
-                }
-            },
-            {
-                "name": "f1overtime",
-                "pattern": "heterogeneous_data_handler",
-                "metric": "val_f1,jsd",
-                "threshold": {
-                    "type": "decreasing",
-                    "calculation_method": "predictor-local",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_tree_hdh-2_4830.pkl"
-                    }
-                }
-            },
-            {
-                "name": "f1overtime",
-                "pattern": "message_compressor",
-                "metric": "time",
-                "threshold": {
-                    "type": "increasing",
-                    "calculation_method": "predictor_based",
-                    "predictor": {
-                        "model_path": "predictors/f1overtime_tree_compressor-2_5472.pkl"
-                    }
-                }
-            }
-        ]
-    },
+    "adaptation": false,
+    "activation_criteria": {},
     "simulation_type": "Docker",
     "rounds": 20,
-    "clients": 6,
+    "clients": 4,
     "patterns": {
         "client_registry": {
             "enabled": true,
             "params": {}
         },
         "client_selector": {
-            "enabled": false,
-            "params": {
-                "selection_strategy": "Resource-Based",
-                "selection_criteria": "CPU",
-                "selection_value": 2
-            }
+            "enabled": false
         },
         "client_cluster": {
             "enabled": false,
             "params": {}
         },
         "message_compressor": {
-            "enabled": true,
+            "enabled": false,
             "params": {}
         },
         "model_co-versioning_registry": {
@@ -73,85 +29,54 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": true,
-            "params": {
-                "enabled_clients": [
-                    "Client 1",
-                    "Client 2",
-                    "Client 3",
-                    "Client 4",
-                    "Client 5",
-                    "Client 6"
-                ]
-            }
+            "enabled": false,
+            "params": {}
         }
     },
     "client_details": [
         {
-            "client_id": 1,
-            "cpu": 2,
-            "ram": 4,
-            "dataset": "CIFAR10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "delay_combobox": "No",
-            "model": "CNN 64k",
-            "epochs": 1
-        },
-        {
-            "client_id": 2,
-            "cpu": 2,
-            "ram": 4,
-            "dataset": "CIFAR10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "delay_combobox": "No",
-            "model": "CNN 64k",
-            "epochs": 1
-        },
-        {
-            "client_id": 3,
-            "cpu": 2,
-            "ram": 4,
-            "dataset": "CIFAR10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "delay_combobox": "No",
-            "model": "CNN 64k",
-            "epochs": 1
-        },
-        {
-            "client_id": 4,
-            "cpu": 2,
-            "ram": 4,
-            "dataset": "CIFAR10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "delay_combobox": "No",
-            "model": "CNN 64k",
-            "epochs": 1
-        },
-        {
-            "client_id": 5,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "CIFAR10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "delay_combobox": "No",
-            "model": "CNN 64k",
-            "epochs": 1
-        },
-        {
-            "client_id": 6,
-            "cpu": 1,
-            "ram": 4,
-            "dataset": "CIFAR10",
-            "data_distribution_type": "non-IID",
-            "data_persistence_type": "New Data",
-            "delay_combobox": "No",
-            "model": "CNN 64k",
-            "epochs": 1
-        }
+                "client_id": 1,
+                "cpu": 2,
+                "ram": 2,
+                "dataset": "PROSTATE",
+                "data_distribution_type": "IID",
+                "data_persistence_type": "Same Data",
+                "delay_combobox": "No",
+                "model": "prostate_logreg",
+                "epochs": 1
+            },
+{
+                "client_id": 2,
+                "cpu": 2,
+                "ram": 2,
+                "dataset": "PROSTATE",
+                "data_distribution_type": "IID",
+                "data_persistence_type": "Same Data",
+                "delay_combobox": "No",
+                "model": "prostate_logreg",
+                "epochs": 1
+            },
+{
+                "client_id": 3,
+                "cpu": 1,
+                "ram": 2,
+                "dataset": "PROSTATE",
+                "data_distribution_type": "IID",
+                "data_persistence_type": "Same Data",
+                "delay_combobox": "No",
+                "model": "prostate_logreg",
+                "epochs": 1
+            },
+{
+                "client_id": 4,
+                "cpu": 1,
+                "ram": 2,
+                "dataset": "PROSTATE",
+                "data_distribution_type": "IID",
+                "data_persistence_type": "Same Data",
+                "delay_combobox": "No",
+                "model": "prostate_logreg",
+                "epochs": 1
+            }
     ]
 }
