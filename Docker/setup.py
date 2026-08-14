@@ -87,9 +87,7 @@ print("Configuration file created with {} high-spec, {} low-spec clients, {} IID
                                                                                                                delay_str))
 
 docker_client_tplt = """  {}:
-    build:
-      context: .
-      dockerfile: Dockerfile.client
+    image: flip-client:local
     command: sh -c "sleep 20 && python client.py"
     container_name: {}
     cpus: {}

@@ -4,9 +4,7 @@ networks:
 services:
 **CLIENTS**
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
+    image: flip-server:local
     container_name: flwr_server
     deploy:
       resources:

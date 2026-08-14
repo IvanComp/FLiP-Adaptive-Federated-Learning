@@ -60,7 +60,9 @@ fi
 for i in $(seq 1 $((repl)))
 do
 	python3 setup.py $config_name $iid $high $low $data $delay $threshold
-	docker system prune -f
+	docker container prune -f
+  docker build -t flip-client:local -f Dockerfile.client .
+  docker build -t flip-server:local -f Dockerfile.server .
 	docker compose -f docker-compose.dynamic.yml up --build --force-recreate
 	mkdir results/vm/${data}/${high}high-${low}low/${iid}iid/${config_name}_$i
 	cp -a performance/* results/vm/${data}/${high}high-${low}low/${iid}iid/${config_name}_$i/
