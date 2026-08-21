@@ -17,7 +17,6 @@ import torchvision.models as models
 import torchvision.utils as vutils
 from flwr.common.logger import log
 from sklearn.metrics import f1_score
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Subset, TensorDataset, ConcatDataset
 from torch.utils.data import Dataset
@@ -328,14 +327,24 @@ class TextLSTM(nn.Module):
 
 
 class ProstateLogisticRegression(nn.Module):
-    """Single-logit binary logistic regression matching the source study."""
+    """Single-logit binary logistic regression for the prostate task."""
 
     def __init__(self, input_dim: int = 8, num_classes: int = 2) -> None:
         super().__init__()
-        # sklearn LogisticRegression for a binary target learns one coefficient
-        # vector and one intercept. Keeping the same parameterization also makes
-        # Flower's weighted parameter averaging equivalent to the source study.
         self.linear = nn.Linear(input_dim, 1)
+
+        # Use a deterministic, non-zero initialization for this task. A zero
+        # initialization makes the first full-batch logistic-regression step
+        # immediately recover almost the final decision direction, which yields
+        # an artificially flat accuracy curve. The fixed seed makes repeated FL
+        # runs comparable while leaving all other task initializations unchanged.
+        rng = np.random.default_rng(1234)
+        bound = 1.0 / np.sqrt(float(input_dim))
+        init_w = rng.uniform(-bound, bound, size=(1, input_dim)).astype(np.float32)
+        init_b = rng.uniform(-bound, bound, size=(1,)).astype(np.float32)
+        with torch.no_grad():
+            self.linear.weight.copy_(torch.from_numpy(init_w))
+            self.linear.bias.copy_(torch.from_numpy(init_b))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.linear(x.float()).squeeze(-1)
@@ -740,6 +749,15 @@ def _frame_to_tensor_dataset(df):
     return TensorDataset(x, y)
 
 
+def _standardize_prostate_dataframe(df, feature_mean, feature_std):
+    """Apply training-only feature standardization for stable iterative LR."""
+    value = df.copy()
+    value.loc[:, PROSTATE_FEATURE_COLUMNS] = (
+        value[PROSTATE_FEATURE_COLUMNS] - feature_mean
+    ) / feature_std
+    return value
+
+
 PROSTATE_DATA_URL = (
     "https://raw.githubusercontent.com/phaseivai/"
     "Towards-Practical-FL/main/data/data.pkl"
@@ -855,6 +873,25 @@ def _load_prostate_cross_silo_data(client_config):
     allocation = _allocate_prostate_shards(
         {name: len(df) for name, df in train_silos.items()}, total_clients
     )
+
+    # Logistic regression is still the same linear model, but the raw spline
+    # features differ by several orders of magnitude. For a genuinely iterative
+    # 20-round optimization, standardize predictors using statistics computed
+    # only from the participating training partitions. The same deterministic
+    # transformation is then applied to every participating training/test silo.
+    # This is benchmark preprocessing; no validation samples contribute to it.
+    participating_silos = sorted(allocation)
+    stats_df = pd.concat([train_silos[name] for name in participating_silos], ignore_index=True)
+    feature_mean = stats_df[PROSTATE_FEATURE_COLUMNS].mean()
+    feature_std = stats_df[PROSTATE_FEATURE_COLUMNS].std(ddof=0).replace(0.0, 1.0)
+    for name in participating_silos:
+        train_silos[name] = _standardize_prostate_dataframe(
+            train_silos[name], feature_mean, feature_std
+        )
+        test_silos[name] = _standardize_prostate_dataframe(
+            test_silos[name], feature_mean, feature_std
+        )
+
     virtual_clients = []
     for offset, name in enumerate(sorted(allocation)):
         shards = _split_prostate_silo_into_shards(
@@ -887,7 +924,6 @@ def _load_prostate_cross_silo_data(client_config):
     # If fewer than the 11 natural silos are requested for a smoke test, only
     # evaluate on the held-out portions of the silos that actually participate
     # in training. For 11+ clients, all 11 source silos are represented.
-    participating_silos = sorted(allocation)
     test_df = pd.concat([test_silos[name] for name in participating_silos], ignore_index=True)
     log(INFO, f"Prostate client {client_id}: source_silo={source_silo}, shard={shard_id}, "
               f"train_samples={len(client_df)}, global_test_samples={len(test_df)}, "
@@ -1950,7 +1986,24 @@ def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
             caps.append(len(pool))
         caps = np.array(caps, dtype=np.int64)
         pool_total = int(caps.sum())
-        T_target = int(np.clip(np.floor(pool_total * float(target_frac_total)), 0, pool_total))
+
+        T_target = int(np.clip(
+            np.floor(pool_total * float(target_frac_total)),
+            0,
+            pool_total
+        ))
+
+        # Iterative prostate LR can train on a single-class local subset, which is a
+        # valid consequence of non-IID data arrival. It cannot, however, train on an
+        # empty subset. Ensure at least one sample is available whenever the client's
+        # full local shard is non-empty.
+        if (
+            DATASET_NAME == "PROSTATE_CANCER"
+            and DATASET_PERSISTENCE in {"New Data", "Remove Data"}
+            and pool_total > 0
+        ):
+            T_target = max(1, T_target)
+
         if shape_now is None:
             raw = caps.astype(np.float64)
         else:
@@ -2286,35 +2339,54 @@ def train(net, trainloader, valloader, epochs, DEVICE):
     start_time = time.time()
 
     if DATASET_NAME == "PROSTATE_CANCER":
-        # Match the local estimator used in the source prostate study. Each
-        # client fits a binary L2-regularized logistic regression with LBFGS
-        # and Flower subsequently performs sample-weighted parameter averaging.
-        # The rest of the tasks keep the original PyTorch Adam path unchanged.
+        # The source study fits the same logistic-regression model to convergence
+        # in a single FL round. FLiP instead needs meaningful evolution across
+        # its 20 rounds, so this task uses incremental full-batch SGD on the same
+        # single-logit LR architecture. Each round starts from the current Flower
+        # global parameters and performs one local gradient step per configured
+        # epoch before FedAvg aggregation.
+        net.to(DEVICE)
+        net.train()
+
         xs, ys = [], []
         for batch_x, batch_y in trainloader:
-            xs.append(batch_x.detach().cpu().numpy())
-            ys.append(batch_y.detach().cpu().numpy())
-        X = np.concatenate(xs, axis=0)
-        y = np.concatenate(ys, axis=0).astype(np.int64)
+            xs.append(batch_x.to(DEVICE))
+            ys.append(batch_y.to(DEVICE))
+        X = torch.cat(xs, dim=0).float()
+        y = torch.cat(ys, dim=0).float()
 
-        if len(np.unique(y)) < 2:
-            raise ValueError(
-                "Prostate logistic regression requires both target classes in each client shard. "
-                "Reduce prostate_num_clients or inspect the shard allocation."
-            )
+        # C=1 in sklearn corresponds to L2 regularization. With a mean-reduced
+        # binary cross-entropy objective, 1/(C*N) is the corresponding per-client
+        # penalty scale. The defaults below can be overridden at the top level of
+        # config.json without affecting any other learning task.
+        try:
+            with open(config_file, "r") as f:
+                prostate_train_cfg = json.load(f)
+            prostate_lr = float(prostate_train_cfg.get("prostate_learning_rate", 0.35))
+            prostate_c = float(prostate_train_cfg.get("prostate_regularization_c", 1.0))
+        except Exception:
+            prostate_lr = 0.35
+            prostate_c = 1.0
+        if prostate_lr <= 0.0:
+            raise ValueError("prostate_learning_rate must be > 0.")
+        if prostate_c <= 0.0:
+            raise ValueError("prostate_regularization_c must be > 0.")
 
-        local_model = LogisticRegression(solver="lbfgs", max_iter=10000)
-        local_model.fit(X, y)
+        l2_weight = 1.0 / (prostate_c * max(1, len(trainloader.dataset)))
+        criterion = nn.BCEWithLogitsLoss()
 
-        net.to(DEVICE)
-        with torch.no_grad():
-            net.linear.weight.copy_(
-                torch.tensor(local_model.coef_, dtype=net.linear.weight.dtype, device=DEVICE)
-            )
-            net.linear.bias.copy_(
-                torch.tensor(local_model.intercept_, dtype=net.linear.bias.dtype, device=DEVICE)
-            )
-        log(INFO, f"[Prostate LR] LBFGS iterations: {int(local_model.n_iter_[0])}")
+        for _ in range(max(1, int(epochs))):
+            net.zero_grad(set_to_none=True)
+            logits = net(X)
+            loss = criterion(logits, y)
+            loss = loss + 0.5 * l2_weight * torch.sum(net.linear.weight ** 2)
+            loss.backward()
+            with torch.no_grad():
+                for param in net.parameters():
+                    param -= prostate_lr * param.grad
+
+        log(INFO, f"[Prostate LR] Incremental SGD: lr={prostate_lr}, "
+                  f"steps={max(1, int(epochs))}, samples={len(trainloader.dataset)}")
     else:
         net.to(DEVICE)
         criterion = torch.nn.CrossEntropyLoss().to(DEVICE)

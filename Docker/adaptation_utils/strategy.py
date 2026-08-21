@@ -316,7 +316,7 @@ class BayesianOptimizationActivationCriterion(ActivationCriterion):
         n_high, n_low = get_high_low_clients(self.clients_config)
 
         if self.metric != 'time':
-            scaler = joblib.load('predictors/bo_scaler.pkl')
+            scaler = joblib.load('predictors/bo_scaler_selector_pca.pkl')
         else:
             scaler = joblib.load('predictors/bo_scaler_compressor-2-delay.pkl')
 
@@ -476,14 +476,14 @@ class ContextualBanditActivationCriterion(ActivationCriterion):
                 delta_metrics = (- last_communication_time + self._cached_communication_time) / max(
                     self._cached_communication_time, 1e-6)
             else:
-                delta_metrics = new_aggregated_metrics[model_type][self.metric][-1] - \
-                                new_aggregated_metrics[model_type][self.metric][-2]
+                delta_metrics = new_aggregated_metrics[model_type][self.metric][-1]/(self._cached_time+last_round_time) - \
+                                new_aggregated_metrics[model_type][self.metric][-2]/self._cached_time
             reward = delta_metrics
             log(INFO, reward)
             self.update(reward)
 
         if performed_rounds >= 1:
-            self._cached_time = last_round_time
+            self._cached_time = self._cached_time + last_round_time if self._cached_time is not None else last_round_time
             self._cached_communication_time = last_communication_time
 
         context = self._extract_context(args)

@@ -131,11 +131,11 @@ with open("docker-compose.dynamic.yml", "w") as docker_file:
             docker_clients.append(docker_client_tplt.format(
                 "client{}".format(i + 1 + N_high + N_other),
                 "Client{}".format(i + 1 + N_high + N_other),
-                1,
+                0.5,
                 str(cpu_set[i + 2 * N_high]),
                 i + 1 + N_high + N_other,
                 '1' if delay else '0',
-                1
+                0.5
             ))
         docker_file.write(docker_tplt.replace("**CLIENTS**", "\n".join(docker_clients)))
 
