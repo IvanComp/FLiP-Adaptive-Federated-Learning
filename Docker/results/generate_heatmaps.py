@@ -61,6 +61,12 @@ ONLINE_EMPTY_CELL_STATE = 1
 BO_N_CALLS = 10
 BO_RANDOM_STATE = 42
 
+# Plot typography.
+AXIS_LABEL_FONTSIZE = 16
+TICK_LABEL_FONTSIZE = 13
+TITLE_FONTSIZE = 14
+LEGEND_FONTSIZE = 13
+
 
 # ============================================================
 # FILE RESOLUTION
@@ -288,8 +294,8 @@ def draw_heatmap(ax, z, title=None):
         edgecolors="white",
     )
 
-    ax.set_xlabel("FL Round")
-    ax.set_ylabel("Previous F1/Time")
+    ax.set_xlabel("FL Round", fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_ylabel("Previous F1/Time", fontsize=AXIS_LABEL_FONTSIZE)
     ax.set_xticks(ROUNDS[::2])
     ax.set_ylim(F1_OVER_TIME[0], F1_OVER_TIME[-1])
 
@@ -297,22 +303,19 @@ def draw_heatmap(ax, z, title=None):
     ax.set_yticks(y_ticks)
     ax.set_yticklabels([f"{v:.4f}" for v in y_ticks])
 
+    ax.tick_params(
+        axis="both",
+        which="major",
+        labelsize=TICK_LABEL_FONTSIZE,
+    )
+
     if title is not None:
-        ax.set_title(title)
+        ax.set_title(title, fontsize=TITLE_FONTSIZE)
 
 
 def save_individual_heatmap(z, filename):
     fig, ax = plt.subplots(figsize=(7.5, 5.0))
     draw_heatmap(ax, z)
-
-    # Explicit state labels without a continuous color bar.
-    legend = [
-        Patch(facecolor=plt.get_cmap("Greys", 2)(0), edgecolor="black",
-              label="Pattern OFF"),
-        Patch(facecolor=plt.get_cmap("Greys", 2)(1), edgecolor="black",
-              label="Pattern ON"),
-    ]
-    ax.legend(handles=legend, loc="upper right", frameon=True)
 
     fig.tight_layout()
     fig.savefig(filename, dpi=300, bbox_inches="tight", pad_inches=0.05)
@@ -332,22 +335,40 @@ def save_combined_heatmap(surfaces, filename):
     for ax, (title, z) in zip(axes.ravel(), panels):
         draw_heatmap(ax, z, title=title)
 
+    fig.tight_layout()
+    fig.savefig(filename, dpi=300, bbox_inches="tight", pad_inches=0.05)
+    plt.close(fig)
+
+
+def save_legend_only(filename):
+    """Save the two-state heat-map legend as a standalone horizontal figure."""
     legend = [
-        Patch(facecolor=plt.get_cmap("Greys", 2)(0), edgecolor="black",
-              label="Pattern OFF"),
-        Patch(facecolor=plt.get_cmap("Greys", 2)(1), edgecolor="black",
-              label="Pattern ON"),
+        Patch(
+            facecolor=plt.get_cmap("Greys", 2)(0),
+            edgecolor="black",
+            label="Pattern OFF",
+        ),
+        Patch(
+            facecolor=plt.get_cmap("Greys", 2)(1),
+            edgecolor="black",
+            label="Pattern ON",
+        ),
     ]
-    fig.legend(
+
+    fig, ax = plt.subplots(figsize=(5.0, 0.8))
+    ax.axis("off")
+
+    ax.legend(
         handles=legend,
-        loc="lower center",
+        loc="center",
         ncol=2,
         frameon=True,
-        bbox_to_anchor=(0.5, -0.01),
+        fontsize=LEGEND_FONTSIZE,
+        handlelength=1.8,
+        columnspacing=2.0,
     )
 
-    fig.tight_layout(rect=[0, 0.05, 1, 1])
-    fig.savefig(filename, dpi=300, bbox_inches="tight", pad_inches=0.05)
+    fig.savefig(filename, dpi=300, bbox_inches="tight", pad_inches=0.02)
     plt.close(fig)
 
 
@@ -399,6 +420,10 @@ def main():
     save_combined_heatmap(
         surfaces,
         os.path.join(OUTPUT_DIR, "policy_heatmaps.pdf"),
+    )
+
+    save_legend_only(
+        os.path.join(OUTPUT_DIR, "policy_heatmaps_legend.pdf"),
     )
 
     print("Saved heat maps to:", OUTPUT_DIR)
