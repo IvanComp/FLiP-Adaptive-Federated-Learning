@@ -11,6 +11,16 @@
                     "calculation_method": "contextual_bandit",
                     "alpha": 0.1
                 }
+            },
+            {
+                "name": "f1overtime",
+                "pattern": "heterogeneous_data_handler",
+                "metric": "val_f1,jsd",
+                "threshold": {
+                    "type": "decreasing",
+                    "calculation_method": "contextual_bandit-local",
+                    "alpha": 0.1
+                }
             }
         ]
     },
@@ -23,7 +33,7 @@
             "params": {}
         },
         "client_selector": {
-            "enabled": true,
+            "enabled": false,
             "params": {
                 "selection_strategy": "Resource-Based",
                 "selection_criteria": "CPU",
@@ -47,8 +57,51 @@
             "params": {}
         },
         "heterogeneous_data_handler": {
-            "enabled": false,
-            "params": {}
+            "enabled": true,
+            "params": {
+                "enabled_clients": [
+                    "Client 1",
+                    "Client 2",
+                    "Client 3",
+                    "Client 4",
+                    "Client 5",
+                    "Client 6",
+                    "Client 7",
+                    "Client 8",
+                    "Client 9",
+                    "Client 10",
+                    "Client 11",
+                    "Client 12",
+                    "Client 13",
+                    "Client 14",
+                    "Client 15",
+                    "Client 16",
+                    "Client 17",
+                    "Client 18",
+                    "Client 19",
+                    "Client 20",
+                    "Client 21",
+                    "Client 22",
+                    "Client 23",
+                    "Client 24",
+                    "Client 25",
+                    "Client 26",
+                    "Client 27",
+                    "Client 28",
+                    "Client 29",
+                    "Client 30",
+                    "Client 31",
+                    "Client 32",
+                    "Client 33",
+                    "Client 34",
+                    "Client 35",
+                    "Client 36",
+                    "Client 37",
+                    "Client 38",
+                    "Client 39",
+                    "Client 40"
+                ]
+            }
         }
     },
     "client_details": [
@@ -318,7 +371,7 @@
         },
         {
             "client_id": 25,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 2,
             "dataset": "PROSTATE",
             "data_distribution_type": "non-IID",
@@ -329,7 +382,7 @@
         },
         {
             "client_id": 26,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 2,
             "dataset": "PROSTATE",
             "data_distribution_type": "non-IID",
@@ -340,7 +393,7 @@
         },
         {
             "client_id": 27,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 2,
             "dataset": "PROSTATE",
             "data_distribution_type": "non-IID",
@@ -351,7 +404,7 @@
         },
         {
             "client_id": 28,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 2,
             "dataset": "PROSTATE",
             "data_distribution_type": "non-IID",
@@ -362,7 +415,7 @@
         },
         {
             "client_id": 29,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 2,
             "dataset": "PROSTATE",
             "data_distribution_type": "non-IID",
@@ -373,7 +426,7 @@
         },
         {
             "client_id": 30,
-            "cpu": 1,
+            "cpu": 2,
             "ram": 2,
             "dataset": "PROSTATE",
             "data_distribution_type": "non-IID",

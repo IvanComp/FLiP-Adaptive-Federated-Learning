@@ -41,7 +41,7 @@ from taskA import (
     train as train_A,
     test as test_A,
     get_jsd as get_jsd_A,
-    rebalance_trainloader_with_gan as rebalance_trainloader_with_gan_A
+    rebalance_trainloader_with_hdh as rebalance_trainloader_with_hdh_A
 )
 
 sys.path.append(
@@ -140,11 +140,11 @@ def get_ram_percent_cgroup():
 def get_cpu_percent_cgroup(interval: float = 1.0) -> float:
     try:
         with open("/sys/fs/cgroup/cpu/cpuacct.usage") as f:
-            start = int(f.read())
+            start = float(f.read())
         with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us") as f:
-            quota = int(f.read())
+            quota = float(f.read())
         with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us") as f:
-            period = int(f.read())
+            period = float(f.read())
         time.sleep(interval)
         with open("/sys/fs/cgroup/cpu/cpuacct.usage") as f:
             end = int(f.read())
@@ -224,7 +224,7 @@ class FlowerClient(NumPyClient):
         needs_rebalancing = self.data_persistence_type != "Same Data" or (
                 self.data_persistence_type == "Same Data" and not self.did_hdh)
         if HETEROGENEOUS_DATA_HANDLER and (ADAPTATION_ENABLED or needs_rebalancing):
-            self.trainloader, hdh_ms = rebalance_trainloader_with_gan_A(self.trainloader)
+            self.trainloader, hdh_ms = rebalance_trainloader_with_hdh_A(self.trainloader)
             self.did_hdh = True
 
         if CLIENT_SELECTOR:
