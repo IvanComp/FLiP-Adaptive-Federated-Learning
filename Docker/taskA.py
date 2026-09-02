@@ -338,7 +338,7 @@ class ProstateLogisticRegression(nn.Module):
         # immediately recover almost the final decision direction, which yields
         # an artificially flat accuracy curve. The fixed seed makes repeated FL
         # runs comparable while leaving all other task initializations unchanged.
-        rng = np.random.default_rng(1234)
+        rng = np.random.default_rng()
         bound = 1.0 / np.sqrt(float(input_dim))
         init_w = rng.uniform(-bound, bound, size=(1, input_dim)).astype(np.float32)
         init_b = rng.uniform(-bound, bound, size=(1,)).astype(np.float32)
@@ -743,10 +743,20 @@ def _split_prostate_silo_into_shards(df, n_shards: int, seed: int):
             for i, idx in enumerate(shards)]
 
 
-def _frame_to_tensor_dataset(df):
+def _frame_to_tensor_dataset(df, feature_mean=None, feature_std=None):
     x = torch.tensor(df[PROSTATE_FEATURE_COLUMNS].to_numpy(dtype=np.float32), dtype=torch.float32)
     y = torch.tensor(df["sig_cancer"].to_numpy(dtype=np.int64), dtype=torch.long)
-    return TensorDataset(x, y)
+    dataset = TensorDataset(x, y)
+
+    # Metadata is used only by the prostate-specific HDH implementation to
+    # reconstruct the original clinical variables before applying SMOTENC.
+    # Attaching it to the dataset leaves all other task and loader behavior
+    # unchanged, including Subset-based "New Data" inflow.
+    if feature_mean is not None and feature_std is not None:
+        dataset.prostate_feature_mean = np.asarray(feature_mean, dtype=np.float64)
+        dataset.prostate_feature_std = np.asarray(feature_std, dtype=np.float64)
+
+    return dataset
 
 
 def _standardize_prostate_dataframe(df, feature_mean, feature_std):
@@ -928,7 +938,10 @@ def _load_prostate_cross_silo_data(client_config):
     log(INFO, f"Prostate client {client_id}: source_silo={source_silo}, shard={shard_id}, "
               f"train_samples={len(client_df)}, global_test_samples={len(test_df)}, "
               f"split_seed={split_seed}")
-    return _frame_to_tensor_dataset(client_df), _frame_to_tensor_dataset(test_df)
+    return (
+        _frame_to_tensor_dataset(client_df, feature_mean, feature_std),
+        _frame_to_tensor_dataset(test_df, feature_mean, feature_std),
+    )
 
 
 def load_data(client_config, GLOBAL_ROUND_COUNTER, dataset_name_override=None):
@@ -2273,6 +2286,206 @@ def balance_dataset_with_gan(
             log(INFO, f"[HDH GAN] Rebalanced dataset size: {len(result)} (added {len(synth_lbls)} samples)")
             return result
         return trainset
+
+
+def _find_dataset_metadata(dataset, attribute):
+    """Find metadata through TensorLabelDataset/Subset/ConcatDataset wrappers."""
+    pending = [dataset]
+    visited = set()
+
+    while pending:
+        current = pending.pop()
+        if current is None or id(current) in visited:
+            continue
+        visited.add(id(current))
+
+        if hasattr(current, attribute):
+            return getattr(current, attribute)
+        if hasattr(current, "dataset"):
+            pending.append(current.dataset)
+        if hasattr(current, "datasets"):
+            pending.extend(list(current.datasets))
+
+    return None
+
+
+def _prostate_loader_to_numpy(trainloader):
+    """Extract the current prostate subset in deterministic dataset order."""
+    features, labels = [], []
+    dataset = trainloader.dataset
+
+    for idx in range(len(dataset)):
+        x, y = dataset[idx]
+        x_np = x.detach().cpu().numpy() if isinstance(x, torch.Tensor) else np.asarray(x)
+        y_value = int(y.item()) if isinstance(y, torch.Tensor) else int(y)
+        features.append(np.asarray(x_np, dtype=np.float64))
+        labels.append(y_value)
+
+    if not features:
+        return np.empty((0, len(PROSTATE_FEATURE_COLUMNS)), dtype=np.float64), np.empty(0, dtype=np.int64)
+
+    return np.stack(features, axis=0), np.asarray(labels, dtype=np.int64)
+
+
+def _standardized_prostate_to_compact_raw(x_standardized, feature_mean, feature_std):
+    """Recover age/PSA/PV/PI-RADS from the standardized model features."""
+    x_raw = x_standardized * feature_std + feature_mean
+
+    pirads_one_hot = x_raw[:, 5:8]
+    pirads = np.zeros(len(x_raw), dtype=np.int64)
+    if len(x_raw) > 0:
+        selected = np.argmax(pirads_one_hot, axis=1)
+        has_category = np.max(pirads_one_hot, axis=1) >= 0.5
+        pirads[has_category] = selected[has_category] + 3
+
+    return np.column_stack((x_raw[:, 0], x_raw[:, 1], x_raw[:, 2], pirads))
+
+
+def _compact_raw_to_standardized_prostate(x_compact, y, feature_mean, feature_std):
+    """Recompute dependent prostate features and restore the model representation."""
+    value = pd.DataFrame(
+        {
+            "age": np.asarray(x_compact[:, 0], dtype=np.float64),
+            "PSA": np.asarray(x_compact[:, 1], dtype=np.float64),
+            "PV": np.asarray(x_compact[:, 2], dtype=np.float64),
+            "PIRADS": np.rint(x_compact[:, 3]).astype(np.int64),
+            "sig_cancer": np.asarray(y, dtype=np.int64),
+        }
+    )
+
+    # SMOTENC interpolates only age/PSA/PV and treats PI-RADS as categorical.
+    # Recompute all dependent variables so generated records remain internally
+    # consistent with the feature engineering used by the source study.
+    value["PSA_SPLINE_2"] = value["PSA"].apply(lambda x: _prostate_spline(float(x), 0))
+    value["PSA_SPLINE_3"] = value["PSA"].apply(lambda x: _prostate_spline(float(x), 1))
+    value["PIRADS_3"] = (value["PIRADS"] == 3).astype(float)
+    value["PIRADS_4"] = (value["PIRADS"] == 4).astype(float)
+    value["PIRADS_5"] = (value["PIRADS"] == 5).astype(float)
+
+    value.loc[:, PROSTATE_FEATURE_COLUMNS] = (
+        value[PROSTATE_FEATURE_COLUMNS] - feature_mean
+    ) / feature_std
+    return value[["sig_cancer"] + PROSTATE_FEATURE_COLUMNS]
+
+
+def rebalance_trainloader_with_smotenc(trainloader):
+    """
+    Prostate-only HDH implementation based on SMOTENC.
+
+    Continuous age/PSA/PV values are interpolated while PI-RADS is treated as
+    categorical. The spline and one-hot features are recomputed afterwards.
+    The final local dataset is balanced without changing its original size
+    (apart from dropping one sample when the size is odd), matching the size
+    control applied by the existing GAN-based HDH implementations.
+    """
+    start_time = time.time()
+
+    # Lazy import is intentional: all non-prostate tasks remain independent of
+    # imbalanced-learn and continue through the existing GAN path unchanged.
+    try:
+        from imblearn.over_sampling import SMOTENC
+    except ImportError as exc:
+        raise ImportError(
+            "The prostate HDH requires imbalanced-learn. Install it with "
+            "'pip install imbalanced-learn'."
+        ) from exc
+
+    x_standardized, y = _prostate_loader_to_numpy(trainloader)
+    if len(y) == 0:
+        return trainloader, 0.0
+
+    class_counts = Counter(y.tolist())
+    if len(class_counts) < 2:
+        elapsed = time.time() - start_time
+        log(INFO, "[HDH SMOTENC] Skipped: the current prostate subset contains only one class.")
+        return trainloader, elapsed
+
+    feature_mean = _find_dataset_metadata(trainloader.dataset, "prostate_feature_mean")
+    feature_std = _find_dataset_metadata(trainloader.dataset, "prostate_feature_std")
+    if feature_mean is None or feature_std is None:
+        raise RuntimeError(
+            "Missing prostate standardization metadata required by the SMOTENC HDH."
+        )
+
+    feature_mean = np.asarray(feature_mean, dtype=np.float64)
+    feature_std = np.asarray(feature_std, dtype=np.float64)
+    if feature_mean.shape != (len(PROSTATE_FEATURE_COLUMNS),) or feature_std.shape != feature_mean.shape:
+        raise RuntimeError("Invalid prostate standardization metadata shape.")
+
+    majority_label, majority_count = max(class_counts.items(), key=lambda item: item[1])
+    minority_label, minority_count = min(class_counts.items(), key=lambda item: item[1])
+    target_per_class = len(y) // 2
+
+    # A meaningful SMOTE neighborhood needs at least two minority examples.
+    # A single-class or singleton-minority early batch is left untouched rather
+    # than fabricating unsupported clinical records.
+    if minority_count < 2 or target_per_class <= 0:
+        elapsed = time.time() - start_time
+        log(INFO, f"[HDH SMOTENC] Skipped: class counts {dict(class_counts)} are too small for SMOTENC.")
+        return trainloader, elapsed
+
+    x_compact = _standardized_prostate_to_compact_raw(
+        x_standardized, feature_mean, feature_std
+    )
+
+    if minority_count < target_per_class:
+        k_neighbors = min(5, minority_count - 1)
+        sampler = SMOTENC(
+            categorical_features=[3],
+            sampling_strategy={minority_label: target_per_class},
+            random_state=1234,
+            k_neighbors=k_neighbors,
+        )
+        x_resampled, y_resampled = sampler.fit_resample(x_compact, y)
+    else:
+        x_resampled, y_resampled = x_compact, y
+
+    # Keep all minority observations (original plus synthetic) and deterministically
+    # down-sample the majority to the same target. This preserves the original
+    # local sample budget used for aggregation and isolates the effect of balance.
+    rng = np.random.default_rng(1234)
+    selected_indices = []
+    for label in sorted(class_counts):
+        indices = np.flatnonzero(y_resampled == label)
+        if len(indices) > target_per_class:
+            indices = rng.choice(indices, size=target_per_class, replace=False)
+        selected_indices.extend(indices.tolist())
+
+    selected_indices = np.asarray(selected_indices, dtype=np.int64)
+    rng.shuffle(selected_indices)
+    x_balanced = x_resampled[selected_indices]
+    y_balanced = y_resampled[selected_indices]
+
+    balanced_frame = _compact_raw_to_standardized_prostate(
+        x_balanced, y_balanced, feature_mean, feature_std
+    )
+    balanced_dataset = _frame_to_tensor_dataset(
+        balanced_frame, feature_mean, feature_std
+    )
+
+    batch_size = trainloader.batch_size or 32
+    balanced_loader = DataLoader(
+        TensorLabelDataset(balanced_dataset),
+        batch_size=batch_size,
+        shuffle=True,
+    )
+
+    elapsed = time.time() - start_time
+    after_counts = Counter(int(v) for v in y_balanced.tolist())
+    generated = max(0, target_per_class - minority_count)
+    log(
+        INFO,
+        f"[HDH SMOTENC] Rebalanced prostate data: {dict(class_counts)} -> "
+        f"{dict(after_counts)}; generated={generated}; time={elapsed:.4f}s",
+    )
+    return balanced_loader, elapsed
+
+
+def rebalance_trainloader_with_hdh(trainloader):
+    """Dispatch to the modality-specific HDH without altering existing tasks."""
+    if DATASET_NAME == "PROSTATE_CANCER":
+        return rebalance_trainloader_with_smotenc(trainloader)
+    return rebalance_trainloader_with_gan(trainloader)
 
 
 def rebalance_trainloader_with_gan(trainloader):

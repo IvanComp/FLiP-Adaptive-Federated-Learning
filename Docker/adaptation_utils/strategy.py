@@ -4,6 +4,7 @@ from pickle import load
 
 import joblib
 import numpy as np
+import pandas as pd
 from logger import log
 from skopt import gp_minimize
 
@@ -381,13 +382,15 @@ class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
         n_high, n_low = get_high_low_clients(self.clients_config)
 
         # TODO should be parametric 
-        scaler = joblib.load('predictors/bo_scaler_hdh.pkl')
+        scaler = joblib.load('predictors/bo_scaler_hdh-pca.pkl')
 
-        def objective(policy_on, curr_round, last_jsd, prev_f1):  # binary: 0 or 1
-            X = [[curr_round, policy_on[0], last_jsd, prev_f1]]
+        def predict(policy_on, curr_round, last_jsd, prev_f1):
+            X = pd.DataFrame(
+                [[curr_round, policy_on, last_jsd, prev_f1]],
+                columns=scaler.feature_names_in_
+            )
             X_scaled = scaler.transform(X)
-            y_pred = -self.model.predict(X_scaled)[0]  # maximize → minimize negative
-            return y_pred
+            return self.model.predict(X_scaled)[0]
 
         # Otherwise, we know the last round's F1 score and time
         metrics = self.metric.split(',')
@@ -406,19 +409,16 @@ class BayesianOptimizationLocalActivationCriterion(ActivationCriterion):
 
         apply_pattern = []
         for client_i in range(len(self.clients_config['client_details'])):
+            log(INFO, f"Configuring client {client_i + 1}...")
             # TODO should be parametric w.r.t. metric name
             last_jsd = last_metrics['jsd'][client_i]
 
-            def wrapped_objective(pattern_on):
-                return objective(pattern_on, next_round, last_jsd, last_val_f1)
+            y_off = predict(0, next_round, last_jsd, last_val_f1)
+            y_on = predict(1, next_round, last_jsd, last_val_f1)
 
-            res = gp_minimize(wrapped_objective,  # objective fn
-                              [(0, 1)],  # policy_on ∈ {0,1}
-                              acq_func="EI",  # acquisition function
-                              n_calls=10, random_state=42)
-
-            if res.x[0]:
+            if y_on > y_off:
                 apply_pattern.append(f"Client {client_i + 1}")
+            log(INFO, f"Client {client_i + 1} done.")
 
         if len(apply_pattern) == 0:
             return False, None, f'{self.pattern} de-activated ❌'
