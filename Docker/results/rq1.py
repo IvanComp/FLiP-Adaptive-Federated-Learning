@@ -66,14 +66,20 @@ metric = {('all', 'same'): 'Cumulative F1',
           ('all-2', 'new'): 'Cumulative F1',
           ('all-text', 'same'): 'Cumulative F1',
           ('all-text', 'new'): 'Cumulative F1',
+          ('all-pca', 'same'): 'Cumulative F1',
+          ('all-pca', 'new'): 'Cumulative F1',
           ('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
           ('selector-2', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector-2', 'new'): 'F1 Score Over Total Time for FL Round',
+          ('selector-pca', 'same'): 'F1 Score Over Total Time for FL Round',
+          ('selector-pca', 'new'): 'F1 Score Over Total Time for FL Round',
           ('hdh', 'same'): 'Cumulative F1',
           ('hdh', 'new'): 'Cumulative F1',
+          ('hdh-pca', 'same'): 'Cumulative F1',
+          ('hdh-pca', 'new'): 'Cumulative F1',
           ('hdh-2', 'same'): 'Cumulative F1',
           ('hdh-2', 'new'): 'Cumulative F1',
           ('hdh-text', 'same'): 'Cumulative F1',
@@ -108,6 +114,12 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('all-text', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                     r'$\mathrm{FliP_{online}}$'],
+              ('all-pca', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{FliP_{rule}}$',
+                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                     r'$\mathrm{FliP_{online}}$'],
+              ('all-pca', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
+                                    r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                    r'$\mathrm{FliP_{online}}$'],
               ('selector-text', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                                           r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                           r'$\mathrm{FliP_{online}}$'],
@@ -126,12 +138,24 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
               ('selector-2', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                       r'$\mathrm{FliP_{online}}$'],
+              ('selector-pca', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                                     r'$\mathrm{FliP_{online}}$'],
+              ('selector-pca', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
+                                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                                     r'$\mathrm{FliP_{online}}$'],
               ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                 r'$\mathrm{FliP_{online}}$'],
               ('hdh', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                r'$\mathrm{FliP_{online}}$'],
+              ('hdh-pca', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
+                                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                  r'$\mathrm{FliP_{online}}$'],
+              ('hdh-pca', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
+                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                 r'$\mathrm{FliP_{online}}$'],
               ('hdh-2', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                   r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                   r'$\mathrm{FliP_{online}}$'],
@@ -172,12 +196,20 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = ['selector-text', 'hdh-text',
-            'selector', 'hdh',
-            'selector-2', 'hdh-2', 'compressor-2', 'compressor-2-delay']
-persistences = ['same', 'new']
-iid_percentages = [0]
-pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
+patterns = [# 'selector-text', 'hdh-text',
+            # 'selector', 'hdh',
+            # 'selector-2', 'hdh-2', 'compressor-2', 'compressor-2-delay',
+            'selector-pca', 'hdh-pca'# , 'all-pca'
+            ]
+persistences = ['same', 
+                'new'
+                ]
+iid_percentages = [# 100,
+                   0]
+pairs = [# (3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8),
+         (20, 20), (5, 35), (10, 30), (25, 15),
+         (16, 24), (24, 16), (30, 10), (15, 25)
+         ]
 
 selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
 
@@ -187,12 +219,15 @@ filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow', '$\mathsf{N_{high}}<\m
 filter_4 = (lambda tup: tup[0] > 0 and tup[1] > 0, 'any-Nhigh-Nlow', '$\\text{any}\\nhigh,\\nlow$')
 
 filters = {
+    'all-pca': [filter_4],
     'all-text': [filter_4],
     'all': [filter_4],
     'selector-text': [filter_4],
     'selector': [filter_4],
     'selector-2': [filter_4],
+    'selector-pca': [filter_4],
     'hdh': [filter_4],
+    'hdh-pca': [filter_4],
     'hdh-2': [filter_4],
     'hdh-text': [filter_4],
     'compressor': [filter_4],
@@ -424,7 +459,11 @@ def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filt
         return values
 
     # ---- baseline ("never") ----
-    baseline_name = 'no-{}'.format(pattern) if pattern != 'hdh-2' else 'no-selector-2'
+    if 'pca' in pattern or pattern != 'hdh-2':
+        baseline_name = 'no-{}'.format(pattern)
+    else:
+        baseline_name = 'no-selector-2'
+    # baseline_name = 'no-{}'.format(pattern) if pattern != 'hdh-2' else 'no-selector-2'
     baseline_vals = extract_last_values(baseline_name)
 
     if len(baseline_vals) == 0:
@@ -473,6 +512,8 @@ def plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filt
         multi_p_key = 'all-text'
     elif '-2' in pattern:
         multi_p_key = 'all-2'
+    elif 'pca' in pattern:
+        multi_p_key = 'all-pca'
     else:
         multi_p_key = 'all'
     for conf, label, color in zip(selected_confs,
@@ -791,7 +832,7 @@ for setup in setups:
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     # plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
+    # plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
@@ -955,12 +996,35 @@ def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
 for setup in setups:
     pattern, persistence, iid_percentage, filter = setup
 
-    if (pattern in ['selector', 'hdh', 'selector-text', 'hdh-text', 'selector-2', 'hdh-2', 'compressor-2']
+    if (pattern in ['selector', 'hdh', 'selector-text', 'hdh-text', 'selector-2', 'hdh-2', 'compressor-2',
+                    'selector-pca', 'hdh-pca']
             and iid_percentage == 0):
         print(f'Generating {pattern} vs all comparison plot')
         # plot_pattern_vs_all(pattern, persistence, iid_percentage, filter)
         plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
 
+def holm_correction(p_values):
+    """
+    Holm-Bonferroni correction controlling the family-wise error rate.
+    Returns adjusted p-values in the original order.
+    """
+    p_values = np.asarray(p_values, dtype=float)
+    m = len(p_values)
+
+    order = np.argsort(p_values)
+    sorted_p = p_values[order]
+
+    adjusted_sorted = np.empty(m, dtype=float)
+    running_max = 0.0
+
+    for i, p in enumerate(sorted_p):
+        adjusted = (m - i) * p
+        running_max = max(running_max, adjusted)
+        adjusted_sorted[i] = min(running_max, 1.0)
+
+    adjusted = np.empty(m, dtype=float)
+    adjusted[order] = adjusted_sorted
+    return adjusted
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):
     exp_data = []
@@ -986,38 +1050,112 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
             (0, 5), (1, 5), (2, 5),
             (0, 6), (1, 6), (2, 6)
         ]
-        latex_str = f"\n{filter[2]} & {iid_percentage}"
 
         the_lower_the_better = metric[(pattern, persistence)] in should_decrease
         the_higher_the_better = metric[(pattern, persistence)] in should_increase
+
+        # First compute all tests in this comparison family.
+        test_results = []
 
         for conf_pair in conf_to_compare:
             d_1 = d[conf_pair[0]]
             d_2 = d[conf_pair[1]]
 
             if len(d_1) != len(d_2):
-                d_1 = random.sample(d_1, min(len(d_1), len(d_2)))
-                d_2 = random.sample(d_2, min(len(d_1), len(d_2)))
+                n = min(len(d_1), len(d_2))
+                d_1 = random.sample(d_1, n)
+                d_2 = random.sample(d_2, n)
 
             try:
-                U1, p = mannwhitneyu(d_1, d_2, method="auto")
+                U1, p_raw = mannwhitneyu(d_1, d_2, method="auto")
                 estimate, magnitude = VD_A(d_1, d_2)
-                conf_a = selected_confs[conf_pair[0]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
-                conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace('{}iid-'.format(iid_percentage), '')
-                f.write('{}\t{}\t{:.3f}\t{}\t{}\n'.format(conf_a, conf_b, p, estimate, magnitude))
 
-                if p < 0.05:
-                    if (the_higher_the_better and np.mean(d_2) > np.mean(d_1)) or (
-                            the_lower_the_better and np.mean(d_2) < np.mean(d_1)):
-                        latex_str += f" & \\better{{({effect_size[magnitude]})}}"
-                    else:
-                        latex_str += f" & \\worse{{({effect_size[magnitude]})}}"
-                else:
-                    latex_str += f" & {p:.2f} ({effect_size[magnitude]})"
+                test_results.append({
+                    "conf_pair": conf_pair,
+                    "d_1": d_1,
+                    "d_2": d_2,
+                    "p_raw": p_raw,
+                    "estimate": estimate,
+                    "magnitude": magnitude,
+                })
+
             except ValueError:
-                print('Selected conf. do not have the same number of replications.')
-                latex_str += " & TODO"
-        f.write(latex_str + '\\\\\n')
+                test_results.append(None)
+
+        # Holm correction over the complete family of pairwise tests
+        # performed for this experimental setup.
+        valid_results = [r for r in test_results if r is not None]
+        corrected_p = holm_correction([r["p_raw"] for r in valid_results])
+
+        for result, p_holm in zip(valid_results, corrected_p):
+            result["p_holm"] = p_holm
+
+        output_path = 'plots/rq1/{}/{}-{}-{}-VD_A.txt'.format(
+            persistence, pattern, filter[1], iid_percentage
+        )
+
+        with open(output_path, 'w') as f:
+            latex_str = f"\n{filter[2]} & {iid_percentage}"
+
+            corrected_idx = 0
+
+            for result in test_results:
+                if result is None:
+                    print('Selected conf. do not have the same number of replications.')
+                    latex_str += " & TODO"
+                    continue
+
+                conf_pair = result["conf_pair"]
+                d_1 = result["d_1"]
+                d_2 = result["d_2"]
+                p_raw = result["p_raw"]
+                p = result["p_holm"]
+                estimate = result["estimate"]
+                magnitude = result["magnitude"]
+
+                conf_a = selected_confs[conf_pair[0]].split('/')[-1].replace(
+                    '{}iid-'.format(iid_percentage), ''
+                )
+                conf_b = selected_confs[conf_pair[1]].split('/')[-1].replace(
+                    '{}iid-'.format(iid_percentage), ''
+                )
+
+                f.write(
+                    '{}\t{}\t'
+                    'p_raw={:.5f}\t'
+                    'p_holm={:.5f}\t'
+                    'A={:.3f}\t{}\n'.format(
+                        conf_a,
+                        conf_b,
+                        p_raw,
+                        p,
+                        estimate,
+                        magnitude
+                    )
+                )
+
+                # Statistical significance is now based on the Holm-adjusted p-value.
+                if p_raw < 0.05:
+                    if (
+                        the_higher_the_better and np.mean(d_2) > np.mean(d_1)
+                    ) or (
+                        the_lower_the_better and np.mean(d_2) < np.mean(d_1)
+                    ):
+                        if p < 0.05:
+                            latex_str += f" & \\betterholm{{({effect_size[magnitude]})}}"
+                        else:
+                            latex_str += f" & \\better{{({effect_size[magnitude]})}}"
+                    else:
+                        if p < 0.05:
+                            latex_str += f" & \\worseholm{{({effect_size[magnitude]})}}"
+                        else:
+                            latex_str += f" & \\worse{{({effect_size[magnitude]})}}"
+                else:
+                    latex_str += f" & {p:.2f}" # ({effect_size[magnitude]})"
+
+                corrected_idx += 1
+
+            f.write(latex_str + '\\\\\n')
 
 
 # PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE

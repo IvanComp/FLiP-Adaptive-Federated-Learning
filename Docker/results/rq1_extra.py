@@ -10,14 +10,20 @@ metric = {('all', 'same'): 'Cumulative F1',
           ('all-2', 'new'): 'Cumulative F1',
           ('all-text', 'same'): 'Cumulative F1',
           ('all-text', 'new'): 'Cumulative F1',
+          ('all-pca', 'same'): 'Cumulative F1',
+          ('all-pca', 'new'): 'Cumulative F1',
           ('selector-text', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector-text', 'new'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector', 'new'): 'F1 Score Over Total Time for FL Round',
           ('selector-2', 'same'): 'F1 Score Over Total Time for FL Round',
           ('selector-2', 'new'): 'F1 Score Over Total Time for FL Round',
+          ('selector-pca', 'same'): 'F1 Score Over Total Time for FL Round',
+          ('selector-pca', 'new'): 'F1 Score Over Total Time for FL Round',
           ('hdh', 'same'): 'Cumulative F1',
           ('hdh', 'new'): 'Cumulative F1',
+          ('hdh-pca', 'same'): 'Cumulative F1',
+          ('hdh-pca', 'new'): 'Cumulative F1',
           ('hdh-2', 'same'): 'Cumulative F1',
           ('hdh-2', 'new'): 'Cumulative F1',
           ('hdh-text', 'same'): 'Cumulative F1',
@@ -40,10 +46,13 @@ metrics_for_all_conf = ["Cumulative F1", "Val F1",
 
 random.seed(10)
 
-patterns = ['selector-2', 'hdh-2', 'compressor-2', 'all-2']
-persistences = ['new']
+patterns = ['selector-pca', 'hdh-pca', 'all-pca']
+persistences = ['same']
 iid_percentages = [0]
-pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8)]
+pairs = [# (3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8),
+        (20, 20), (5, 35), (10, 30), (25, 15),
+        (16, 24), (24, 16), (30, 10), (15, 25)
+        ]
 
 selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
 
@@ -56,12 +65,15 @@ filters = {
     'all-text': [filter_4],
     'all': [filter_4],
     'all-2': [filter_4],
+    'all-pca': [filter_4],
     'selector-text': [filter_4],
     'selector': [filter_4],
     'selector-2': [filter_4],
+    'selector-pca': [filter_4],
     'hdh': [filter_4],
     'hdh-2': [filter_4],
     'hdh-text': [filter_4],
+    'hdh-pca': [filter_4],
     'compressor': [filter_4],
     'compressor-2': [filter_4],
     'compressor-text': [filter_4],
