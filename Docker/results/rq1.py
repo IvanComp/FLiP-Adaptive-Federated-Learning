@@ -84,10 +84,10 @@ metric = {('all', 'same'): 'Cumulative F1',
           ('hdh-2', 'new'): 'Cumulative F1',
           ('hdh-text', 'same'): 'Cumulative F1',
           ('hdh-text', 'new'): 'Cumulative F1',
-          ('compressor-2', 'same'): 'Cumulative Time Without Training',
-          ('compressor-2', 'new'): 'Cumulative Time Without Training',
-          ('compressor-2-delay', 'same'): 'Cumulative Time Without Training',
-          ('compressor-2-delay', 'new'): 'Cumulative Time Without Training',
+          ('compressor-2', 'same'): 'Cumulative Communication Time',
+          ('compressor-2', 'new'): 'Cumulative Communication Time',
+          ('compressor-2-delay', 'same'): 'Cumulative Communication Time',
+          ('compressor-2-delay', 'new'): 'Cumulative Communication Time',
           }
 
 should_increase = ['F1 Score Over Total Time for FL Round', 'Val F1', 'Cumulative F1']
