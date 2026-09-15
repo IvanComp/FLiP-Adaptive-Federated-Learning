@@ -115,11 +115,11 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                     r'$\mathrm{FliP_{online}}$'],
               ('all-pca', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{FliP_{rule}}$',
-                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
-                                     r'$\mathrm{FliP_{online}}$'],
-              ('all-pca', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                     r'$\mathrm{FliP_{online}}$'],
+              ('all-pca', 'new'): ['never', 'random', 'all-high+always', r'$\mathrm{FliP_{rule}}$',
+                                   r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                   r'$\mathrm{FliP_{online}}$'],
               ('selector-text', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
                                           r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                           r'$\mathrm{FliP_{online}}$'],
@@ -139,11 +139,11 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
                                       r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                       r'$\mathrm{FliP_{online}}$'],
               ('selector-pca', 'same'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
-                                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
-                                                     r'$\mathrm{FliP_{online}}$'],
+                                         r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                         r'$\mathrm{FliP_{online}}$'],
               ('selector-pca', 'new'): ['never', 'random', 'all-high', r'$\mathrm{FliP_{rule}}$',
-                                                     r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
-                                                     r'$\mathrm{FliP_{online}}$'],
+                                        r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                        r'$\mathrm{FliP_{online}}$'],
               ('hdh', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                 r'$\mathrm{FliP_{online}}$'],
@@ -151,11 +151,11 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
                                r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                r'$\mathrm{FliP_{online}}$'],
               ('hdh-pca', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
-                                  r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
-                                  r'$\mathrm{FliP_{online}}$'],
+                                    r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                    r'$\mathrm{FliP_{online}}$'],
               ('hdh-pca', 'new'): ['never', 'random', 'always', r'$\mathrm{FliP_{rule}}$',
-                                 r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
-                                 r'$\mathrm{FliP_{online}}$'],
+                                   r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
+                                   r'$\mathrm{FliP_{online}}$'],
               ('hdh-2', 'same'): ['never', 'random', 'once', r'$\mathrm{FliP_{rule}}$',
                                   r'$\mathrm{FliP_{pred}}$', r'$\mathrm{FliP_{bo}}$',
                                   r'$\mathrm{FliP_{online}}$'],
@@ -196,38 +196,34 @@ label_dict = {('all', 'same'): ['never', 'random', 'all-high+once', r'$\mathrm{F
 
 random.seed(10)
 
-patterns = [# 'selector-text', 'hdh-text',
-            # 'selector', 'hdh',
-            # 'selector-2', 'hdh-2', 'compressor-2', 'compressor-2-delay',
-            'selector-pca', 'hdh-pca'# , 'all-pca'
-            ]
-persistences = ['same', 
-                'new'
-                ]
-iid_percentages = [# 100,
-                   0]
-pairs = [# (3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8),
+patterns = ['selector-pca', 'hdh-pca',
+            'selector-text', 'hdh-text',
+            'selector', 'hdh',
+            'selector-2', 'hdh-2', 'compressor-2', 'compressor-2-delay', 'compressor-2']
+persistences = ['same', 'new']
+iid_percentages = [100, 0]
+pairs = [(3, 3), (5, 5), (10, 10), (2, 4), (4, 2), (4, 8), (8, 4), (2, 8),
          (20, 20), (5, 35), (10, 30), (25, 15),
-         (16, 24), (24, 16), (30, 10), (15, 25)
-         ]
+         (16, 24), (24, 16), (30, 10), (15, 25)]
 
 selected_confs = ['no-{}', 'random-{}', 'always-{}', 'fixed-{}', 'tree-{}', 'bo-{}', 'online-{}']
 
 filter_1 = (lambda tup: tup[0] == tup[1], 'Nhigh-eq-Nlow', '$\mathsf{N_{high}}=\mathsf{N_{low}}$')
 filter_2 = (lambda tup: tup[0] > tup[1], 'Nhigh-gt-Nlow', '$\mathsf{N_{high}}>\mathsf{N_{low}}$')
 filter_3 = (lambda tup: tup[0] < tup[1], 'Nhigh-lt-Nlow', '$\mathsf{N_{high}}<\mathsf{N_{low}}$')
-filter_4 = (lambda tup: tup[0] > 0 and tup[1] > 0, 'any-Nhigh-Nlow', '$\\text{any}\\nhigh,\\nlow$')
+filter_4 = (lambda tup: 20 > tup[0] > 0 and 20 > tup[1] > 0, 'any-Nhigh-Nlow', '$\\text{any}\\nhigh,\\nlow$')
+filter_5 = (lambda tup: tup[0] >= 20 or tup[1] >= 20, 'any-Nhigh-Nlow', '$\\text{any}\\nhigh,\\nlow$')
 
 filters = {
-    'all-pca': [filter_4],
+    'all-pca': [filter_5],
     'all-text': [filter_4],
     'all': [filter_4],
     'selector-text': [filter_4],
     'selector': [filter_4],
     'selector-2': [filter_4],
-    'selector-pca': [filter_4],
+    'selector-pca': [filter_5],
     'hdh': [filter_4],
-    'hdh-pca': [filter_4],
+    'hdh-pca': [filter_5],
     'hdh-2': [filter_4],
     'hdh-text': [filter_4],
     'compressor': [filter_4],
@@ -824,15 +820,16 @@ def plot_by_filter(pattern, persistence, iid_percentage, filter):
 # GENERATES BOX PLOTS
 for setup in setups:
     exclude = (('all' in setup[0] and setup[2] == 100) or
-               ('hdh' in setup[0] and setup[2] == 100)
-               # or ('compressor' in setup[0] and setup[1] == 'new')
+               ('hdh' in setup[0] and setup[2] == 100) or
+               ('pca' in setup[0] and setup[2] == 100) or
+               ('compressor' in setup[0] and setup[1] == 'new')
                )
     if exclude:
         continue
 
     print(f'Generating box plot for {setup[0]}, {setup[1]}, {setup[2]}, {setup[3][1]}')
     # plot_by_filter(setup[0], setup[1], setup[2], setup[3])
-    # plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
+    plot_delta_vs_never(setup[0], setup[1], setup[2], setup[3])
 
 
 def plot_pattern_vs_all(pattern, persistence, iid_percentage, filter):
@@ -1003,6 +1000,7 @@ for setup in setups:
         # plot_pattern_vs_all(pattern, persistence, iid_percentage, filter)
         plot_delta_vs_never_multi_pattern(pattern, persistence, iid_percentage, filter)
 
+
 def holm_correction(p_values):
     """
     Holm-Bonferroni correction controlling the family-wise error rate.
@@ -1025,6 +1023,7 @@ def holm_correction(p_values):
     adjusted = np.empty(m, dtype=float)
     adjusted[order] = adjusted_sorted
     return adjusted
+
 
 def run_statistical_tests(pattern, persistence, iid_percentage, filter):
     exp_data = []
@@ -1137,9 +1136,9 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
                 # Statistical significance is now based on the Holm-adjusted p-value.
                 if p_raw < 0.05:
                     if (
-                        the_higher_the_better and np.mean(d_2) > np.mean(d_1)
+                            the_higher_the_better and np.mean(d_2) > np.mean(d_1)
                     ) or (
-                        the_lower_the_better and np.mean(d_2) < np.mean(d_1)
+                            the_lower_the_better and np.mean(d_2) < np.mean(d_1)
                     ):
                         if p < 0.05:
                             latex_str += f" & \\betterholm{{({effect_size[magnitude]})}}"
@@ -1151,7 +1150,7 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
                         else:
                             latex_str += f" & \\worse{{({effect_size[magnitude]})}}"
                 else:
-                    latex_str += f" & {p:.2f}" # ({effect_size[magnitude]})"
+                    latex_str += f" & {p:.2f}"  # ({effect_size[magnitude]})"
 
                 corrected_idx += 1
 
@@ -1161,8 +1160,9 @@ def run_statistical_tests(pattern, persistence, iid_percentage, filter):
 # PERFORMS STATISTICAL TESTS AND GENERATES LATEX TABLE
 for setup in setups:
     exclude = (('all' in setup[0] and setup[2] == 100) or
-               ('hdh' in setup[0] and setup[2] == 100)
-               # or ('compressor' in setup[0] and setup[1] == 'new')
+               ('hdh' in setup[0] and setup[2] == 100) or
+               ('pca' in setup[0] and setup[2] == 100) or
+               ('compressor' in setup[0] and setup[1] == 'new')
                )
     if exclude:
         continue
